@@ -63,17 +63,12 @@ fn find_rust_files<P: AsRef<Path>>(root: P) -> Result<Vec<PathBuf>> {
             if file_type.is_symlink() {
                 // Do not follow symbolic links
                 continue;
-            }
-
-            if file_type.is_dir() {
+            } else if file_type.is_dir() {
                 stack.push(entry.path());
-                continue;
-            }
-
-            if file_type.is_file() {
-                if entry.path().extension().and_then(|s| s.to_str()) == Some("rs") {
-                    files.push(entry.path());
-                }
+            } else if file_type.is_file()
+                && entry.path().extension().and_then(|s| s.to_str()) == Some("rs")
+            {
+                files.push(entry.path());
             }
         }
     }

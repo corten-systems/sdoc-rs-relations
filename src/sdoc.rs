@@ -36,8 +36,8 @@ impl Ord for LineColumn {
 }
 
 /// Copied from [`syn::Item`](https://docs.rs/syn/latest/syn/enum.Item.html).
-/// This is exhaustive, but when we convert from `syn::Item` to `CodeType` we
-/// make it an error to match the wildcard pattern since `syn:Item` is `non-exhaustive`.
+/// This is exhaustive, but when we convert from `syn::Item` to `Item,` we make it
+/// an error to match the wildcard pattern since `syn:Item` is `non-exhaustive`.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Item {
     Const,
@@ -181,19 +181,21 @@ fn collect_item_relations(path: &Path, item: &syn::Item, out: &mut Vec<Relation>
     }
 
     // Recurse into module contents if any
-    if let syn::Item::Mod(m) = item {
-        if let Some((_brace, items)) = &m.content {
-            for it in items {
-                collect_item_relations(path, it, out)?;
-            }
+    if let syn::Item::Mod(m) = item
+        && let Some((_brace, items)) = &m.content
+    {
+        for it in items {
+            collect_item_relations(path, it, out)?;
         }
     }
     Ok(())
 }
 
 fn to_line_col(lc: proc_macro2::LineColumn) -> LineColumn {
+    // proc_macro2::LineColumn uses 1-based lines, so this should never be zero
     LineColumn {
-        line: NonZeroUsize::new(lc.line).unwrap_or(NonZeroUsize::new(1).unwrap()),
+        line: NonZeroUsize::new(lc.line)
+            .expect("proc_macro2::LineColumn line numbers are 1-based and non-zero"),
         column: lc.column,
     }
 }
@@ -206,15 +208,25 @@ fn file_span_from_items(items: &[syn::Item]) -> (LineColumn, LineColumn) {
         let s = it.span();
         let s_start = s.start();
         let s_end = s.end();
-        if start.map_or(true, |cur| {
-            s_start.line < cur.line || (s_start.line == cur.line && s_start.column < cur.column)
-        }) {
-            start = Some(s_start);
+
+        match start {
+            None => start = Some(s_start),
+            Some(cur) => {
+                if s_start.line < cur.line
+                    || (s_start.line == cur.line && s_start.column < cur.column)
+                {
+                    start = Some(s_start);
+                }
+            }
         }
-        if end.map_or(true, |cur| {
-            s_end.line > cur.line || (s_end.line == cur.line && s_end.column > cur.column)
-        }) {
-            end = Some(s_end);
+
+        match end {
+            None => end = Some(s_end),
+            Some(cur) => {
+                if s_end.line > cur.line || (s_end.line == cur.line && s_end.column > cur.column) {
+                    end = Some(s_end);
+                }
+            }
         }
     }
 
