@@ -1,8 +1,10 @@
+use std::collections::BTreeMap;
 use anyhow::{bail, Context, Result};
 use clap::Parser;
 
 use std::fs;
 use std::path::{Path, PathBuf};
+use crate::sdoc::Relation;
 
 mod sdoc;
 
@@ -26,9 +28,13 @@ fn main() -> Result<()> {
         bail!("path is not a directory: {}", args.path.display());
     }
 
-    // Find Rust source files and pass them to sdoc::find_relations
+    // Find Rust source files and process them
     let files = find_rust_files(&args.path)?;
-    sdoc::find_relations(&files)?;
+    let mut relationships = BTreeMap::new();
+    for file in files {
+        let relations = sdoc::find_relations(&file)?;
+        relationships.insert(file, relations);
+    }
 
     Ok(())
 }

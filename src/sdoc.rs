@@ -7,7 +7,7 @@ use std::path::{Path, PathBuf};
 /// consistent with the definition in [`proc_macro2::LineColumn`](https://docs.rs/proc-macro2/latest/proc_macro2/struct.LineColumn.html).
 /// However, we specify `line` as a `NonZeroUsize` to make this more explicit.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct  LineColumn {
+pub struct LineColumn {
     /// The 1-indexed line in the source file on which the span starts or ends (inclusive).
     pub line: NonZeroUsize,
     /// The 0-indexed column (in UTF-8 characters) in the source file on which the span starts or ends (inclusive).
@@ -25,7 +25,10 @@ pub struct Relation {
 
 /// Analyze the provided Rust source files and find relations between items.
 /// For now, this is a stub that will be implemented later.
-pub fn find_relations<P: AsRef<Path>>(_files: &[P]) -> Result<()> {
-    // Placeholder implementation: no-op for now
-    Ok(())
+pub fn find_relations<P: AsRef<Path>>(_file: &P) -> Result<Vec<Relation>> {
+    let relations = vec![];
+
+    // TODO Start Here
+
+    Ok(relations)
 }
