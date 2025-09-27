@@ -1,0 +1,15 @@
+[package]
+name = "strictdoc-rs"
+version = "0.1.0"
+edition = "2024"
+authors = ["Andrew Fernandes <andrew.fernandes@corten.systems>"]
+description = "A command-line utility to help set PATH-type shell variables."
+repository = "https://github.com/corten-systems/strictdoc-rs"
+categories = ["command-line-utilities", "development-tools"]
+license-file = "LICENSE.md"
+readme = "README.md"
+
+[dependencies]
+anyhow = { version = "1.0.100" }
+clap = { version = "4.5.48", features = ["derive"] }
+syn = { version = "2.0.106", features = ["full"]}
