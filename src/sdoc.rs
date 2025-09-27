@@ -1,4 +1,5 @@
 use anyhow::{Context, Result};
+use std::cmp::Ordering;
 use std::collections::BTreeMap;
 use std::fs;
 use std::num::NonZeroUsize;
@@ -8,7 +9,7 @@ use syn::spanned::Spanned;
 /// Line and column numbers are 1-based and 0-based, respectively,
 /// consistent with the definition in [`proc_macro2::LineColumn`](https://docs.rs/proc-macro2/latest/proc_macro2/struct.LineColumn.html).
 /// However, we specify `line` as a `NonZeroUsize` to make this more explicit.
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub struct LineColumn {
     /// The 1-indexed line in the source file on which the span starts or ends (inclusive).
     pub line: NonZeroUsize,
@@ -16,8 +17,27 @@ pub struct LineColumn {
     pub column: usize,
 }
 
+/// Copied from [`proc_macro2::LineColumn`](https://docs.rs/proc-macro2/latest/proc_macro2/struct.LineColumn.html).
+impl PartialOrd for LineColumn {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+/// Copied from [`proc_macro2::LineColumn`](https://docs.rs/proc-macro2/latest/proc_macro2/struct.LineColumn.html).
+impl Ord for LineColumn {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.line
+            .cmp(&other.line)
+            .then(self.column.cmp(&other.column))
+    }
+}
+
+/// Copied from [`syn::Item`](https://docs.rs/syn/latest/syn/enum.Item.html).
+/// This is exhaustive, but when we convert from `syn::Item` to `CodeType` we
+/// make it an error to match the wildcard pattern since `syn:Item` is `non-exhaustive`.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub enum CodeType {
+pub enum Item {
     Const,
     Enum,
     ExternCrate,
@@ -36,28 +56,27 @@ pub enum CodeType {
     Verbatim,
 }
 
-impl From<&syn::Item> for CodeType {
+impl From<&syn::Item> for Item {
     fn from(item: &syn::Item) -> Self {
-        use syn::Item::*;
         match item {
             // FIXME
-            Mod(_) => CodeType::Mod,
-            Struct(_) => CodeType::Struct,
-            Enum(_) => CodeType::Enum,
-            Fn(_) => CodeType::Fn,
-            Trait(_) => CodeType::Trait,
-            Impl(_) => CodeType::Impl,
-            Const(_) => CodeType::Const,
-            Static(_) => CodeType::Static,
-            Type(_) => CodeType::Type,
-            Union(_) => CodeType::Union,
-            Macro(_) => CodeType::Macro,
-            Use(_) => CodeType::Use,
-            ForeignMod(_) => CodeType::ForeignMod,
-            ExternCrate(_) => CodeType::ExternCrate,
-            TraitAlias(_) => CodeType::Trait,
-            Verbatim(_) => CodeType::Other,
-            _ => CodeType::Other,
+            syn::Item::Mod(_) => Item::Mod,
+            syn::Item::Struct(_) => Item::Struct,
+            syn::Item::Enum(_) => Item::Enum,
+            syn::Item::Fn(_) => Item::Fn,
+            syn::Item::Trait(_) => Item::Trait,
+            syn::Item::Impl(_) => Item::Impl,
+            syn::Item::Const(_) => Item::Const,
+            syn::Item::Static(_) => Item::Static,
+            syn::Item::Type(_) => Item::Type,
+            syn::Item::Union(_) => Item::Union,
+            syn::Item::Macro(_) => Item::Macro,
+            syn::Item::Use(_) => Item::Use,
+            syn::Item::ForeignMod(_) => Item::ForeignMod,
+            syn::Item::ExternCrate(_) => Item::ExternCrate,
+            syn::Item::TraitAlias(_) => Item::Trait,
+            syn::Item::Verbatim(_) => Item::Other,
+            _ => Item::Other,
         }
     }
 }
@@ -67,7 +86,7 @@ pub struct Relation {
     pub path: PathBuf,
     pub relation: String,
     pub attrs: BTreeMap<String, String>,
-    pub code_type: CodeType,
+    pub item: Item,
     pub from: LineColumn,
     pub to: LineColumn,
 }
@@ -109,7 +128,7 @@ fn collect_file_level_relations(path: &Path, file: &syn::File, out: &mut Vec<Rel
                 path: path.to_path_buf(),
                 relation: rel_id,
                 attrs: kvs,
-                code_type: CodeType::Mod, // file as a module (crate root / submodule file)
+                item: Item::Mod, // file as a module (crate root / submodule file)
                 from: start,
                 to: end,
             });
@@ -118,26 +137,25 @@ fn collect_file_level_relations(path: &Path, file: &syn::File, out: &mut Vec<Rel
 }
 
 fn item_attrs(item: &syn::Item) -> &[syn::Attribute] {
-    use syn::Item::*;
     match item {
         // FIXME
-        Const(x) => &x.attrs,
-        Enum(x) => &x.attrs,
-        ExternCrate(x) => &x.attrs,
-        Fn(x) => &x.attrs,
-        ForeignMod(x) => &x.attrs,
-        Impl(x) => &x.attrs,
-        Macro(x) => &x.attrs,
-        Mod(x) => &x.attrs,
-        Static(x) => &x.attrs,
-        Struct(x) => &x.attrs,
-        Trait(x) => &x.attrs,
-        TraitAlias(x) => &x.attrs,
-        Type(x) => &x.attrs,
-        Union(x) => &x.attrs,
-        Use(x) => &x.attrs,
-        Verbatim(_) => &[], // FIXME
-        _ => &[], // FIXME
+        syn::Item::Const(i) => &i.attrs,
+        syn::Item::Enum(i) => &i.attrs,
+        syn::Item::ExternCrate(i) => &i.attrs,
+        syn::Item::Fn(i) => &i.attrs,
+        syn::Item::ForeignMod(i) => &i.attrs,
+        syn::Item::Impl(i) => &i.attrs,
+        syn::Item::Macro(i) => &i.attrs,
+        syn::Item::Mod(i) => &i.attrs,
+        syn::Item::Static(i) => &i.attrs,
+        syn::Item::Struct(i) => &i.attrs,
+        syn::Item::Trait(i) => &i.attrs,
+        syn::Item::TraitAlias(i) => &i.attrs,
+        syn::Item::Type(i) => &i.attrs,
+        syn::Item::Union(i) => &i.attrs,
+        syn::Item::Use(i) => &i.attrs,
+        syn::Item::Verbatim(_) => &[], // FIXME
+        _ => &[],           // FIXME
     }
 }
 
@@ -155,7 +173,7 @@ fn collect_item_relations(path: &Path, item: &syn::Item, out: &mut Vec<Relation>
                 path: path.to_path_buf(),
                 relation: rel_id,
                 attrs: kvs,
-                code_type: CodeType::from(item),
+                item: Item::from(item),
                 from: to_line_col(start),
                 to: to_line_col(end),
             });
