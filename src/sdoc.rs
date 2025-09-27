@@ -1,9 +1,11 @@
-use anyhow::{Context, Result};
+use anyhow::{anyhow, Context, Result};
+
 use std::cmp::Ordering;
 use std::collections::BTreeMap;
 use std::fs;
 use std::num::NonZeroUsize;
 use std::path::{Path, PathBuf};
+
 use syn::spanned::Spanned;
 
 /// Line and column numbers are 1-based and 0-based, respectively,
@@ -53,30 +55,29 @@ pub enum Item {
     Type,
     Union,
     Use,
-    Verbatim,
 }
 
-impl From<&syn::Item> for Item {
-    fn from(item: &syn::Item) -> Self {
+impl TryFrom<&syn::Item> for Item {
+    type Error = anyhow::Error;
+    fn try_from(item: &syn::Item) -> Result<Self> {
         match item {
-            // FIXME
-            syn::Item::Mod(_) => Item::Mod,
-            syn::Item::Struct(_) => Item::Struct,
-            syn::Item::Enum(_) => Item::Enum,
-            syn::Item::Fn(_) => Item::Fn,
-            syn::Item::Trait(_) => Item::Trait,
-            syn::Item::Impl(_) => Item::Impl,
-            syn::Item::Const(_) => Item::Const,
-            syn::Item::Static(_) => Item::Static,
-            syn::Item::Type(_) => Item::Type,
-            syn::Item::Union(_) => Item::Union,
-            syn::Item::Macro(_) => Item::Macro,
-            syn::Item::Use(_) => Item::Use,
-            syn::Item::ForeignMod(_) => Item::ForeignMod,
-            syn::Item::ExternCrate(_) => Item::ExternCrate,
-            syn::Item::TraitAlias(_) => Item::Trait,
-            syn::Item::Verbatim(_) => Item::Other,
-            _ => Item::Other,
+            syn::Item::Const(_) => Ok(Item::Const),
+            syn::Item::Enum(_) => Ok(Item::Enum),
+            syn::Item::ExternCrate(_) => Ok(Item::ExternCrate),
+            syn::Item::Fn(_) => Ok(Item::Fn),
+            syn::Item::ForeignMod(_) => Ok(Item::ForeignMod),
+            syn::Item::Impl(_) => Ok(Item::Impl),
+            syn::Item::Macro(_) => Ok(Item::Macro),
+            syn::Item::Mod(_) => Ok(Item::Mod),
+            syn::Item::Static(_) => Ok(Item::Static),
+            syn::Item::Struct(_) => Ok(Item::Struct),
+            syn::Item::Trait(_) => Ok(Item::Trait),
+            syn::Item::TraitAlias(_) => Ok(Item::TraitAlias),
+            syn::Item::Type(_) => Ok(Item::Type),
+            syn::Item::Union(_) => Ok(Item::Union),
+            syn::Item::Use(_) => Ok(Item::Use),
+            syn::Item::Verbatim(_) => Err(anyhow!("unsupported syn::Item variant found")),
+            _ => Err(anyhow!("non-exhaustive syn::Item variant found")),
         }
     }
 }
@@ -107,7 +108,7 @@ pub fn find_relations<P: AsRef<Path>>(file: &P) -> Result<Vec<Relation>> {
 
     // Walk all items recursively
     for item in &syntax.items {
-        collect_item_relations(path, item, &mut out);
+        collect_item_relations(path, item, &mut out)?;
     }
 
     Ok(out)
@@ -136,32 +137,31 @@ fn collect_file_level_relations(path: &Path, file: &syn::File, out: &mut Vec<Rel
     }
 }
 
-fn item_attrs(item: &syn::Item) -> &[syn::Attribute] {
+fn item_attrs(item: &syn::Item) -> Result<&[syn::Attribute]> {
     match item {
-        // FIXME
-        syn::Item::Const(i) => &i.attrs,
-        syn::Item::Enum(i) => &i.attrs,
-        syn::Item::ExternCrate(i) => &i.attrs,
-        syn::Item::Fn(i) => &i.attrs,
-        syn::Item::ForeignMod(i) => &i.attrs,
-        syn::Item::Impl(i) => &i.attrs,
-        syn::Item::Macro(i) => &i.attrs,
-        syn::Item::Mod(i) => &i.attrs,
-        syn::Item::Static(i) => &i.attrs,
-        syn::Item::Struct(i) => &i.attrs,
-        syn::Item::Trait(i) => &i.attrs,
-        syn::Item::TraitAlias(i) => &i.attrs,
-        syn::Item::Type(i) => &i.attrs,
-        syn::Item::Union(i) => &i.attrs,
-        syn::Item::Use(i) => &i.attrs,
-        syn::Item::Verbatim(_) => &[], // FIXME
-        _ => &[],           // FIXME
+        syn::Item::Const(i) => Ok(&i.attrs),
+        syn::Item::Enum(i) => Ok(&i.attrs),
+        syn::Item::ExternCrate(i) => Ok(&i.attrs),
+        syn::Item::Fn(i) => Ok(&i.attrs),
+        syn::Item::ForeignMod(i) => Ok(&i.attrs),
+        syn::Item::Impl(i) => Ok(&i.attrs),
+        syn::Item::Macro(i) => Ok(&i.attrs),
+        syn::Item::Mod(i) => Ok(&i.attrs),
+        syn::Item::Static(i) => Ok(&i.attrs),
+        syn::Item::Struct(i) => Ok(&i.attrs),
+        syn::Item::Trait(i) => Ok(&i.attrs),
+        syn::Item::TraitAlias(i) => Ok(&i.attrs),
+        syn::Item::Type(i) => Ok(&i.attrs),
+        syn::Item::Union(i) => Ok(&i.attrs),
+        syn::Item::Use(i) => Ok(&i.attrs),
+        syn::Item::Verbatim(_) => Err(anyhow!("unsupported syn::Item variant")),
+        _ => Err(anyhow!("non-exhaustive syn::Item variant")),
     }
 }
 
-fn collect_item_relations(path: &Path, item: &syn::Item, out: &mut Vec<Relation>) {
+fn collect_item_relations(path: &Path, item: &syn::Item, out: &mut Vec<Relation>) -> Result<()> {
     // Extract doc strings from the item's attributes (outer and inner)
-    let docs = doc_strings_from_attrs(item_attrs(item));
+    let docs = doc_strings_from_attrs(item_attrs(item)?);
 
     let span = item.span();
     let start = span.start();
@@ -173,7 +173,7 @@ fn collect_item_relations(path: &Path, item: &syn::Item, out: &mut Vec<Relation>
                 path: path.to_path_buf(),
                 relation: rel_id,
                 attrs: kvs,
-                item: Item::from(item),
+                item: Item::try_from(item)?,
                 from: to_line_col(start),
                 to: to_line_col(end),
             });
@@ -184,10 +184,11 @@ fn collect_item_relations(path: &Path, item: &syn::Item, out: &mut Vec<Relation>
     if let syn::Item::Mod(m) = item {
         if let Some((_brace, items)) = &m.content {
             for it in items {
-                collect_item_relations(path, it, out);
+                collect_item_relations(path, it, out)?;
             }
         }
     }
+    Ok(())
 }
 
 fn to_line_col(lc: proc_macro2::LineColumn) -> LineColumn {
