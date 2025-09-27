@@ -82,14 +82,21 @@ impl TryFrom<&syn::Item> for Item {
     }
 }
 
+/// Copied from [`proc_macro2::Span.html`](https://docs.rs/proc-macro2/latest/proc_macro2/struct.Span.html).
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct Span {
+    pub start: LineColumn,
+    pub end: LineColumn,
+}
+
+/// This is the information we require to [link source code to requirements](https://strictdoc.readthedocs.io/en/stable/stable/docs/strictdoc_01_user_guide.html#10.2-Linking-source-code-to-requirements).
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Relation {
     pub path: PathBuf,
     pub relation: String,
     pub attrs: BTreeMap<String, String>,
     pub item: Item,
-    pub from: LineColumn,
-    pub to: LineColumn,
+    pub span: Span,
 }
 
 /// Analyze the provided Rust source file and find relations between items.
@@ -129,9 +136,8 @@ fn collect_file_level_relations(path: &Path, file: &syn::File, out: &mut Vec<Rel
                 path: path.to_path_buf(),
                 relation: rel_id,
                 attrs: kvs,
-                item: Item::Mod, // file as a module (crate root / submodule file)
-                from: start,
-                to: end,
+                item: Item::Mod, // module, crate root, or submodule file
+                span: Span { start, end },
             });
         }
     }
@@ -174,8 +180,10 @@ fn collect_item_relations(path: &Path, item: &syn::Item, out: &mut Vec<Relation>
                 relation: rel_id,
                 attrs: kvs,
                 item: Item::try_from(item)?,
-                from: to_line_col(start),
-                to: to_line_col(end),
+                span: Span {
+                    start: to_line_col(start),
+                    end: to_line_col(end),
+                },
             });
         }
     }
