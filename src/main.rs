@@ -4,6 +4,8 @@ use clap::Parser;
 use std::collections::BTreeMap;
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::ffi::OsStr;
+use std::io::{self, Write};
 
 mod sdoc;
 
@@ -13,6 +15,9 @@ struct Args {
     /// Path to the crate root directory
     #[arg(short = 'c', long = "crate", value_name = "PATH", default_value = ".")]
     path: PathBuf,
+    /// Output file (use '-' or omit to write to stdout)
+    #[arg(short = 'o', long = "output", value_name = "FILE", default_value = "-")]
+    output: PathBuf,
 }
 
 fn main() -> Result<()> {
@@ -33,6 +38,20 @@ fn main() -> Result<()> {
     for file in files {
         let relations = sdoc::find_relations(&file)?;
         relationships.insert(file, relations);
+    }
+
+    // Serialize relationships to JSON and write to the requested output
+    if args.output.as_os_str() == OsStr::new("-") {
+        let stdout = io::stdout();
+        let mut handle = stdout.lock();
+        serde_json::to_writer_pretty(&mut handle, &relationships)?;
+        handle.write_all(b"\n").ok();
+    } else {
+        let file = fs::File::create(&args.output)
+            .with_context(|| format!("failed to create output file: {}", args.output.display()))?;
+        let mut writer = io::BufWriter::new(file);
+        serde_json::to_writer_pretty(&mut writer, &relationships)?;
+        writer.write_all(b"\n").ok();
     }
 
     Ok(())

@@ -6,12 +6,13 @@ use std::fs;
 use std::num::NonZeroUsize;
 use std::path::{Path, PathBuf};
 
+use serde::Serialize;
 use syn::spanned::Spanned;
 
 /// Line and column numbers are 1-based and 0-based, respectively,
 /// consistent with the definition in [`proc_macro2::LineColumn`](https://docs.rs/proc-macro2/latest/proc_macro2/struct.LineColumn.html).
 /// However, we specify `line` as a `NonZeroUsize` to make this more explicit.
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize)]
 pub struct LineColumn {
     /// The 1-indexed line in the source file on which the span starts or ends (inclusive).
     pub line: NonZeroUsize,
@@ -38,7 +39,8 @@ impl Ord for LineColumn {
 /// Copied from [`syn::Item`](https://docs.rs/syn/latest/syn/enum.Item.html).
 /// This is exhaustive, but when we convert from `syn::Item` to `Item,` we make it
 /// an error to match the wildcard pattern since `syn:Item` is `non-exhaustive`.
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
+#[serde(tag = "type")]
 pub enum Item {
     Const,
     Enum,
@@ -83,14 +85,14 @@ impl TryFrom<&syn::Item> for Item {
 }
 
 /// Copied from [`proc_macro2::Span.html`](https://docs.rs/proc-macro2/latest/proc_macro2/struct.Span.html).
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
 pub struct Span {
     pub start: LineColumn,
     pub end: LineColumn,
 }
 
 /// This is the information we require to [link source code to requirements](https://strictdoc.readthedocs.io/en/stable/stable/docs/strictdoc_01_user_guide.html#10.2-Linking-source-code-to-requirements).
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
 pub struct Relation {
     pub path: PathBuf,
     pub relation: String,
