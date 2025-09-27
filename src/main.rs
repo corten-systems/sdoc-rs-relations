@@ -1,10 +1,9 @@
-use std::collections::BTreeMap;
 use anyhow::{bail, Context, Result};
 use clap::Parser;
+use std::collections::BTreeMap;
 
 use std::fs;
 use std::path::{Path, PathBuf};
-use crate::sdoc::Relation;
 
 mod sdoc;
 
