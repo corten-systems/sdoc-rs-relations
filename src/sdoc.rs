@@ -9,6 +9,8 @@ use std::path::{Path, PathBuf};
 use serde::Serialize;
 use syn::spanned::Spanned;
 
+use crate::parse;
+
 /// Line and column numbers are 1-based and 0-based, respectively,
 /// consistent with the definition in [`proc_macro2::LineColumn`](https://docs.rs/proc-macro2/latest/proc_macro2/struct.LineColumn.html).
 /// However, we specify `line` as a `NonZeroUsize` to make this more explicit.
@@ -94,8 +96,8 @@ pub struct Span {
 /// This is the information we require to [link source code to requirements](https://strictdoc.readthedocs.io/en/stable/stable/docs/strictdoc_01_user_guide.html#10.2-Linking-source-code-to-requirements).
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
 pub struct Relation {
-    pub path: PathBuf,
-    pub relation: String,
+    pub file: PathBuf,
+    pub ident: String,
     pub attrs: BTreeMap<String, String>,
     pub item: Item,
     pub span: Span,
@@ -133,11 +135,11 @@ fn collect_file_level_relations(path: &Path, file: &syn::File, out: &mut Vec<Rel
     // Compute a span that roughly covers the file's items
     let (start, end) = file_span_from_items(&file.items);
     for doc in docs {
-        for (rel_id, kvs) in parse_relations_from_doc(&doc) {
+        for relation in parse::relations_from_doc(&doc) {
             out.push(Relation {
-                path: path.to_path_buf(),
-                relation: rel_id,
-                attrs: kvs,
+                file: path.to_path_buf(), // TODO Strip out the crate root prefix
+                ident: relation.identifier,
+                attrs: relation.attributes,
                 item: Item::Mod, // module, crate root, or submodule file
                 span: Span { start, end },
             });
@@ -176,11 +178,11 @@ fn collect_item_relations(path: &Path, item: &syn::Item, out: &mut Vec<Relation>
     let end = span.end();
 
     for doc in docs {
-        for (rel_id, kvs) in parse_relations_from_doc(&doc) {
+        for relation in parse::relations_from_doc(&doc) {
             out.push(Relation {
-                path: path.to_path_buf(),
-                relation: rel_id,
-                attrs: kvs,
+                file: path.to_path_buf(),
+                ident: relation.identifier,
+                attrs: relation.attributes,
                 item: Item::try_from(item)?,
                 span: Span {
                     start: to_line_col(start),
@@ -253,160 +255,4 @@ fn doc_strings_from_attrs(attrs: &[syn::Attribute]) -> Vec<String> {
         }
     }
     out
-}
-
-fn parse_relations_from_doc(doc: &str) -> Vec<(String, BTreeMap<String, String>)> {
-    let mut results = Vec::new();
-    let mut rest = doc;
-    const RELATION_TAG: &str = "@relation(";
-    while let Some(idx) = rest.find(RELATION_TAG) {
-        let after = &rest[idx + RELATION_TAG.len()..];
-        if let Some(end_idx) = find_matching_paren(after) {
-            let inside = &after[..end_idx];
-            if let Some((rel, attrs)) = parse_inside_relation(inside) {
-                results.push((rel, attrs));
-            }
-            rest = &after[end_idx + 1..];
-        } else {
-            break; // no closing ')'
-        }
-    }
-    results
-}
-
-fn find_matching_paren(s: &str) -> Option<usize> {
-    // We are parsing the inside of @relation( ... here ... )
-    // Rules:
-    // - Parentheses do NOT nest inside @relation(), so '(' does not increase depth.
-    // - A ')' closes the relation unless it appears inside a quoted string.
-    // - Support both single and double quotes for attribute values.
-    // - Treat backslash (\\) as an escape inside strings to allow \" or \' etc.
-    let mut in_string: Option<char> = None; // Some('"') or Some('\'') when inside quotes
-    let mut escaped = false;
-
-    for (i, ch) in s.char_indices() {
-        if let Some(q) = in_string {
-            if escaped {
-                // Current character is escaped; consume it and reset escape.
-                escaped = false;
-                continue;
-            }
-            match ch {
-                '\\' => {
-                    // Start escape for the next char
-                    escaped = true;
-                }
-                c if c == q => {
-                    // End of quoted string
-                    in_string = None;
-                }
-                _ => {
-                    // Inside the string, other characters are ignored
-                }
-            }
-        } else {
-            match ch {
-                '\'' | '"' => {
-                    in_string = Some(ch);
-                }
-                ')' => {
-                    // The first closing paren outside a string closes the relation
-                    return Some(i);
-                }
-                _ => {
-                    // Other characters, including '(' are ignored
-                }
-            }
-        }
-    }
-    None
-}
-
-fn is_valid_tag_char(c: char) -> bool {
-    c.is_alphanumeric() || "!@#$%^&*-_+|/.".contains(c)
-}
-
-fn parse_inside_relation(s: &str) -> Option<(String, BTreeMap<String, String>)> {
-    let s = s.trim();
-    if s.is_empty() {
-        return None;
-    }
-    
-    // Parse the TAG by reading valid characters until we hit whitespace or comma
-    let mut tag_end = 0;
-    let chars: Vec<(usize, char)> = s.char_indices().collect();
-    
-    // Find the end of the TAG
-    for (i, ch) in chars.iter() {
-        if ch.is_whitespace() {
-            // Check if there's more content after whitespace that would indicate the space is within the TAG
-            let remaining = &s[*i..];
-            if remaining.trim_start().starts_with(',') || remaining.trim().is_empty() {
-                // Whitespace followed by comma or end - this is a valid TAG boundary
-                tag_end = *i;
-                break;
-            } else {
-                // There's non-comma content after whitespace - space is within TAG, which is invalid
-                return None;
-            }
-        } else if *ch == ',' {
-            // Comma found - check if this is a valid separator or part of the TAG
-            let remaining = &s[*i + 1..];
-            let remaining_trimmed = remaining.trim_start();
-            
-            // Valid comma separator should be followed by attribute syntax (key="value")
-            // Check if it starts with an identifier followed by '='
-            let has_valid_attribute = remaining_trimmed.is_empty() || {
-                if let Some(eq_pos) = remaining_trimmed.find('=') {
-                    let before_eq = &remaining_trimmed[..eq_pos].trim();
-                    // Check if before '=' is a valid identifier (no spaces, quotes, or special chars)
-                    !before_eq.is_empty() && before_eq.chars().all(|c| c.is_alphanumeric() || c == '_')
-                } else {
-                    false
-                }
-            };
-            
-            if has_valid_attribute {
-                // This looks like a valid separator
-                tag_end = *i;
-                break;
-            } else {
-                // Comma followed by non-attribute content - comma is part of TAG, which is invalid
-                return None;
-            }
-        } else if !is_valid_tag_char(*ch) {
-            // Invalid character found (quotes, etc.)
-            return None;
-        }
-        tag_end = *i + ch.len_utf8();
-    }
-    
-    let relation = &s[..tag_end];
-    if relation.is_empty() {
-        return None;
-    }
-    
-    // Find the rest after the TAG (attributes)
-    let rest_start = s[tag_end..].find(',');
-    let rest = rest_start.map(|comma_pos| &s[tag_end + comma_pos + 1..]);
-    
-    let mut map: BTreeMap<String, String> = BTreeMap::new();
-
-    if let Some(rest) = rest {
-        for piece in rest.split(',') {
-            let piece = piece.trim();
-            if piece.is_empty() {
-                continue;
-            }
-            if let Some((k, v)) = piece.split_once('=') {
-                let k = k.trim().to_string();
-                let v = v.trim().trim_matches('"').to_string();
-                if !k.is_empty() {
-                    map.insert(k, v);
-                }
-            }
-        }
-    }
-
-    Some((relation.to_string(), map))
 }

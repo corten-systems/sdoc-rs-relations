@@ -7,6 +7,7 @@ use std::fs;
 use std::io::{self, Write};
 use std::path::{Path, PathBuf};
 
+mod parse;
 mod sdoc;
 
 #[derive(Debug, Parser)]

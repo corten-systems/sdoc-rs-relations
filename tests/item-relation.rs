@@ -2,6 +2,8 @@ use std::io::Write;
 
 use tempfile::NamedTempFile;
 
+use strictdoc_rs::sdoc;
+
 #[test]
 fn test_relation_in_file_level_doc_comment_zero_attributes() {
     let mut temp_file = NamedTempFile::new().expect("Failed to create temporary file");
@@ -18,7 +20,7 @@ fn main() {{
     .expect("Failed to write to temporary file");
 
     let relations =
-        strictdoc_rs::sdoc::find_relations(&temp_file).expect("Failed to find relations");
+        sdoc::find_relations(&temp_file).expect("Failed to find relations");
 
     assert_eq!(relations.len(), 1);
     let relation = &relations[0];
@@ -42,7 +44,7 @@ fn main() {{
     .expect("Failed to write to temporary file");
 
     let relations =
-        strictdoc_rs::sdoc::find_relations(&temp_file).expect("Failed to find relations");
+        sdoc::find_relations(&temp_file).expect("Failed to find relations");
 
     assert_eq!(relations.len(), 1);
     let relation = &relations[0];
@@ -67,7 +69,7 @@ fn main() {{
     .expect("Failed to write to temporary file");
 
     let relations =
-        strictdoc_rs::sdoc::find_relations(&temp_file).expect("Failed to find relations");
+        sdoc::find_relations(&temp_file).expect("Failed to find relations");
 
     assert_eq!(relations.len(), 1);
     let relation = &relations[0];
@@ -92,7 +94,7 @@ fn test_function() {{
     .expect("Failed to write to temporary file");
 
     let relations =
-        strictdoc_rs::sdoc::find_relations(&temp_file).expect("Failed to find relations");
+        sdoc::find_relations(&temp_file).expect("Failed to find relations");
 
     assert_eq!(relations.len(), 1);
     let relation = &relations[0];
@@ -115,7 +117,7 @@ fn test_function() {{
     .expect("Failed to write to temporary file");
 
     let relations =
-        strictdoc_rs::sdoc::find_relations(&temp_file).expect("Failed to find relations");
+        sdoc::find_relations(&temp_file).expect("Failed to find relations");
 
     assert_eq!(relations.len(), 1);
     let relation = &relations[0];
@@ -139,7 +141,7 @@ fn test_function() {{
     .expect("Failed to write to temporary file");
 
     let relations =
-        strictdoc_rs::sdoc::find_relations(&temp_file).expect("Failed to find relations");
+        sdoc::find_relations(&temp_file).expect("Failed to find relations");
 
     assert_eq!(relations.len(), 1);
     let relation = &relations[0];
@@ -167,7 +169,7 @@ struct TestStruct {{
     .expect("Failed to write to temporary file");
 
     let relations =
-        strictdoc_rs::sdoc::find_relations(&temp_file).expect("Failed to find relations");
+        sdoc::find_relations(&temp_file).expect("Failed to find relations");
 
     assert_eq!(relations.len(), 1);
     let relation = &relations[0];
@@ -195,7 +197,7 @@ impl TestStruct {{
     .expect("Failed to write to temporary file");
 
     let relations =
-        strictdoc_rs::sdoc::find_relations(&temp_file).expect("Failed to find relations");
+        sdoc::find_relations(&temp_file).expect("Failed to find relations");
 
     assert_eq!(relations.len(), 1);
     let relation = &relations[0];
@@ -222,7 +224,7 @@ fn second_function() {{}}
     .expect("Failed to write to temporary file");
 
     let relations =
-        strictdoc_rs::sdoc::find_relations(&temp_file).expect("Failed to find relations");
+        sdoc::find_relations(&temp_file).expect("Failed to find relations");
 
     assert_eq!(relations.len(), 3);
 
@@ -264,7 +266,7 @@ fn quote_function() {{
     .expect("Failed to write to temporary file");
 
     let relations =
-        strictdoc_rs::sdoc::find_relations(&temp_file).expect("Failed to find relations");
+        sdoc::find_relations(&temp_file).expect("Failed to find relations");
 
     assert_eq!(relations.len(), 1);
     let relation = &relations[0];
@@ -294,7 +296,7 @@ fn multiline_function() {{
     .expect("Failed to write to temporary file");
 
     let relations =
-        strictdoc_rs::sdoc::find_relations(&temp_file).expect("Failed to find relations");
+        sdoc::find_relations(&temp_file).expect("Failed to find relations");
 
     assert_eq!(relations.len(), 1);
     let relation = &relations[0];
@@ -318,7 +320,7 @@ mod test_module {{
     .expect("Failed to write to temporary file");
 
     let relations =
-        strictdoc_rs::sdoc::find_relations(&temp_file).expect("Failed to find relations");
+        sdoc::find_relations(&temp_file).expect("Failed to find relations");
 
     assert_eq!(relations.len(), 1);
     let relation = &relations[0];
@@ -345,7 +347,7 @@ fn io_function() {{
     .expect("Failed to write to temporary file");
 
     let relations =
-        strictdoc_rs::sdoc::find_relations(&temp_file).expect("Failed to find relations");
+        sdoc::find_relations(&temp_file).expect("Failed to find relations");
 
     assert_eq!(relations.len(), 1);
     let relation = &relations[0];
@@ -375,7 +377,7 @@ fn test_function() {{
     .expect("Failed to write to temporary file");
 
     let relations =
-        strictdoc_rs::sdoc::find_relations(&temp_file).expect("Failed to find relations");
+        sdoc::find_relations(&temp_file).expect("Failed to find relations");
 
     // Should find no relations since they're in regular comments, not doc comments
     assert_eq!(relations.len(), 0);
@@ -402,7 +404,7 @@ fn main() {{
     .expect("Failed to write to temporary file");
 
     let relations1 =
-        strictdoc_rs::sdoc::find_relations(&temp_file1).expect("Failed to find relations");
+        sdoc::find_relations(&temp_file1).expect("Failed to find relations");
 
     // Second case: extra whitespace around relation identifier
     let mut temp_file2 = NamedTempFile::new().expect("Failed to create temporary file");
@@ -419,7 +421,7 @@ fn main() {{
     .expect("Failed to write to temporary file");
 
     let relations2 =
-        strictdoc_rs::sdoc::find_relations(&temp_file2).expect("Failed to find relations");
+        sdoc::find_relations(&temp_file2).expect("Failed to find relations");
 
     // Both should produce identical results
     assert_eq!(relations1.len(), 1);
