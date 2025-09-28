@@ -380,3 +380,63 @@ fn test_function() {{
     // Should find no relations since they're in regular comments, not doc comments
     assert_eq!(relations.len(), 0);
 }
+
+#[test]
+fn test_relation_whitespace_insensitivity() {
+    // Test that whitespace around the main relation identifier is not significant
+    // '@relation(REQ-002, status="draft")' and '@relation( REQ-002   , status="draft")'
+    // should produce identical results
+
+    // First case: no extra whitespace
+    let mut temp_file1 = NamedTempFile::new().expect("Failed to create temporary file");
+    writeln!(
+        temp_file1,
+        r#"
+//! This is a file-level doc comment with @relation(REQ-002, status="draft")
+
+fn main() {{
+    println!("Hello, world!");
+}}
+"#
+    )
+    .expect("Failed to write to temporary file");
+
+    let relations1 =
+        strictdoc_rs::sdoc::find_relations(&temp_file1).expect("Failed to find relations");
+
+    // Second case: extra whitespace around relation identifier
+    let mut temp_file2 = NamedTempFile::new().expect("Failed to create temporary file");
+    writeln!(
+        temp_file2,
+        r#"
+//! This is a file-level doc comment with @relation( REQ-002   , status="draft")
+
+fn main() {{
+    println!("Hello, world!");
+}}
+"#
+    )
+    .expect("Failed to write to temporary file");
+
+    let relations2 =
+        strictdoc_rs::sdoc::find_relations(&temp_file2).expect("Failed to find relations");
+
+    // Both should produce identical results
+    assert_eq!(relations1.len(), 1);
+    assert_eq!(relations2.len(), 1);
+    
+    let relation1 = &relations1[0];
+    let relation2 = &relations2[0];
+    
+    // Relation identifiers should be identical
+    assert_eq!(relation1.relation, "REQ-002");
+    assert_eq!(relation2.relation, "REQ-002");
+    assert_eq!(relation1.relation, relation2.relation);
+    
+    // Attributes should be identical
+    assert_eq!(relation1.attrs.len(), 1);
+    assert_eq!(relation2.attrs.len(), 1);
+    assert_eq!(relation1.attrs.get("status"), Some(&"draft".to_string()));
+    assert_eq!(relation2.attrs.get("status"), Some(&"draft".to_string()));
+    assert_eq!(relation1.attrs, relation2.attrs);
+}
