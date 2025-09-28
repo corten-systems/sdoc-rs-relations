@@ -344,7 +344,6 @@ fn is_valid_tag_char(c: char) -> bool {
     c.is_alphanumeric() || "!@#$%^&*-_+|/.".contains(c)
 }
 
-
 fn parse_inside_relation(s: &str) -> Option<(String, BTreeMap<String, String>)> {
     let s = s.trim();
     if s.is_empty() {
@@ -407,10 +406,7 @@ fn parse_inside_relation(s: &str) -> Option<(String, BTreeMap<String, String>)> 
     
     // Find the rest after the TAG (attributes)
     let rest_start = s[tag_end..].find(',');
-    let rest = match rest_start {
-        Some(comma_pos) => Some(&s[tag_end + comma_pos + 1..]),
-        None => None,
-    };
+    let rest = rest_start.map(|comma_pos| &s[tag_end + comma_pos + 1..]);
     
     let mut map: BTreeMap<String, String> = BTreeMap::new();
 
