@@ -293,20 +293,48 @@ fn parse_relations_from_doc(doc: &str) -> Vec<(String, BTreeMap<String, String>)
 }
 
 fn find_matching_paren(s: &str) -> Option<usize> {
-    let mut depth = 0usize;
+    // We are parsing the inside of @relation( ... here ... )
+    // Rules:
+    // - Parentheses do NOT nest inside @relation(), so '(' does not increase depth.
+    // - A ')' closes the relation unless it appears inside a quoted string.
+    // - Support both single and double quotes for attribute values.
+    // - Treat backslash (\\) as an escape inside strings to allow \" or \' etc.
+    let mut in_string: Option<char> = None; // Some('"') or Some('\'') when inside quotes
+    let mut escaped = false;
+
     for (i, ch) in s.char_indices() {
-        match ch {
-            '(' => depth += 1,
-            ')' => {
-                if depth == 0 {
-                    return Some(i);
+        if let Some(q) = in_string {
+            if escaped {
+                // Current character is escaped; consume it and reset escape.
+                escaped = false;
+                continue;
+            }
+            match ch {
+                '\\' => {
+                    // Start escape for next char
+                    escaped = true;
                 }
-                depth -= 1;
-                if depth == 0 {
-                    return Some(i);
+                c if c == q => {
+                    // End of quoted string
+                    in_string = None;
+                }
+                _ => {
+                    // Inside string, other characters are ignored
                 }
             }
-            _ => {}
+        } else {
+            match ch {
+                '\'' | '"' => {
+                    in_string = Some(ch);
+                }
+                ')' => {
+                    // First closing paren outside of a string closes the relation
+                    return Some(i);
+                }
+                _ => {
+                    // Other characters, including '(', are ignored (no nesting)
+                }
+            }
         }
     }
     None

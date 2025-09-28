@@ -424,15 +424,15 @@ fn main() {{
     // Both should produce identical results
     assert_eq!(relations1.len(), 1);
     assert_eq!(relations2.len(), 1);
-    
+
     let relation1 = &relations1[0];
     let relation2 = &relations2[0];
-    
+
     // Relation identifiers should be identical
     assert_eq!(relation1.relation, "REQ-002");
     assert_eq!(relation2.relation, "REQ-002");
     assert_eq!(relation1.relation, relation2.relation);
-    
+
     // Attributes should be identical
     assert_eq!(relation1.attrs.len(), 1);
     assert_eq!(relation2.attrs.len(), 1);
