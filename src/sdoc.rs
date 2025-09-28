@@ -311,7 +311,7 @@ fn find_matching_paren(s: &str) -> Option<usize> {
             }
             match ch {
                 '\\' => {
-                    // Start escape for next char
+                    // Start escape for the next char
                     escaped = true;
                 }
                 c if c == q => {
@@ -319,7 +319,7 @@ fn find_matching_paren(s: &str) -> Option<usize> {
                     in_string = None;
                 }
                 _ => {
-                    // Inside string, other characters are ignored
+                    // Inside the string, other characters are ignored
                 }
             }
         } else {
@@ -328,11 +328,11 @@ fn find_matching_paren(s: &str) -> Option<usize> {
                     in_string = Some(ch);
                 }
                 ')' => {
-                    // First closing paren outside of a string closes the relation
+                    // The first closing paren outside a string closes the relation
                     return Some(i);
                 }
                 _ => {
-                    // Other characters, including '(', are ignored (no nesting)
+                    // Other characters, including '(' are ignored
                 }
             }
         }
@@ -360,7 +360,7 @@ fn parse_inside_relation(s: &str) -> Option<(String, BTreeMap<String, String>)> 
             // Check if there's more content after whitespace that would indicate the space is within the TAG
             let remaining = &s[*i..];
             if remaining.trim_start().starts_with(',') || remaining.trim().is_empty() {
-                // Whitespace followed by comma or end - this is valid TAG boundary
+                // Whitespace followed by comma or end - this is a valid TAG boundary
                 tag_end = *i;
                 break;
             } else {
