@@ -276,8 +276,9 @@ fn doc_strings_from_attrs(attrs: &[syn::Attribute]) -> Vec<String> {
 fn parse_relations_from_doc(doc: &str) -> Vec<(String, BTreeMap<String, String>)> {
     let mut results = Vec::new();
     let mut rest = doc;
-    while let Some(idx) = rest.find("@relation(") {
-        let after = &rest[idx + "@relation(".len()..];
+    const RELATION_TAG: &str = "@relation(";
+    while let Some(idx) = rest.find(RELATION_TAG) {
+        let after = &rest[idx + RELATION_TAG.len()..];
         if let Some(end_idx) = find_matching_paren(after) {
             let inside = &after[..end_idx];
             if let Some((rel, attrs)) = parse_inside_relation(inside) {

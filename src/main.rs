@@ -15,7 +15,7 @@ struct Args {
     /// Path to the crate root directory
     #[arg(short = 'c', long = "crate", value_name = "PATH", default_value = ".")]
     path: PathBuf,
-    /// Output file (use '-' or omit to write to stdout)
+    /// Output file (use '-' or omit for output to stdout)
     #[arg(short = 'o', long = "output", value_name = "FILE", default_value = "-")]
     output: PathBuf,
 }
