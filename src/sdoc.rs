@@ -312,17 +312,78 @@ fn find_matching_paren(s: &str) -> Option<usize> {
     None
 }
 
+fn is_valid_tag_char(c: char) -> bool {
+    c.is_alphanumeric() || "!@#$%^&*-_+|/.".contains(c)
+}
+
+
 fn parse_inside_relation(s: &str) -> Option<(String, BTreeMap<String, String>)> {
-    // Split at first comma to get the relation id
-    let (id_part, rest) = match s.split_once(',') {
-        Some((a, b)) => (a.trim(), Some(b)),
-        None => (s.trim(), None),
-    };
-    if id_part.is_empty() {
+    let s = s.trim();
+    if s.is_empty() {
         return None;
     }
-
-    let relation = id_part.trim_matches(|c: char| c.is_whitespace());
+    
+    // Parse the TAG by reading valid characters until we hit whitespace or comma
+    let mut tag_end = 0;
+    let chars: Vec<(usize, char)> = s.char_indices().collect();
+    
+    // Find the end of the TAG
+    for (i, ch) in chars.iter() {
+        if ch.is_whitespace() {
+            // Check if there's more content after whitespace that would indicate the space is within the TAG
+            let remaining = &s[*i..];
+            if remaining.trim_start().starts_with(',') || remaining.trim().is_empty() {
+                // Whitespace followed by comma or end - this is valid TAG boundary
+                tag_end = *i;
+                break;
+            } else {
+                // There's non-comma content after whitespace - space is within TAG, which is invalid
+                return None;
+            }
+        } else if *ch == ',' {
+            // Comma found - check if this is a valid separator or part of the TAG
+            let remaining = &s[*i + 1..];
+            let remaining_trimmed = remaining.trim_start();
+            
+            // Valid comma separator should be followed by attribute syntax (key="value")
+            // Check if it starts with an identifier followed by '='
+            let has_valid_attribute = remaining_trimmed.is_empty() || {
+                if let Some(eq_pos) = remaining_trimmed.find('=') {
+                    let before_eq = &remaining_trimmed[..eq_pos].trim();
+                    // Check if before '=' is a valid identifier (no spaces, quotes, or special chars)
+                    !before_eq.is_empty() && before_eq.chars().all(|c| c.is_alphanumeric() || c == '_')
+                } else {
+                    false
+                }
+            };
+            
+            if has_valid_attribute {
+                // This looks like a valid separator
+                tag_end = *i;
+                break;
+            } else {
+                // Comma followed by non-attribute content - comma is part of TAG, which is invalid
+                return None;
+            }
+        } else if !is_valid_tag_char(*ch) {
+            // Invalid character found (quotes, etc.)
+            return None;
+        }
+        tag_end = *i + ch.len_utf8();
+    }
+    
+    let relation = &s[..tag_end];
+    if relation.is_empty() {
+        return None;
+    }
+    
+    // Find the rest after the TAG (attributes)
+    let rest_start = s[tag_end..].find(',');
+    let rest = match rest_start {
+        Some(comma_pos) => Some(&s[tag_end + comma_pos + 1..]),
+        None => None,
+    };
+    
     let mut map: BTreeMap<String, String> = BTreeMap::new();
 
     if let Some(rest) = rest {
