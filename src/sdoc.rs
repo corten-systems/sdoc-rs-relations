@@ -211,43 +211,25 @@ fn to_line_col(lc: proc_macro2::LineColumn) -> LineColumn {
 }
 
 fn file_span_from_items(items: &[syn::Item]) -> (LineColumn, LineColumn) {
-    let mut start: Option<proc_macro2::LineColumn> = None;
-    let mut end: Option<proc_macro2::LineColumn> = None;
-
-    for it in items {
+    // Fold over items once, tracking the minimal start and maximal end in our own
+    // Ord-enabled LineColumn representation.
+    let acc: Option<(LineColumn, LineColumn)> = items.iter().fold(None, |acc, it| {
         let s = it.span();
-        let s_start = s.start();
-        let s_end = s.end();
-
-        match start {
-            None => start = Some(s_start),
-            Some(cur) => {
-                if s_start.line < cur.line
-                    || (s_start.line == cur.line && s_start.column < cur.column)
-                {
-                    start = Some(s_start);
-                }
-            }
+        let start = to_line_col(s.start());
+        let end = to_line_col(s.end());
+        match acc {
+            None => Some((start, end)),
+            Some((min_start, max_end)) => Some((min_start.min(start), max_end.max(end))),
         }
+    });
 
-        match end {
-            None => end = Some(s_end),
-            Some(cur) => {
-                if s_end.line > cur.line || (s_end.line == cur.line && s_end.column > cur.column) {
-                    end = Some(s_end);
-                }
-            }
-        }
-    }
-
-    match (start, end) {
-        (Some(s), Some(e)) => (to_line_col(s), to_line_col(e)),
-        _ => {
-            // Fallback for empty files: both at (1,0)
-            let lc = proc_macro2::LineColumn { line: 1, column: 0 };
-            let lc = to_line_col(lc);
-            (lc, lc)
-        }
+    if let Some((s, e)) = acc {
+        (s, e)
+    } else {
+        // Fallback for empty files: both at (1,0)
+        let lc = proc_macro2::LineColumn { line: 1, column: 0 };
+        let lc = to_line_col(lc);
+        (lc, lc)
     }
 }
 
