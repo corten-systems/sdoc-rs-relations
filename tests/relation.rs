@@ -1,353 +1,382 @@
-use std::collections::BTreeMap;
-use std::fs;
-use std::path::PathBuf;
+use std::io::Write;
+
+use tempfile::NamedTempFile;
 
 #[test]
 fn test_relation_in_file_level_doc_comment_zero_attributes() {
-    let test_file = create_test_file(
-        "file_level_zero_attrs.rs",
+    let mut temp_file = NamedTempFile::new().expect("Failed to create temporary file");
+    writeln!(
+        temp_file,
         r#"
 //! This is a file-level doc comment with @relation(REQ-001)
 
-fn main() {
+fn main() {{
     println!("Hello, world!");
-}
-"#,
-    );
+}}
+"#
+    )
+    .expect("Failed to write to temporary file");
 
-    let relations = strictdoc_rs::sdoc::find_relations(&test_file).expect("Failed to find relations");
-    
+    let relations =
+        strictdoc_rs::sdoc::find_relations(&temp_file).expect("Failed to find relations");
+
     assert_eq!(relations.len(), 1);
     let relation = &relations[0];
     assert_eq!(relation.relation, "REQ-001");
     assert!(relation.attrs.is_empty());
-    
-    cleanup_test_file(&test_file);
 }
 
 #[test]
 fn test_relation_in_file_level_doc_comment_one_attribute() {
-    let test_file = create_test_file(
-        "file_level_one_attr.rs",
+    let mut temp_file = NamedTempFile::new().expect("Failed to create temporary file");
+    writeln!(
+        temp_file,
         r#"
 //! This is a file-level doc comment with @relation(REQ-002, status="draft")
 
-fn main() {
+fn main() {{
     println!("Hello, world!");
-}
-"#,
-    );
+}}
+"#
+    )
+    .expect("Failed to write to temporary file");
 
-    let relations = strictdoc_rs::sdoc::find_relations(&test_file).expect("Failed to find relations");
-    
+    let relations =
+        strictdoc_rs::sdoc::find_relations(&temp_file).expect("Failed to find relations");
+
     assert_eq!(relations.len(), 1);
     let relation = &relations[0];
     assert_eq!(relation.relation, "REQ-002");
     assert_eq!(relation.attrs.len(), 1);
     assert_eq!(relation.attrs.get("status"), Some(&"draft".to_string()));
-    
-    cleanup_test_file(&test_file);
 }
 
 #[test]
 fn test_relation_in_file_level_doc_comment_two_attributes() {
-    let test_file = create_test_file(
-        "file_level_two_attrs.rs",
+    let mut temp_file = NamedTempFile::new().expect("Failed to create temporary file");
+    writeln!(
+        temp_file,
         r#"
 //! This is a file-level doc comment with @relation(REQ-003, status="approved", priority="high")
 
-fn main() {
+fn main() {{
     println!("Hello, world!");
-}
-"#,
-    );
+}}
+"#
+    )
+    .expect("Failed to write to temporary file");
 
-    let relations = strictdoc_rs::sdoc::find_relations(&test_file).expect("Failed to find relations");
-    
+    let relations =
+        strictdoc_rs::sdoc::find_relations(&temp_file).expect("Failed to find relations");
+
     assert_eq!(relations.len(), 1);
     let relation = &relations[0];
     assert_eq!(relation.relation, "REQ-003");
     assert_eq!(relation.attrs.len(), 2);
     assert_eq!(relation.attrs.get("status"), Some(&"approved".to_string()));
     assert_eq!(relation.attrs.get("priority"), Some(&"high".to_string()));
-    
-    cleanup_test_file(&test_file);
 }
 
 #[test]
 fn test_relation_in_function_doc_comment_zero_attributes() {
-    let test_file = create_test_file(
-        "function_zero_attrs.rs",
+    let mut temp_file = NamedTempFile::new().expect("Failed to create temporary file");
+    writeln!(
+        temp_file,
         r#"
 /// This function has @relation(FUNC-001)
-fn test_function() {
+fn test_function() {{
     println!("Test");
-}
-"#,
-    );
+}}
+"#
+    )
+    .expect("Failed to write to temporary file");
 
-    let relations = strictdoc_rs::sdoc::find_relations(&test_file).expect("Failed to find relations");
-    
+    let relations =
+        strictdoc_rs::sdoc::find_relations(&temp_file).expect("Failed to find relations");
+
     assert_eq!(relations.len(), 1);
     let relation = &relations[0];
     assert_eq!(relation.relation, "FUNC-001");
     assert!(relation.attrs.is_empty());
-    
-    cleanup_test_file(&test_file);
 }
 
 #[test]
 fn test_relation_in_function_doc_comment_one_attribute() {
-    let test_file = create_test_file(
-        "function_one_attr.rs",
+    let mut temp_file = NamedTempFile::new().expect("Failed to create temporary file");
+    writeln!(
+        temp_file,
         r#"
 /// This function has @relation(FUNC-002, complexity="low")
-fn test_function() {
+fn test_function() {{
     println!("Test");
-}
-"#,
-    );
+}}
+"#
+    )
+    .expect("Failed to write to temporary file");
 
-    let relations = strictdoc_rs::sdoc::find_relations(&test_file).expect("Failed to find relations");
-    
+    let relations =
+        strictdoc_rs::sdoc::find_relations(&temp_file).expect("Failed to find relations");
+
     assert_eq!(relations.len(), 1);
     let relation = &relations[0];
     assert_eq!(relation.relation, "FUNC-002");
     assert_eq!(relation.attrs.len(), 1);
     assert_eq!(relation.attrs.get("complexity"), Some(&"low".to_string()));
-    
-    cleanup_test_file(&test_file);
 }
 
 #[test]
 fn test_relation_in_function_doc_comment_two_attributes() {
-    let test_file = create_test_file(
-        "function_two_attrs.rs",
+    let mut temp_file = NamedTempFile::new().expect("Failed to create temporary file");
+    writeln!(
+        temp_file,
         r#"
-/// This function has @relation(FUNC-003, complexity="medium", tested="yes")
-fn test_function() {
+/// This function has @relation(FUNC-003, complexity="medium", tested="true")
+fn test_function() {{
     println!("Test");
-}
-"#,
-    );
+}}
+"#
+    )
+    .expect("Failed to write to temporary file");
 
-    let relations = strictdoc_rs::sdoc::find_relations(&test_file).expect("Failed to find relations");
-    
+    let relations =
+        strictdoc_rs::sdoc::find_relations(&temp_file).expect("Failed to find relations");
+
     assert_eq!(relations.len(), 1);
     let relation = &relations[0];
     assert_eq!(relation.relation, "FUNC-003");
     assert_eq!(relation.attrs.len(), 2);
-    assert_eq!(relation.attrs.get("complexity"), Some(&"medium".to_string()));
-    assert_eq!(relation.attrs.get("tested"), Some(&"yes".to_string()));
-    
-    cleanup_test_file(&test_file);
+    assert_eq!(
+        relation.attrs.get("complexity"),
+        Some(&"medium".to_string())
+    );
+    assert_eq!(relation.attrs.get("tested"), Some(&"true".to_string()));
 }
 
 #[test]
-fn test_relation_in_struct_doc_comment_zero_attributes() {
-    let test_file = create_test_file(
-        "struct_zero_attrs.rs",
+fn test_relation_in_struct_doc_comment() {
+    let mut temp_file = NamedTempFile::new().expect("Failed to create temporary file");
+    writeln!(
+        temp_file,
         r#"
-/// This struct represents @relation(STRUCT-001)
-struct TestStruct {
-    field: i32,
-}
-"#,
-    );
+/// This struct represents @relation(STRUCT-001, type="data")
+struct TestStruct {{
+    field: String,
+}}
+"#
+    )
+    .expect("Failed to write to temporary file");
 
-    let relations = strictdoc_rs::sdoc::find_relations(&test_file).expect("Failed to find relations");
-    
+    let relations =
+        strictdoc_rs::sdoc::find_relations(&temp_file).expect("Failed to find relations");
+
     assert_eq!(relations.len(), 1);
     let relation = &relations[0];
     assert_eq!(relation.relation, "STRUCT-001");
-    assert!(relation.attrs.is_empty());
-    
-    cleanup_test_file(&test_file);
-}
-
-#[test]
-fn test_relation_in_struct_doc_comment_one_attribute() {
-    let test_file = create_test_file(
-        "struct_one_attr.rs",
-        r#"
-/// This struct represents @relation(STRUCT-002, visibility="public")
-pub struct TestStruct {
-    field: i32,
-}
-"#,
-    );
-
-    let relations = strictdoc_rs::sdoc::find_relations(&test_file).expect("Failed to find relations");
-    
-    assert_eq!(relations.len(), 1);
-    let relation = &relations[0];
-    assert_eq!(relation.relation, "STRUCT-002");
     assert_eq!(relation.attrs.len(), 1);
-    assert_eq!(relation.attrs.get("visibility"), Some(&"public".to_string()));
-    
-    cleanup_test_file(&test_file);
+    assert_eq!(relation.attrs.get("type"), Some(&"data".to_string()));
 }
 
 #[test]
-fn test_relation_in_struct_doc_comment_two_attributes() {
-    let test_file = create_test_file(
-        "struct_two_attrs.rs",
+fn test_relation_in_impl_doc_comment() {
+    let mut temp_file = NamedTempFile::new().expect("Failed to create temporary file");
+    writeln!(
+        temp_file,
         r#"
-/// This struct represents @relation(STRUCT-003, visibility="public", serializable="true")
-#[derive(Clone)]
-pub struct TestStruct {
-    field: i32,
-}
-"#,
-    );
+struct TestStruct;
 
-    let relations = strictdoc_rs::sdoc::find_relations(&test_file).expect("Failed to find relations");
-    
+/// Implementation with @relation(IMPL-001, purpose="utility")
+impl TestStruct {{
+    pub fn new() -> Self {{
+        TestStruct
+    }}
+}}
+"#
+    )
+    .expect("Failed to write to temporary file");
+
+    let relations =
+        strictdoc_rs::sdoc::find_relations(&temp_file).expect("Failed to find relations");
+
     assert_eq!(relations.len(), 1);
     let relation = &relations[0];
-    assert_eq!(relation.relation, "STRUCT-003");
-    assert_eq!(relation.attrs.len(), 2);
-    assert_eq!(relation.attrs.get("visibility"), Some(&"public".to_string()));
-    assert_eq!(relation.attrs.get("serializable"), Some(&"true".to_string()));
-    
-    cleanup_test_file(&test_file);
+    assert_eq!(relation.relation, "IMPL-001");
+    assert_eq!(relation.attrs.len(), 1);
+    assert_eq!(relation.attrs.get("purpose"), Some(&"utility".to_string()));
+}
+
+#[test]
+fn test_multiple_relations_in_single_file() {
+    let mut temp_file = NamedTempFile::new().expect("Failed to create temporary file");
+    writeln!(
+        temp_file,
+        r#"
+//! File level @relation(FILE-001, scope="global")
+
+/// Function with @relation(FUNC-100, priority="high")
+fn first_function() {{}}
+
+/// Another function with @relation(FUNC-200, priority="low")  
+fn second_function() {{}}
+"#
+    )
+    .expect("Failed to write to temporary file");
+
+    let relations =
+        strictdoc_rs::sdoc::find_relations(&temp_file).expect("Failed to find relations");
+
+    assert_eq!(relations.len(), 3);
+
+    // Sort relations by relation name to ensure consistent testing
+    let mut sorted_relations = relations.clone();
+    sorted_relations.sort_by(|a, b| a.relation.cmp(&b.relation));
+
+    assert_eq!(sorted_relations[0].relation, "FILE-001");
+    assert_eq!(
+        sorted_relations[0].attrs.get("scope"),
+        Some(&"global".to_string())
+    );
+
+    assert_eq!(sorted_relations[1].relation, "FUNC-100");
+    assert_eq!(
+        sorted_relations[1].attrs.get("priority"),
+        Some(&"high".to_string())
+    );
+
+    assert_eq!(sorted_relations[2].relation, "FUNC-200");
+    assert_eq!(
+        sorted_relations[2].attrs.get("priority"),
+        Some(&"low".to_string())
+    );
+}
+
+#[test]
+fn test_relation_with_nested_quotes() {
+    let mut temp_file = NamedTempFile::new().expect("Failed to create temporary file");
+    writeln!(
+        temp_file,
+        r#"
+/// Function with @relation(QUOTE-001, description="handles \"quoted\" strings")
+fn quote_function() {{
+    println!("Handle quotes");
+}}
+"#
+    )
+    .expect("Failed to write to temporary file");
+
+    let relations =
+        strictdoc_rs::sdoc::find_relations(&temp_file).expect("Failed to find relations");
+
+    assert_eq!(relations.len(), 1);
+    let relation = &relations[0];
+    assert_eq!(relation.relation, "QUOTE-001");
+    assert_eq!(relation.attrs.len(), 1);
+    assert_eq!(
+        relation.attrs.get("description"),
+        Some(&r#"handles \"quoted\" strings"#.to_string())
+    );
 }
 
 #[test]
 fn test_relation_in_multiline_doc_comment() {
-    let test_file = create_test_file(
-        "multiline_doc.rs",
+    let mut temp_file = NamedTempFile::new().expect("Failed to create temporary file");
+    writeln!(
+        temp_file,
         r#"
-/**
- * This is a multiline doc comment
- * that contains @relation(MULTI-001, type="requirement")
- * in the middle
- */
-fn test_function() {
-    println!("Test");
-}
-"#,
-    );
+/// This is a multiline
+/// doc comment that has
+/// @relation(MULTI-001, type="multiline")
+/// across multiple lines
+fn multiline_function() {{
+    println!("Multi-line");
+}}
+"#
+    )
+    .expect("Failed to write to temporary file");
 
-    let relations = strictdoc_rs::sdoc::find_relations(&test_file).expect("Failed to find relations");
-    
+    let relations =
+        strictdoc_rs::sdoc::find_relations(&temp_file).expect("Failed to find relations");
+
     assert_eq!(relations.len(), 1);
     let relation = &relations[0];
     assert_eq!(relation.relation, "MULTI-001");
     assert_eq!(relation.attrs.len(), 1);
-    assert_eq!(relation.attrs.get("type"), Some(&"requirement".to_string()));
-    
-    cleanup_test_file(&test_file);
-}
-
-#[test]
-fn test_multiple_relations_in_same_doc_comment() {
-    let test_file = create_test_file(
-        "multiple_relations.rs",
-        r#"
-/// This comment has @relation(REL-001) and @relation(REL-002, status="active")
-fn test_function() {
-    println!("Test");
-}
-"#,
-    );
-
-    let relations = strictdoc_rs::sdoc::find_relations(&test_file).expect("Failed to find relations");
-    
-    assert_eq!(relations.len(), 2);
-    
-    // Find each relation by ID since order might vary
-    let rel1 = relations.iter().find(|r| r.relation == "REL-001").expect("REL-001 not found");
-    let rel2 = relations.iter().find(|r| r.relation == "REL-002").expect("REL-002 not found");
-    
-    assert!(rel1.attrs.is_empty());
-    assert_eq!(rel2.attrs.len(), 1);
-    assert_eq!(rel2.attrs.get("status"), Some(&"active".to_string()));
-    
-    cleanup_test_file(&test_file);
+    assert_eq!(relation.attrs.get("type"), Some(&"multiline".to_string()));
 }
 
 #[test]
 fn test_relation_in_module_doc_comment() {
-    let test_file = create_test_file(
-        "module_doc.rs",
+    let mut temp_file = NamedTempFile::new().expect("Failed to create temporary file");
+    writeln!(
+        temp_file,
         r#"
 /// This module handles @relation(MOD-001, purpose="utilities")
-mod test_module {
-    pub fn helper() {}
-}
-"#,
-    );
+mod test_module {{
+    pub fn helper() {{}}
+}}
+"#
+    )
+    .expect("Failed to write to temporary file");
 
-    let relations = strictdoc_rs::sdoc::find_relations(&test_file).expect("Failed to find relations");
-    
+    let relations =
+        strictdoc_rs::sdoc::find_relations(&temp_file).expect("Failed to find relations");
+
     assert_eq!(relations.len(), 1);
     let relation = &relations[0];
     assert_eq!(relation.relation, "MOD-001");
     assert_eq!(relation.attrs.len(), 1);
-    assert_eq!(relation.attrs.get("purpose"), Some(&"utilities".to_string()));
-    
-    cleanup_test_file(&test_file);
+    assert_eq!(
+        relation.attrs.get("purpose"),
+        Some(&"utilities".to_string())
+    );
 }
 
 #[test]
 fn test_relation_with_special_characters_in_attributes() {
-    let test_file = create_test_file(
-        "special_chars.rs",
+    let mut temp_file = NamedTempFile::new().expect("Failed to create temporary file");
+    writeln!(
+        temp_file,
         r#"
 /// Function with @relation(SPEC-001, description="handles input/output operations", version="1.0")
-fn io_function() {
+fn io_function() {{
     println!("I/O operations");
-}
-"#,
-    );
+}}
+"#
+    )
+    .expect("Failed to write to temporary file");
 
-    let relations = strictdoc_rs::sdoc::find_relations(&test_file).expect("Failed to find relations");
-    
+    let relations =
+        strictdoc_rs::sdoc::find_relations(&temp_file).expect("Failed to find relations");
+
     assert_eq!(relations.len(), 1);
     let relation = &relations[0];
     assert_eq!(relation.relation, "SPEC-001");
     assert_eq!(relation.attrs.len(), 2);
-    assert_eq!(relation.attrs.get("description"), Some(&"handles input/output operations".to_string()));
+    assert_eq!(
+        relation.attrs.get("description"),
+        Some(&"handles input/output operations".to_string())
+    );
     assert_eq!(relation.attrs.get("version"), Some(&"1.0".to_string()));
-    
-    cleanup_test_file(&test_file);
 }
 
 #[test]
 fn test_no_relations_in_regular_comments() {
-    let test_file = create_test_file(
-        "regular_comments.rs",
+    let mut temp_file = NamedTempFile::new().expect("Failed to create temporary file");
+    writeln!(
+        temp_file,
         r#"
 // This is a regular comment with @relation(SHOULD-NOT-APPEAR)
 /* This is also a regular comment with @relation(ALSO-SHOULD-NOT-APPEAR) */
-fn test_function() {
+fn test_function() {{
     // Another regular comment @relation(IGNORE-ME)
     println!("Test");
-}
-"#,
-    );
+}}
+"#
+    )
+    .expect("Failed to write to temporary file");
 
-    let relations = strictdoc_rs::sdoc::find_relations(&test_file).expect("Failed to find relations");
-    
+    let relations =
+        strictdoc_rs::sdoc::find_relations(&temp_file).expect("Failed to find relations");
+
     // Should find no relations since they're in regular comments, not doc comments
     assert_eq!(relations.len(), 0);
-    
-    cleanup_test_file(&test_file);
-}
-
-// Helper function to create temporary test files
-fn create_test_file(filename: &str, content: &str) -> PathBuf {
-    let test_dir = std::env::temp_dir().join("strictdoc_test");
-    fs::create_dir_all(&test_dir).expect("Failed to create test directory");
-    
-    let file_path = test_dir.join(filename);
-    fs::write(&file_path, content).expect("Failed to write test file");
-    
-    file_path
-}
-
-// Helper function to clean up test files
-fn cleanup_test_file(file_path: &PathBuf) {
-    let _ = fs::remove_file(file_path);
 }

@@ -2,10 +2,10 @@ use anyhow::{bail, Context, Result};
 use clap::Parser;
 
 use std::collections::BTreeMap;
-use std::fs;
-use std::path::{Path, PathBuf};
 use std::ffi::OsStr;
+use std::fs;
 use std::io::{self, Write};
+use std::path::{Path, PathBuf};
 
 mod sdoc;
 
