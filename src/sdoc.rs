@@ -105,9 +105,13 @@ pub struct Relation {
     pub span: Span,
 }
 
-/// Analyze the provided Rust source file and find relations between items.
-pub fn find_relations<P: AsRef<Path>>(file: &P) -> Result<Vec<Relation>> {
+/// Analyze the provided Rust source file and find relations between items, storing file paths relative to the crate root.
+pub fn find_relations<P: AsRef<Path>, R: AsRef<Path>>(
+    file: &P,
+    crate_root: &R,
+) -> Result<Vec<Relation>> {
     let path = file.as_ref();
+    let crate_root = crate_root.as_ref();
 
     // Read the file into a byte array
     let bytes = fs::read(path)
@@ -119,20 +123,27 @@ pub fn find_relations<P: AsRef<Path>>(file: &P) -> Result<Vec<Relation>> {
     let hash = format!("sha256-{:x}", hasher.finalize());
 
     // Convert byte buffer to string
-    let src = String::from_utf8(bytes)
-        .with_context(|| format!("failed to convert bytes to UTF-8 string: {}", path.display()))?;
+    let src = String::from_utf8(bytes).with_context(|| {
+        format!(
+            "failed to convert bytes to UTF-8 string: {}",
+            path.display()
+        )
+    })?;
 
     let syntax = syn::parse_file(&src)
         .with_context(|| format!("failed to parse Rust file: {}", path.display()))?;
 
+    // Determine the path to store in `Relation.file` relative to the crate root
+    let relative_path = path.strip_prefix(crate_root).unwrap_or(path);
+
     let mut out: Vec<Relation> = Vec::new();
 
     // Process file-level inner doc comments (//! ...)
-    collect_file_level_relations(path, &hash, &syntax, &mut out)?;
+    collect_file_level_relations(relative_path, &hash, &syntax, &mut out)?;
 
     // Walk all items recursively
     for item in &syntax.items {
-        collect_item_relations(path, &hash, item, &mut out)?;
+        collect_item_relations(relative_path, &hash, item, &mut out)?;
     }
 
     Ok(out)
@@ -154,7 +165,7 @@ fn collect_file_level_relations(
     for doc in docs {
         for relation in parse::relations_from_doc(&doc)? {
             out.push(Relation {
-                file: path.to_path_buf(), // TODO Strip out the crate root prefix
+                file: path.to_path_buf(),
                 hash: hash.to_string(),
                 ident: relation.identifier,
                 attrs: relation.attributes,
@@ -189,7 +200,12 @@ fn item_attrs(item: &syn::Item) -> Result<&[syn::Attribute]> {
     }
 }
 
-fn collect_item_relations(path: &Path, hash: &str, item: &syn::Item, out: &mut Vec<Relation>) -> Result<()> {
+fn collect_item_relations(
+    path: &Path,
+    hash: &str,
+    item: &syn::Item,
+    out: &mut Vec<Relation>,
+) -> Result<()> {
     // Extract doc strings from the item's attributes (outer and inner)
     let docs = doc_strings_from_attrs(item_attrs(item)?);
 

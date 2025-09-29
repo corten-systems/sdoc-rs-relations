@@ -37,7 +37,7 @@ fn main() -> Result<()> {
     let files = find_rust_files(&args.path)?;
     let mut relationships = BTreeMap::new();
     for file in files {
-        let relations = sdoc::find_relations(&file)?;
+        let relations = sdoc::find_relations(&file, &args.path)?;
         relationships.insert(file, relations);
     }
 
