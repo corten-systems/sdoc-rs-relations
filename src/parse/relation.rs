@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_until, take_while};
-use nom::character::complete::{alpha1, alphanumeric1, char};
+use nom::character::complete::{alpha1, alphanumeric1, char, one_of};
 use nom::combinator::{peek, recognize};
 use nom::multi::{many0, many0_count};
 use nom::sequence::pair;
@@ -46,15 +46,15 @@ fn equals(input: &str) -> IResult<&str, ()> {
 
 fn identifier(input: &str) -> IResult<&str, &str> {
     recognize(pair(
-        alt((alpha1, tag("_"))),
-        many0_count(alt((alphanumeric1, alt((tag("_"), tag("-")))))), // TODO Add more characters
+        alt((alpha1, recognize(pair(tag("_"), alpha1)))),
+        many0_count(alt((alphanumeric1, recognize(one_of("-_.:/|"))))),
     ))
     .parse(input)
 }
 
 fn attribute_key(input: &str) -> IResult<&str, &str> {
     recognize(pair(
-        alt((alpha1, tag("_"))),
+        alt((alpha1, recognize(pair(tag("_"), alpha1)))),
         many0_count(alt((alphanumeric1, tag("_")))),
     ))
     .parse(input)
