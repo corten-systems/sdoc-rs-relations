@@ -87,6 +87,22 @@ impl TryFrom<&syn::Item> for Item {
     }
 }
 
+/// A type-tagged hexadecimal hash.
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
+#[serde(tag = "type", rename_all = "lowercase")]
+pub enum Hash {
+    Sha256(String),
+}
+
+impl From<&Vec<u8>> for Hash {
+    fn from(bytes: &Vec<u8>) -> Self {
+        let mut hasher = Sha256::new();
+        hasher.update(&bytes);
+        let hash = format!("{:x}", hasher.finalize());
+        Self::Sha256(hash)
+    }
+}
+
 /// Copied from [`proc_macro2::Span.html`](https://docs.rs/proc-macro2/latest/proc_macro2/struct.Span.html).
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
 pub struct Span {
@@ -98,7 +114,7 @@ pub struct Span {
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
 pub struct Relation {
     pub file: PathBuf,
-    pub hash: String,
+    pub hash: Hash,
     pub ident: String,
     pub attrs: BTreeMap<String, String>,
     pub item: Item,
@@ -118,9 +134,7 @@ pub fn find_relations<P: AsRef<Path>, R: AsRef<Path>>(
         .with_context(|| format!("failed to read source file: {}", path.display()))?;
 
     // Calculate SHA256 hash as hexadecimal string
-    let mut hasher = Sha256::new();
-    hasher.update(&bytes);
-    let hash = format!("sha256-{:x}", hasher.finalize());
+    let hash = Hash::from(&bytes);
 
     // Convert byte buffer to string
     let src = String::from_utf8(bytes).with_context(|| {
@@ -150,7 +164,7 @@ pub fn find_relations<P: AsRef<Path>, R: AsRef<Path>>(
 }
 fn collect_file_level_relations(
     path: &Path,
-    hash: &str,
+    hash: &Hash,
     file: &syn::File,
     out: &mut Vec<Relation>,
 ) -> Result<()> {
@@ -166,7 +180,7 @@ fn collect_file_level_relations(
         for relation in parse::relations_from_doc(&doc)? {
             out.push(Relation {
                 file: path.to_path_buf(),
-                hash: hash.to_string(),
+                hash: hash.clone(),
                 ident: relation.identifier,
                 attrs: relation.attributes,
                 item: Item::Mod, // module, crate root, or submodule file
@@ -202,7 +216,7 @@ fn item_attrs(item: &syn::Item) -> Result<&[syn::Attribute]> {
 
 fn collect_item_relations(
     path: &Path,
-    hash: &str,
+    hash: &Hash,
     item: &syn::Item,
     out: &mut Vec<Relation>,
 ) -> Result<()> {
@@ -217,7 +231,7 @@ fn collect_item_relations(
         for relation in parse::relations_from_doc(&doc)? {
             out.push(Relation {
                 file: path.to_path_buf(),
-                hash: hash.to_string(),
+                hash: hash.clone(),
                 ident: relation.identifier,
                 attrs: relation.attributes,
                 item: Item::try_from(item)?,
