@@ -89,7 +89,7 @@ impl TryFrom<&syn::Item> for Item {
 
 /// A type-tagged hexadecimal hash.
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
-#[serde(tag = "type", rename_all = "lowercase")]
+#[serde(rename_all = "lowercase")]
 pub enum Hash {
     Sha256(String),
 }
@@ -116,6 +116,7 @@ pub struct Relation {
     pub file: PathBuf,
     pub hash: Hash,
     pub ident: String,
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub attrs: BTreeMap<String, String>,
     pub item: Item,
     pub span: Span,
@@ -144,8 +145,17 @@ pub fn find_relations<P: AsRef<Path>, R: AsRef<Path>>(
         )
     })?;
 
-    let syntax = syn::parse_file(&src)
-        .with_context(|| format!("failed to parse Rust file: {}", path.display()))?;
+    let syntax = syn::parse_file(&src).map_err(|err| {
+        let span = err.span();
+        let start = span.start();
+        anyhow!(
+            "failed parsing\n - file: {}\n - error: {}\n - line: {}, column: {}",
+            path.display(),
+            err,
+            start.line,
+            start.column
+        )
+    })?;
 
     // Determine the path to store in `Relation.file` relative to the crate root
     let relative_path = path.strip_prefix(crate_root).unwrap_or(path);
