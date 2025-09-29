@@ -14,8 +14,8 @@ pub struct Relation {
 pub fn relations_from_doc(mut input: &str) -> Vec<Relation> {
     let mut relations = Vec::new();
 
-    while let Ok(next) = next(input) {
-        input = next.0;
+    while let Ok((next, _)) = next(input) {
+        input = next;
         while let Ok((remaining, relation)) = relation(input) {
             relations.push(relation);
             input = remaining;

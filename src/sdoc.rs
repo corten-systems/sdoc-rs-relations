@@ -97,6 +97,7 @@ pub struct Span {
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
 pub struct Relation {
     pub file: PathBuf,
+    pub hash: String,
     pub ident: String,
     pub attrs: BTreeMap<String, String>,
     pub item: Item,
@@ -138,6 +139,7 @@ fn collect_file_level_relations(path: &Path, file: &syn::File, out: &mut Vec<Rel
         for relation in parse::relations_from_doc(&doc) {
             out.push(Relation {
                 file: path.to_path_buf(), // TODO Strip out the crate root prefix
+                hash: "".to_string(), // TODO
                 ident: relation.identifier,
                 attrs: relation.attributes,
                 item: Item::Mod, // module, crate root, or submodule file
@@ -181,6 +183,7 @@ fn collect_item_relations(path: &Path, item: &syn::Item, out: &mut Vec<Relation>
         for relation in parse::relations_from_doc(&doc) {
             out.push(Relation {
                 file: path.to_path_buf(),
+                hash: "".to_string(), // TODO
                 ident: relation.identifier,
                 attrs: relation.attributes,
                 item: Item::try_from(item)?,

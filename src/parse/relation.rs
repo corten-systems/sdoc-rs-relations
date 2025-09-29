@@ -4,10 +4,10 @@ use std::collections::BTreeMap;
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_until, take_while};
 use nom::character::complete::{alpha1, alphanumeric1, char};
-use nom::combinator::{opt, recognize};
+use nom::combinator::recognize;
 use nom::multi::{many0, many0_count};
 use nom::sequence::pair;
-use nom::{IResult, Parser};
+use nom::{AsChar, IResult, Parser};
 
 const RELATION: &str = "@relation";
 
@@ -15,17 +15,17 @@ pub fn next(input: &str) -> IResult<&str, &str> {
     take_until(RELATION)(input)
 }
 
+fn opening(input: &str) -> IResult<&str, ()> {
+    let (input, _) = (tag(RELATION), hspace, char('(')).parse(input)?;
+    Ok((input, ()))
+}
+
 fn hspace(input: &str) -> IResult<&str, ()> {
-    let (input, _) = opt(take_while(|c| c == ' ' || c == '\t')).parse(input)?;
+    let (input, _) = take_while(AsChar::is_space).parse(input)?;
     Ok((input, ()))
 }
 
-fn open(input: &str) -> IResult<&str, ()> {
-    let (input, _) = (char('('), hspace).parse(input)?;
-    Ok((input, ()))
-}
-
-fn close(input: &str) -> IResult<&str, ()> {
+fn closing(input: &str) -> IResult<&str, ()> {
     let (input, _) = (hspace, char(')')).parse(input)?;
     Ok((input, ()))
 }
@@ -61,19 +61,18 @@ fn attribute_value(input: &str) -> IResult<&str, &str> {
 }
 
 pub fn relation(input: &str) -> IResult<&str, Relation> {
-    let (input, result) = (
-        tag(RELATION),
-        open,
+    let (input, (_, identifier, attributes, _)) = (
+        opening,
         identifier,
         many0((comma, attribute_key, equals, attribute_value)),
-        close,
+        closing,
     )
         .parse(input)?;
     let mut relation = Relation {
-        identifier: result.2.to_string(),
+        identifier: identifier.to_string(), // result.2.to_string(),
         attributes: BTreeMap::new(),
     };
-    for (_, key, _, value) in result.3 {
+    for (_, key, _, value) in attributes {
         relation
             .attributes
             .insert(key.to_string(), value.to_string());
