@@ -115,8 +115,9 @@ pub struct Span {
 pub struct Relation {
     pub file: PathBuf,
     pub hash: Hash,
+    #[serde(rename = "identifier")]
     pub ident: String,
-    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty", rename = "attributes")]
     pub attrs: BTreeMap<String, String>,
     pub item: Item,
     pub span: Span,
