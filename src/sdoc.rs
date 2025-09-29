@@ -116,7 +116,7 @@ pub fn find_relations<P: AsRef<Path>>(file: &P) -> Result<Vec<Relation>> {
     let mut out: Vec<Relation> = Vec::new();
 
     // Process file-level inner doc comments (//! ...)
-    collect_file_level_relations(path, &syntax, &mut out);
+    collect_file_level_relations(path, &syntax, &mut out)?;
 
     // Walk all items recursively
     for item in &syntax.items {
@@ -126,20 +126,24 @@ pub fn find_relations<P: AsRef<Path>>(file: &P) -> Result<Vec<Relation>> {
     Ok(out)
 }
 
-fn collect_file_level_relations(path: &Path, file: &syn::File, out: &mut Vec<Relation>) {
+fn collect_file_level_relations(
+    path: &Path,
+    file: &syn::File,
+    out: &mut Vec<Relation>,
+) -> Result<()> {
     let docs = doc_strings_from_attrs(&file.attrs);
 
     if docs.is_empty() {
-        return;
+        return Ok(());
     }
 
     // Compute a span that roughly covers the file's items
     let (start, end) = file_span_from_items(&file.items);
     for doc in docs {
-        for relation in parse::relations_from_doc(&doc) {
+        for relation in parse::relations_from_doc(&doc)? {
             out.push(Relation {
                 file: path.to_path_buf(), // TODO Strip out the crate root prefix
-                hash: "".to_string(), // TODO
+                hash: "".to_string(),     // TODO
                 ident: relation.identifier,
                 attrs: relation.attributes,
                 item: Item::Mod, // module, crate root, or submodule file
@@ -147,6 +151,8 @@ fn collect_file_level_relations(path: &Path, file: &syn::File, out: &mut Vec<Rel
             });
         }
     }
+
+    Ok(())
 }
 
 fn item_attrs(item: &syn::Item) -> Result<&[syn::Attribute]> {
@@ -180,7 +186,7 @@ fn collect_item_relations(path: &Path, item: &syn::Item, out: &mut Vec<Relation>
     let end = span.end();
 
     for doc in docs {
-        for relation in parse::relations_from_doc(&doc) {
+        for relation in parse::relations_from_doc(&doc)? {
             out.push(Relation {
                 file: path.to_path_buf(),
                 hash: "".to_string(), // TODO
@@ -203,6 +209,7 @@ fn collect_item_relations(path: &Path, item: &syn::Item, out: &mut Vec<Relation>
             collect_item_relations(path, it, out)?;
         }
     }
+
     Ok(())
 }
 

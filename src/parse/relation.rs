@@ -4,7 +4,7 @@ use std::collections::BTreeMap;
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_until, take_while};
 use nom::character::complete::{alpha1, alphanumeric1, char};
-use nom::combinator::recognize;
+use nom::combinator::{peek, recognize};
 use nom::multi::{many0, many0_count};
 use nom::sequence::pair;
 use nom::{AsChar, IResult, Parser};
@@ -13,6 +13,10 @@ const RELATION: &str = "@relation";
 
 pub fn next(input: &str) -> IResult<&str, &str> {
     take_until(RELATION)(input)
+}
+
+pub fn is_opening(input: &str) -> bool {
+    peek(opening).parse(input).is_ok()
 }
 
 fn opening(input: &str) -> IResult<&str, ()> {
