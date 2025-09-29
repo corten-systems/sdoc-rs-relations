@@ -47,7 +47,7 @@ fn equals(input: &str) -> IResult<&str, ()> {
 fn identifier(input: &str) -> IResult<&str, &str> {
     recognize(pair(
         alt((alpha1, tag("_"))),
-        many0_count(alt((alphanumeric1, alt((tag("_"), tag("-")))))),
+        many0_count(alt((alphanumeric1, alt((tag("_"), tag("-")))))), // TODO Add more characters
     ))
     .parse(input)
 }

@@ -1,6 +1,6 @@
 mod relation;
 
-use anyhow::Result;
+use anyhow::{bail, Result};
 use serde::Serialize;
 
 use std::collections::BTreeMap;
@@ -29,7 +29,13 @@ pub fn relations_from_doc(mut input: &str) -> Result<Vec<Relation>> {
                     input = remaining;
                 }
                 Err(_) => {
-                    todo!(); // note a likely error
+                    const LENGTH: usize = 32;
+                    let truncated = if input.len() > LENGTH {
+                        format!("{}...", &input[..LENGTH])
+                    } else {
+                        input.to_string()
+                    };
+                    bail!("malformed: {truncated}"); // note a likely error
                 }
             }
         }
@@ -51,4 +57,16 @@ fn test_relations_from_doc() -> Result<()> {
     assert_eq!(relations[0].attributes["attr1"], "val1");
     assert_eq!(relations[1].attributes["attr2"], "val2");
     Ok(())
+}
+
+#[test]
+fn test_relations_from_doc_failure() {
+    let relations = relations_from_doc(
+        "prefix @relation(ident, attr=val&ue) suffix",
+    );
+    assert!(relations.is_err());
+    if let Err(err) = relations {
+        let message = err.to_string();
+        assert!(message.starts_with("malformed: @relation(ident, attr=val&ue)"));
+    }
 }
