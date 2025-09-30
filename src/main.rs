@@ -1,10 +1,12 @@
 use anyhow::{bail, Context, Result};
 
 use clap::Parser;
+use either::Either;
 
 use std::collections::BTreeMap;
 use std::ffi::OsStr;
 use std::fs;
+use std::fs::File;
 use std::io::{self, Write};
 use std::path::{Path, PathBuf};
 
@@ -22,9 +24,19 @@ struct Args {
     output: PathBuf,
 }
 
+pub fn open(path: &OsStr) -> io::Result<impl Write> {
+    Ok(if path == "-" {
+        Either::Left(io::stdout().lock())
+    } else {
+        Either::Right(io::BufWriter::new(File::open(path)?))
+    })
+}
+
 fn main() -> Result<()> {
     // Parse command-line arguments
     let args = Args::parse();
+
+    // TODO process individual files, if a single file is provided
 
     // Validate that the provided path exists and is a directory
     if !args.path.exists() {
@@ -42,20 +54,10 @@ fn main() -> Result<()> {
         relationships.insert(file, relations);
     }
 
-    // Serialize relationships to JSON and write to the requested output
-    if args.output.as_os_str() == OsStr::new("-") {
-        let stdout = io::stdout();
-        let mut handle = stdout.lock();
-        serde_json::to_writer_pretty(&mut handle, &relationships)?;
-        handle.write_all(b"\n").ok();
-    } else {
-        let file = fs::File::create(&args.output)
-            .with_context(|| format!("failed to create output file: {}", args.output.display()))?;
-        let mut writer = io::BufWriter::new(file);
-        serde_json::to_writer_pretty(&mut writer, &relationships)?;
-        writer.write_all(b"\n").ok();
-    }
-
+    let mut writer = open(args.output.as_os_str())?;
+    serde_json::to_writer_pretty(&mut writer, &relationships)?;
+    writer.write_all(b"\n")?;
+    
     Ok(())
 }
 

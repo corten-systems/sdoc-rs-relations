@@ -11,6 +11,7 @@ readme = "FIXME *** README.md"
 
 [dependencies]
 anyhow = { version = "1.0.100" }
+either = "1.15.0"
 clap = { version = "4.5.48", features = ["derive"] }
 nom = "8.0.0"
 proc-macro2 = { version = "1.0.101", features = ["span-locations"] }
