@@ -158,6 +158,8 @@ pub fn find_relations<P: AsRef<Path>, R: AsRef<Path>>(
         )
     })?;
 
+    parse::tree::parse_file(&syntax)?;
+
     // Determine the path to store in `Relation.file` relative to the crate root
     let relative_path = path.strip_prefix(crate_root).unwrap_or(path);
 

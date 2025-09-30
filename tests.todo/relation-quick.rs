@@ -33,12 +33,19 @@ fn test_function2() {
 
 /// This function has @relation(FUNC-003, complexity=medium, tested=true)
 fn test_function3() {
+    //! This is an inner doc comment with @relation(FUNC-004-INNER)
     println!("Test");
+    /// This is an inner doc comment with @relation(STRUCT-005-INNER)
+    struct Foo {
+        /// And this field has @relation(FIELD-005-INNER) to test the relation parser
+        bar: String,
+    }
 }
-
 
 /// This struct represents @relation(STRUCT-001, type=data)
 struct TestStruct {
-    /// And this field has @relation(FIELD-001) to test the relation parser
+    /// And this field has @relation(FIELD-001-INNER) to test the relation parser
     field: String,
+    /// This is an inner doc comment with @relation(FIELD-002-OUTER)
+    field2: String,
 }

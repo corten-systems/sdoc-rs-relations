@@ -1,4 +1,5 @@
 mod relation;
+pub mod tree;
 
 use anyhow::{bail, Result};
 use serde::Serialize;
