@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 
 use std::cmp::Ordering;
 use std::collections::BTreeMap;
@@ -36,6 +36,16 @@ impl Ord for LineColumn {
         self.line
             .cmp(&other.line)
             .then(self.column.cmp(&other.column))
+    }
+}
+
+impl From<proc_macro2::LineColumn> for LineColumn {
+    fn from(lc: proc_macro2::LineColumn) -> Self {
+        LineColumn {
+            line: NonZeroUsize::new(lc.line)
+                .expect("proc_macro2::LineColumn line numbers should be non-zero"),
+            column: lc.column,
+        }
     }
 }
 
@@ -117,7 +127,11 @@ pub struct Relation {
     pub hash: Hash,
     #[serde(rename = "identifier")]
     pub ident: String,
-    #[serde(default, skip_serializing_if = "BTreeMap::is_empty", rename = "attributes")]
+    #[serde(
+        default,
+        skip_serializing_if = "BTreeMap::is_empty",
+        rename = "attributes"
+    )]
     pub attrs: BTreeMap<String, String>,
     pub item: Item,
     pub span: Span,
@@ -249,8 +263,8 @@ fn collect_item_relations(
                 attrs: relation.attributes,
                 item: Item::try_from(item)?,
                 span: Span {
-                    start: to_line_col(start),
-                    end: to_line_col(end),
+                    start: start.into(),
+                    end: end.into(),
                 },
             });
         }
@@ -268,22 +282,13 @@ fn collect_item_relations(
     Ok(())
 }
 
-fn to_line_col(lc: proc_macro2::LineColumn) -> LineColumn {
-    // proc_macro2::LineColumn uses 1-based lines, so this should never be zero
-    LineColumn {
-        line: NonZeroUsize::new(lc.line)
-            .expect("proc_macro2::LineColumn line numbers are 1-based and non-zero"),
-        column: lc.column,
-    }
-}
-
 fn file_span_from_items(items: &[syn::Item]) -> (LineColumn, LineColumn) {
     // Fold over items once, tracking the minimal start and maximal end in our own
     // Ord-enabled LineColumn representation.
     let acc: Option<(LineColumn, LineColumn)> = items.iter().fold(None, |acc, it| {
         let s = it.span();
-        let start = to_line_col(s.start());
-        let end = to_line_col(s.end());
+        let start: LineColumn = s.start().into();
+        let end: LineColumn = s.end().into();
         match acc {
             None => Some((start, end)),
             Some((min_start, max_end)) => Some((min_start.min(start), max_end.max(end))),
@@ -295,7 +300,7 @@ fn file_span_from_items(items: &[syn::Item]) -> (LineColumn, LineColumn) {
     } else {
         // Fallback for empty files: both at (1,0)
         let lc = proc_macro2::LineColumn { line: 1, column: 0 };
-        let lc = to_line_col(lc);
+        let lc: LineColumn = lc.into();
         (lc, lc)
     }
 }
