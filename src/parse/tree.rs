@@ -1,5 +1,3 @@
-use anyhow::Result;
-
 use syn::visit::{self, Visit};
 use syn::{
     Attribute, File, ItemConst, ItemEnum, ItemExternCrate, ItemFn, ItemForeignMod, ItemImpl,
@@ -7,7 +5,30 @@ use syn::{
     ItemUse, Meta,
 };
 
-struct Visitor;
+use crate::parse::Span;
+use crate::sdoc::Item;
+
+#[derive(Clone, Debug)]
+pub enum Scope {
+    File,
+    Item(Item),
+}
+
+#[derive(Clone, Debug)]
+pub struct Place {
+    pub scope: Scope,
+    pub span: Span,
+}
+
+#[derive(Clone, Debug)]
+pub struct Visitor;
+
+impl Visitor {
+    pub fn visit(file: &File) {
+        let mut visitor = Visitor;
+        visitor.visit_file(file);
+    }
+}
 
 impl<'ast> Visit<'ast> for Visitor {
     fn visit_attribute(&mut self, node: &'ast Attribute) {
@@ -122,10 +143,4 @@ impl<'ast> Visit<'ast> for Visitor {
         // todo!();
         visit::visit_item_use(self, node);
     }
-}
-
-pub fn parse_file(file: &File) -> Result<()> {
-    let mut visitor = Visitor;
-    visitor.visit_file(file);
-    Ok(())
 }

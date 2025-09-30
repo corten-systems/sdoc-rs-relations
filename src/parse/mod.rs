@@ -3,10 +3,65 @@ pub mod tree;
 
 use anyhow::{bail, Result};
 use serde::Serialize;
-
-use std::collections::BTreeMap;
+use std::cmp::Ordering;
 
 use crate::parse::relation::{is_opening, next, relation};
+use std::collections::BTreeMap;
+use std::num::NonZeroUsize;
+
+/// Line and column numbers are 1-based and 0-based, respectively,
+/// consistent with the definition in [`proc_macro2::LineColumn`](https://docs.rs/proc-macro2/latest/proc_macro2/struct.LineColumn.html).
+/// However, we specify `line` as a `NonZeroUsize` to make this more explicit.
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize)]
+pub struct LineColumn {
+    /// The 1-indexed line in the source file on which the span starts or ends (inclusive).
+    pub line: NonZeroUsize,
+    /// The 0-indexed column (in UTF-8 characters) in the source file on which the span starts or ends (inclusive).
+    pub column: usize,
+}
+
+/// Copied from [`proc_macro2::LineColumn`](https://docs.rs/proc-macro2/latest/proc_macro2/struct.LineColumn.html).
+impl PartialOrd for LineColumn {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+/// Copied from [`proc_macro2::LineColumn`](https://docs.rs/proc-macro2/latest/proc_macro2/struct.LineColumn.html).
+impl Ord for LineColumn {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.line
+            .cmp(&other.line)
+            .then(self.column.cmp(&other.column))
+    }
+}
+
+impl From<proc_macro2::LineColumn> for LineColumn {
+    fn from(lc: proc_macro2::LineColumn) -> Self {
+        LineColumn {
+            line: NonZeroUsize::new(lc.line)
+                .expect("proc_macro2::LineColumn line numbers should be non-zero"),
+            column: lc.column,
+        }
+    }
+}
+
+/// Copied from [`proc_macro2::Span.html`](https://docs.rs/proc-macro2/latest/proc_macro2/struct.Span.html).
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
+pub struct Span {
+    pub start: LineColumn,
+    pub end: LineColumn,
+}
+
+/// Easy conversion from [`proc_macro2::Span.html`](https://docs.rs/proc-macro2/latest/proc_macro2/struct.Span.html).
+impl From<proc_macro2::Span> for Span {
+    fn from(span: proc_macro2::Span) -> Self {
+        Span {
+            start: span.start().into(),
+            end: span.end().into(),
+        }
+    }
+}
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
 pub struct Relation {

@@ -1,53 +1,14 @@
-use anyhow::{Context, Result, anyhow};
+use anyhow::{anyhow, Context, Result};
 
-use std::cmp::Ordering;
 use std::collections::BTreeMap;
 use std::fs;
-use std::num::NonZeroUsize;
 use std::path::{Path, PathBuf};
 
+use crate::parse;
+use crate::parse::{LineColumn, Span};
 use serde::Serialize;
 use sha2::{Digest, Sha256};
 use syn::spanned::Spanned;
-
-use crate::parse;
-
-/// Line and column numbers are 1-based and 0-based, respectively,
-/// consistent with the definition in [`proc_macro2::LineColumn`](https://docs.rs/proc-macro2/latest/proc_macro2/struct.LineColumn.html).
-/// However, we specify `line` as a `NonZeroUsize` to make this more explicit.
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize)]
-pub struct LineColumn {
-    /// The 1-indexed line in the source file on which the span starts or ends (inclusive).
-    pub line: NonZeroUsize,
-    /// The 0-indexed column (in UTF-8 characters) in the source file on which the span starts or ends (inclusive).
-    pub column: usize,
-}
-
-/// Copied from [`proc_macro2::LineColumn`](https://docs.rs/proc-macro2/latest/proc_macro2/struct.LineColumn.html).
-impl PartialOrd for LineColumn {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-/// Copied from [`proc_macro2::LineColumn`](https://docs.rs/proc-macro2/latest/proc_macro2/struct.LineColumn.html).
-impl Ord for LineColumn {
-    fn cmp(&self, other: &Self) -> Ordering {
-        self.line
-            .cmp(&other.line)
-            .then(self.column.cmp(&other.column))
-    }
-}
-
-impl From<proc_macro2::LineColumn> for LineColumn {
-    fn from(lc: proc_macro2::LineColumn) -> Self {
-        LineColumn {
-            line: NonZeroUsize::new(lc.line)
-                .expect("proc_macro2::LineColumn line numbers should be non-zero"),
-            column: lc.column,
-        }
-    }
-}
 
 /// Copied from [`syn::Item`](https://docs.rs/syn/latest/syn/enum.Item.html).
 /// This is exhaustive, but when we convert from `syn::Item` to `Item,` we make it
@@ -107,17 +68,10 @@ pub enum Hash {
 impl From<&Vec<u8>> for Hash {
     fn from(bytes: &Vec<u8>) -> Self {
         let mut hasher = Sha256::new();
-        hasher.update(&bytes);
+        hasher.update(bytes);
         let hash = format!("{:x}", hasher.finalize());
         Self::Sha256(hash)
     }
-}
-
-/// Copied from [`proc_macro2::Span.html`](https://docs.rs/proc-macro2/latest/proc_macro2/struct.Span.html).
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
-pub struct Span {
-    pub start: LineColumn,
-    pub end: LineColumn,
 }
 
 /// This is the information we require to [link source code to requirements](https://strictdoc.readthedocs.io/en/stable/stable/docs/strictdoc_01_user_guide.html#10.2-Linking-source-code-to-requirements).
@@ -172,7 +126,7 @@ pub fn find_relations<P: AsRef<Path>, R: AsRef<Path>>(
         )
     })?;
 
-    parse::tree::parse_file(&syntax)?;
+    parse::tree::Visitor::visit(&syntax);
 
     // Determine the path to store in `Relation.file` relative to the crate root
     let relative_path = path.strip_prefix(crate_root).unwrap_or(path);
@@ -282,6 +236,7 @@ fn collect_item_relations(
     Ok(())
 }
 
+// TODO Remove me
 fn file_span_from_items(items: &[syn::Item]) -> (LineColumn, LineColumn) {
     // Fold over items once, tracking the minimal start and maximal end in our own
     // Ord-enabled LineColumn representation.
