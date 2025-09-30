@@ -1,13 +1,13 @@
-use anyhow::{bail, Context, Result};
+use anyhow::Result;
 
 use clap::Parser;
 use either::Either;
+use walkdir::WalkDir;
 
 use std::collections::BTreeMap;
 use std::ffi::OsStr;
-use std::fs;
 use std::fs::File;
-use std::io::{self, Write};
+use std::io::{self, BufRead, Write};
 use std::path::{Path, PathBuf};
 
 mod parse;
@@ -24,7 +24,15 @@ struct Args {
     output: PathBuf,
 }
 
-pub fn open(path: &OsStr) -> io::Result<impl Write> {
+pub fn reader_for(path: &OsStr) -> io::Result<impl BufRead> {
+    Ok(if path == "-" {
+        Either::Left(io::stdin().lock())
+    } else {
+        Either::Right(io::BufReader::new(File::open(path)?))
+    })
+}
+
+pub fn writer_for(path: &OsStr) -> io::Result<impl Write> {
     Ok(if path == "-" {
         Either::Left(io::stdout().lock())
     } else {
@@ -36,16 +44,6 @@ fn main() -> Result<()> {
     // Parse command-line arguments
     let args = Args::parse();
 
-    // TODO process individual files, if a single file is provided
-
-    // Validate that the provided path exists and is a directory
-    if !args.path.exists() {
-        bail!("path does not exist: {}", args.path.display());
-    }
-    if !args.path.is_dir() {
-        bail!("path is not a directory: {}", args.path.display());
-    }
-
     // Find Rust source files and process them
     let files = find_rust_files(&args.path)?;
     let mut relationships = BTreeMap::new();
@@ -54,49 +52,30 @@ fn main() -> Result<()> {
         relationships.insert(file, relations);
     }
 
-    let mut writer = open(args.output.as_os_str())?;
+    let mut writer = writer_for(args.output.as_os_str())?;
     serde_json::to_writer_pretty(&mut writer, &relationships)?;
     writer.write_all(b"\n")?;
-    
+
     Ok(())
 }
 
 /// Collect all Rust source files ("*.rs") starting from `root` and all
-/// subdirectories. This function does not follow symbolic links.
+/// subdirectories. This function does not follow symbolic links with the
+/// exception if the root is a symbolic link itself.
 fn find_rust_files<P: AsRef<Path>>(root: P) -> Result<Vec<PathBuf>> {
-    let root = root.as_ref();
-    if !root.is_dir() {
-        bail!("root path is not a directory: {}", root.display());
-    }
-
-    let mut files: Vec<PathBuf> = Vec::new();
-    let mut stack: Vec<PathBuf> = vec![root.to_path_buf()];
-
-    while let Some(dir) = stack.pop() {
-        let read_dir = fs::read_dir(&dir)
-            .with_context(|| format!("failed to read directory: {}", dir.display()))?;
-        for entry in read_dir {
-            let entry = entry.with_context(|| {
-                format!("failed to access entry in directory: {}", dir.display())
-            })?;
-            let file_type = entry.file_type().with_context(|| {
-                format!("failed to get file type for: {}", entry.path().display())
-            })?;
-
-            if file_type.is_symlink() {
-                // Do not follow symbolic links
-                continue;
-            } else if file_type.is_dir() {
-                stack.push(entry.path());
-            } else if file_type.is_file()
-                && entry.path().extension().and_then(|s| s.to_str()) == Some("rs")
-            {
-                files.push(entry.path());
-            }
+    let walker = WalkDir::new(root)
+        .follow_root_links(true)
+        .follow_links(false)
+        .into_iter();
+    let mut result = vec![];
+    let rs_extension = Some(OsStr::new("rs"));
+    for entry in walker {
+        let path = entry?.into_path();
+        if path.is_file() && path.extension() == rs_extension {
+            result.push(path);
         }
     }
-
-    // Sort for deterministic order
-    files.sort();
-    Ok(files)
+    result.sort_unstable();
+    result.dedup();
+    Ok(result)
 }
