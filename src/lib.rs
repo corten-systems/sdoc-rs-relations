@@ -1,2 +1,2 @@
-pub mod sdoc;
 pub mod parse;
+pub mod sdoc;

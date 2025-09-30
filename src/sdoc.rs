@@ -4,11 +4,12 @@ use std::collections::BTreeMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use crate::parse;
-use crate::parse::{LineColumn, Span};
 use serde::Serialize;
 use sha2::{Digest, Sha256};
-use syn::spanned::Spanned;
+
+use crate::parse;
+use crate::parse::tree::Scope;
+use crate::parse::Span;
 
 /// Copied from [`syn::Item`](https://docs.rs/syn/latest/syn/enum.Item.html).
 /// This is exhaustive, but when we convert from `syn::Item` to `Item,` we make it
@@ -74,12 +75,17 @@ impl From<&Vec<u8>> for Hash {
     }
 }
 
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
+pub struct Relations {
+    pub file: PathBuf,
+    pub hash: Hash,
+    pub relations: Vec<Relation>,
+}
+
 /// This is the information we require to [link source code to requirements](https://strictdoc.readthedocs.io/en/stable/stable/docs/strictdoc_01_user_guide.html#10.2-Linking-source-code-to-requirements).
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
 pub struct Relation {
-    pub file: PathBuf,
-    pub hash: Hash,
-    #[serde(rename = "identifier")]
+    #[serde(rename = "relation")]
     pub ident: String,
     #[serde(
         default,
@@ -87,7 +93,7 @@ pub struct Relation {
         rename = "attributes"
     )]
     pub attrs: BTreeMap<String, String>,
-    pub item: Item,
+    pub scope: Scope,
     pub span: Span,
 }
 
@@ -95,7 +101,7 @@ pub struct Relation {
 pub fn find_relations<P: AsRef<Path>, R: AsRef<Path>>(
     file: &P,
     crate_root: &R,
-) -> Result<Vec<Relation>> {
+) -> Result<Relations> {
     let path = file.as_ref();
     let crate_root = crate_root.as_ref();
 
@@ -114,7 +120,7 @@ pub fn find_relations<P: AsRef<Path>, R: AsRef<Path>>(
         )
     })?;
 
-    let syntax = syn::parse_file(&src).map_err(|err| {
+    let file_ast = syn::parse_file(&src).map_err(|err| {
         let span = err.span();
         let start = span.start();
         anyhow!(
@@ -126,158 +132,30 @@ pub fn find_relations<P: AsRef<Path>, R: AsRef<Path>>(
         )
     })?;
 
-    parse::tree::Visitor::visit(&syntax);
-
     // Determine the path to store in `Relation.file` relative to the crate root
     let relative_path = path.strip_prefix(crate_root).unwrap_or(path);
 
-    let mut out: Vec<Relation> = Vec::new();
+    let mut relations = Relations {
+        file: relative_path.to_path_buf(),
+        hash: hash.clone(),
+        relations: vec![],
+    };
 
-    // Process file-level inner doc comments (//! ...)
-    collect_file_level_relations(relative_path, &hash, &syntax, &mut out)?;
-
-    // Walk all items recursively
-    for item in &syntax.items {
-        collect_item_relations(relative_path, &hash, item, &mut out)?;
-    }
-
-    Ok(out)
-}
-fn collect_file_level_relations(
-    path: &Path,
-    hash: &Hash,
-    file: &syn::File,
-    out: &mut Vec<Relation>,
-) -> Result<()> {
-    let docs = doc_strings_from_attrs(&file.attrs);
-
-    if docs.is_empty() {
-        return Ok(());
-    }
-
-    // Compute a span that roughly covers the file's items
-    let (start, end) = file_span_from_items(&file.items);
-    for doc in docs {
-        for relation in parse::relations_from_doc(&doc)? {
-            out.push(Relation {
-                file: path.to_path_buf(),
-                hash: hash.clone(),
-                ident: relation.identifier,
-                attrs: relation.attributes,
-                item: Item::Mod, // module, crate root, or submodule file
-                span: Span { start, end },
-            });
+    // Parse the file and collect all the places
+    let places = parse::tree::Visitor::visit(&file_ast);
+    for place in &places {
+        for doc in &place.docs {
+            for relation in parse::relations_from_doc(doc)? {
+                let relation = Relation {
+                    ident: relation.identifier,
+                    attrs: relation.attributes,
+                    scope: place.scope,
+                    span: place.span,
+                };
+                relations.relations.push(relation);
+            }
         }
     }
 
-    Ok(())
-}
-
-fn item_attrs(item: &syn::Item) -> Result<&[syn::Attribute]> {
-    match item {
-        syn::Item::Const(i) => Ok(&i.attrs),
-        syn::Item::Enum(i) => Ok(&i.attrs),
-        syn::Item::ExternCrate(i) => Ok(&i.attrs),
-        syn::Item::Fn(i) => Ok(&i.attrs),
-        syn::Item::ForeignMod(i) => Ok(&i.attrs),
-        syn::Item::Impl(i) => Ok(&i.attrs),
-        syn::Item::Macro(i) => Ok(&i.attrs),
-        syn::Item::Mod(i) => Ok(&i.attrs),
-        syn::Item::Static(i) => Ok(&i.attrs),
-        syn::Item::Struct(i) => Ok(&i.attrs),
-        syn::Item::Trait(i) => Ok(&i.attrs),
-        syn::Item::TraitAlias(i) => Ok(&i.attrs),
-        syn::Item::Type(i) => Ok(&i.attrs),
-        syn::Item::Union(i) => Ok(&i.attrs),
-        syn::Item::Use(i) => Ok(&i.attrs),
-        syn::Item::Verbatim(_) => Err(anyhow!("unsupported syn::Item variant")),
-        _ => Err(anyhow!("non-exhaustive syn::Item variant")),
-    }
-}
-
-fn collect_item_relations(
-    path: &Path,
-    hash: &Hash,
-    item: &syn::Item,
-    out: &mut Vec<Relation>,
-) -> Result<()> {
-    // Extract doc strings from the item's attributes (outer and inner)
-    let docs = doc_strings_from_attrs(item_attrs(item)?);
-
-    let span = item.span();
-    let start = span.start();
-    let end = span.end();
-
-    for doc in docs {
-        for relation in parse::relations_from_doc(&doc)? {
-            out.push(Relation {
-                file: path.to_path_buf(),
-                hash: hash.clone(),
-                ident: relation.identifier,
-                attrs: relation.attributes,
-                item: Item::try_from(item)?,
-                span: Span {
-                    start: start.into(),
-                    end: end.into(),
-                },
-            });
-        }
-    }
-
-    // Recurse into module contents if any
-    if let syn::Item::Mod(m) = item
-        && let Some((_brace, items)) = &m.content
-    {
-        for it in items {
-            collect_item_relations(path, hash, it, out)?;
-        }
-    }
-
-    Ok(())
-}
-
-// TODO Remove me
-fn file_span_from_items(items: &[syn::Item]) -> (LineColumn, LineColumn) {
-    // Fold over items once, tracking the minimal start and maximal end in our own
-    // Ord-enabled LineColumn representation.
-    let acc: Option<(LineColumn, LineColumn)> = items.iter().fold(None, |acc, it| {
-        let s = it.span();
-        let start: LineColumn = s.start().into();
-        let end: LineColumn = s.end().into();
-        match acc {
-            None => Some((start, end)),
-            Some((min_start, max_end)) => Some((min_start.min(start), max_end.max(end))),
-        }
-    });
-
-    if let Some((s, e)) = acc {
-        (s, e)
-    } else {
-        // Fallback for empty files: both at (1,0)
-        let lc = proc_macro2::LineColumn { line: 1, column: 0 };
-        let lc: LineColumn = lc.into();
-        (lc, lc)
-    }
-}
-
-fn doc_strings_from_attrs(attrs: &[syn::Attribute]) -> Vec<String> {
-    use syn::{Meta, MetaNameValue};
-    let mut out = Vec::new();
-    for attr in attrs {
-        if !attr.path().is_ident("doc") {
-            continue;
-        }
-        if let Meta::NameValue(MetaNameValue {
-            value:
-                syn::Expr::Lit(syn::ExprLit {
-                    lit: syn::Lit::Str(ls),
-                    ..
-                }),
-            ..
-        }) = &attr.meta
-        {
-            out.push(ls.value());
-        }
-    }
-    out
+    Ok(relations)
 }
