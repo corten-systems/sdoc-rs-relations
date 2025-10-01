@@ -248,6 +248,14 @@ pub fn struct_expression_test() {
     };
 }
 
+/// Test a few other test cases
+fn expr_path(x: i32) -> i32 {
+    /// Test a Local with @relation(ssp1x3j0)
+    let y = x + 3;
+    /// Test an Expression Path with @relation(e7p9w1i5)
+    x * 2
+}
+
 #[cfg(test)]
 mod tests {
     /// Test function with @relation(g9h1j3k5)
