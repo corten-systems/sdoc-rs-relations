@@ -314,6 +314,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "sdoc-rs-relations"
+version = "1.0.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "either",
+ "nom",
+ "paste",
+ "proc-macro2",
+ "serde",
+ "serde_json",
+ "sha2",
+ "syn",
+ "tempfile",
+ "walkdir",
+]
+
+[[package]]
 name = "serde"
 version = "1.0.228"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -365,24 +383,6 @@ dependencies = [
  "cfg-if",
  "cpufeatures",
  "digest",
-]
-
-[[package]]
-name = "strictdoc-rs"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "clap",
- "either",
- "nom",
- "paste",
- "proc-macro2",
- "serde",
- "serde_json",
- "sha2",
- "syn",
- "tempfile",
- "walkdir",
 ]
 
 [[package]]
