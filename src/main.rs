@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 
 use clap::Parser;
 use either::Either;
@@ -16,12 +16,15 @@ mod sdoc;
 #[derive(Debug, Parser)]
 #[command(version, about, long_about = None)]
 struct Args {
-    /// Path to the crate root directory
-    #[arg(short = 'c', long = "crate", value_name = "PATH", default_value = ".")]
-    path: PathBuf,
+    /// Prefix path to remove from each filename entry
+    #[arg(short = 'p', long = "prefix", value_name = "PREFIX", default_value = ".")]
+    prefix: PathBuf,
     /// Output file (use '-' or omit for output to stdout)
     #[arg(short = 'o', long = "output", value_name = "FILE", default_value = "-")]
     output: PathBuf,
+    /// List of files and directories to search for Rust files
+    #[arg(value_name = "PATHS")]
+    paths: Vec<PathBuf>,
 }
 
 pub fn reader_for(path: &OsStr) -> io::Result<impl BufRead> {
@@ -45,10 +48,15 @@ fn main() -> Result<()> {
     let args = Args::parse();
 
     // Find Rust source files and process them
-    let files = find_rust_files(&args.path)?;
+    let mut files = vec![];
+    for path in &args.paths {
+        files.extend(find_rust_files(path)?);
+    }
+
     let mut relationships = BTreeMap::new();
     for file in files {
-        let relations = sdoc::find_relations(&file, &args.path)?;
+        let relations =
+            sdoc::find_relations(&file, &args.prefix)?;
         relationships.insert(file, relations);
     }
 
@@ -61,21 +69,33 @@ fn main() -> Result<()> {
 
 /// Collect all Rust source files ("*.rs") starting from `root` and all
 /// subdirectories. This function does not follow symbolic links with the
-/// exception if the root is a symbolic link itself.
+/// exception if the root is a symbolic link itself. Note that the root
+/// can be a file, in which case it is returned, or a directory, in which
+/// case it is walked.
 fn find_rust_files<P: AsRef<Path>>(root: P) -> Result<Vec<PathBuf>> {
-    let walker = WalkDir::new(root)
-        .follow_root_links(true)
-        .follow_links(false)
-        .into_iter();
-    let mut result = vec![];
     let rs_extension = Some(OsStr::new("rs"));
-    for entry in walker {
-        let path = entry?.into_path();
-        if path.is_file() && path.extension() == rs_extension {
-            result.push(path);
+    let root = root.as_ref();
+    if root.is_file() && root.extension() == rs_extension {
+        Ok(vec![root.to_path_buf()])
+    } else if root.is_dir() {
+        let walker = WalkDir::new(root)
+            .follow_root_links(true)
+            .follow_links(false)
+            .into_iter();
+        let mut result = vec![];
+        for entry in walker {
+            let path = entry?.into_path();
+            if path.is_file() && path.extension() == rs_extension {
+                result.push(path);
+            }
         }
+        result.sort_unstable();
+        result.dedup();
+        Ok(result)
+    } else {
+        Err(anyhow!(
+            "does not resolve to a directory or Rust file: {}",
+            root.display()
+        ))
     }
-    result.sort_unstable();
-    result.dedup();
-    Ok(result)
 }

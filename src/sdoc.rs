@@ -99,11 +99,11 @@ pub struct Relation {
 
 /// Analyze the provided Rust source file and find relations between items, storing file paths relative to the crate root.
 pub fn find_relations<P: AsRef<Path>, R: AsRef<Path>>(
-    file: &P,
-    crate_root: &R,
+    path: &P,
+    prefix: &R,
 ) -> Result<Relations> {
-    let path = file.as_ref();
-    let crate_root = crate_root.as_ref();
+    let path = path.as_ref();
+    let prefix = prefix.as_ref();
 
     // Read the file into a byte array
     let bytes = fs::read(path)
@@ -133,7 +133,7 @@ pub fn find_relations<P: AsRef<Path>, R: AsRef<Path>>(
     })?;
 
     // Determine the path to store in `Relation.file` relative to the crate root
-    let relative_path = path.strip_prefix(crate_root).unwrap_or(path);
+    let relative_path = path.strip_prefix(prefix).unwrap_or(path);
 
     let mut relations = Relations {
         file: relative_path.to_path_buf(),
