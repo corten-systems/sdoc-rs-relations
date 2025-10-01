@@ -186,6 +186,8 @@ impl<'ast> Visit<'ast> for Visitor {
         visit::visit_attribute(self, node);
     }
 
+    // These should be one-to-one with the `Scope` enum.
+    //
     visit!(Arm);
     visit!(BareFnArg);
     visit!(BareVariadic);

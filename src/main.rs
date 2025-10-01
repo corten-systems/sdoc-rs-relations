@@ -4,7 +4,6 @@ use clap::Parser;
 use either::Either;
 use walkdir::WalkDir;
 
-use std::collections::BTreeMap;
 use std::ffi::OsStr;
 use std::fs::File;
 use std::io::{self, BufRead, Write};
@@ -58,12 +57,10 @@ fn main() -> Result<()> {
         files.extend(find_rust_files(path)?);
     }
 
-    // FIXME redunant filename FIXME
-    
-    let mut relationships = BTreeMap::new();
+    let mut relationships = vec![];
     for file in files {
         let relations = sdoc::find_relations(&file, &args.prefix)?;
-        relationships.insert(file, relations);
+        relationships.push(relations);
     }
 
     let mut writer = writer_for(args.output.as_os_str())?;
