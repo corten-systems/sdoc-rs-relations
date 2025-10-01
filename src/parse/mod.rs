@@ -116,11 +116,10 @@ fn test_relations_from_doc() -> Result<()> {
 }
 
 #[test]
-fn test_relations_from_doc_failure() {
-    let relations = relations_from_doc("prefix @relation(ident, attr=va{}ue) suffix");
-    assert!(relations.is_err());
-    if let Err(err) = relations {
-        let message = err.to_string();
-        assert!(message.starts_with("malformed: @relation(ident, attr=va{}ue)"));
-    }
+fn test_relations_from_doc_braces_value_ok() -> Result<()> {
+    let relations = relations_from_doc("prefix @relation(ident, attr=va{}ue) suffix")?;
+    assert_eq!(relations.len(), 1);
+    assert_eq!(relations[0].identifier, "ident");
+    assert_eq!(relations[0].attributes["attr"], "va{}ue");
+    Ok(())
 }

@@ -1,12 +1,10 @@
 use crate::parse::Relation;
 use std::collections::BTreeMap;
 
-use nom::branch::alt;
-use nom::bytes::complete::{tag, take_until, take_while};
-use nom::character::complete::{alpha1, alphanumeric1, char, one_of};
-use nom::combinator::{peek, recognize};
-use nom::multi::{many0, many0_count};
-use nom::sequence::pair;
+use nom::bytes::complete::{tag, take_until, take_while, take_while1};
+use nom::character::complete::char;
+use nom::combinator::peek;
+use nom::multi::many0;
 use nom::{AsChar, IResult, Parser};
 
 const RELATION: &str = "@relation";
@@ -44,24 +42,29 @@ fn equals(input: &str) -> IResult<&str, ()> {
     Ok((input, ()))
 }
 
+// In the future we may want to restrict the characters allowed in identifiers,
+// attribute keys, and attribute values. But since we use JSON for interchange,
+// for now we allow those tokens to be as general as possible and still
+// allow really simple, unambiguous parsing. We will assume the upstream
+// application that consumes our output will restrict the tokens further.
+
+fn restricted_ascii(input: &str) -> IResult<&str, &str> {
+    // Accept one or more ASCII "graphic" characters excluding: [,=()]
+    // - `is_ascii_graphic()` matches '!'..='~' (printable, non-space)
+    // - we then then exclude the additional disallowed characters
+    take_while1(|c: char| c.is_ascii_graphic() && !matches!(c, ',' | '=' | '(' | ')'))(input)
+}
+
 fn identifier(input: &str) -> IResult<&str, &str> {
-    recognize(pair(
-        alt((alpha1, recognize(pair(tag("_"), alpha1)))),
-        many0_count(alt((alphanumeric1, recognize(one_of("-_.:/|"))))),
-    ))
-    .parse(input)
+    restricted_ascii.parse(input)
 }
 
 fn attribute_key(input: &str) -> IResult<&str, &str> {
-    recognize(pair(
-        alt((alpha1, recognize(pair(tag("_"), alpha1)))),
-        many0_count(alt((alphanumeric1, tag("_")))),
-    ))
-    .parse(input)
+    restricted_ascii.parse(input)
 }
 
 fn attribute_value(input: &str) -> IResult<&str, &str> {
-    identifier.parse(input)
+    restricted_ascii.parse(input)
 }
 
 pub fn relation(input: &str) -> IResult<&str, Relation> {
