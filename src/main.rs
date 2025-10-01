@@ -17,7 +17,12 @@ mod sdoc;
 #[command(version, about, long_about = None)]
 struct Args {
     /// Prefix path to remove from each filename entry
-    #[arg(short = 'p', long = "prefix", value_name = "PREFIX", default_value = ".")]
+    #[arg(
+        short = 'p',
+        long = "prefix",
+        value_name = "PREFIX",
+        default_value = "."
+    )]
     prefix: PathBuf,
     /// Output file (use '-' or omit for output to stdout)
     #[arg(short = 'o', long = "output", value_name = "FILE", default_value = "-")]
@@ -53,10 +58,11 @@ fn main() -> Result<()> {
         files.extend(find_rust_files(path)?);
     }
 
+    // FIXME redunant filename FIXME
+    
     let mut relationships = BTreeMap::new();
     for file in files {
-        let relations =
-            sdoc::find_relations(&file, &args.prefix)?;
+        let relations = sdoc::find_relations(&file, &args.prefix)?;
         relationships.insert(file, relations);
     }
 

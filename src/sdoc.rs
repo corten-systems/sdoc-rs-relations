@@ -11,54 +11,6 @@ use crate::parse;
 use crate::parse::tree::Scope;
 use crate::parse::Span;
 
-/// Copied from [`syn::Item`](https://docs.rs/syn/latest/syn/enum.Item.html).
-/// This is exhaustive, but when we convert from `syn::Item` to `Item,` we make it
-/// an error to match the wildcard pattern since `syn:Item` is `non-exhaustive`.
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
-#[serde(tag = "type")]
-pub enum Item {
-    Const,
-    Enum,
-    ExternCrate,
-    Fn,
-    ForeignMod,
-    Impl,
-    Macro,
-    Mod,
-    Static,
-    Struct,
-    Trait,
-    TraitAlias,
-    Type,
-    Union,
-    Use,
-}
-
-impl TryFrom<&syn::Item> for Item {
-    type Error = anyhow::Error;
-    fn try_from(item: &syn::Item) -> Result<Self> {
-        match item {
-            syn::Item::Const(_) => Ok(Item::Const),
-            syn::Item::Enum(_) => Ok(Item::Enum),
-            syn::Item::ExternCrate(_) => Ok(Item::ExternCrate),
-            syn::Item::Fn(_) => Ok(Item::Fn),
-            syn::Item::ForeignMod(_) => Ok(Item::ForeignMod),
-            syn::Item::Impl(_) => Ok(Item::Impl),
-            syn::Item::Macro(_) => Ok(Item::Macro),
-            syn::Item::Mod(_) => Ok(Item::Mod),
-            syn::Item::Static(_) => Ok(Item::Static),
-            syn::Item::Struct(_) => Ok(Item::Struct),
-            syn::Item::Trait(_) => Ok(Item::Trait),
-            syn::Item::TraitAlias(_) => Ok(Item::TraitAlias),
-            syn::Item::Type(_) => Ok(Item::Type),
-            syn::Item::Union(_) => Ok(Item::Union),
-            syn::Item::Use(_) => Ok(Item::Use),
-            syn::Item::Verbatim(_) => Err(anyhow!("unsupported syn::Item variant found")),
-            _ => Err(anyhow!("non-exhaustive syn::Item variant found")),
-        }
-    }
-}
-
 /// A type-tagged hexadecimal hash.
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
 #[serde(rename_all = "lowercase")]
@@ -75,7 +27,7 @@ impl From<&Vec<u8>> for Hash {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize)]
 pub struct Relations {
     pub file: PathBuf,
     pub hash: Hash,
@@ -83,7 +35,7 @@ pub struct Relations {
 }
 
 /// This is the information we require to [link source code to requirements](https://strictdoc.readthedocs.io/en/stable/stable/docs/strictdoc_01_user_guide.html#10.2-Linking-source-code-to-requirements).
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize)]
 pub struct Relation {
     #[serde(rename = "relation")]
     pub ident: String,
@@ -98,10 +50,7 @@ pub struct Relation {
 }
 
 /// Analyze the provided Rust source file and find relations between items, storing file paths relative to the crate root.
-pub fn find_relations<P: AsRef<Path>, R: AsRef<Path>>(
-    path: &P,
-    prefix: &R,
-) -> Result<Relations> {
+pub fn find_relations<P: AsRef<Path>, R: AsRef<Path>>(path: &P, prefix: &R) -> Result<Relations> {
     let path = path.as_ref();
     let prefix = prefix.as_ref();
 

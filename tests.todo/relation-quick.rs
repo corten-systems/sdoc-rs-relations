@@ -1,7 +1,5 @@
 //! This is a file-level doc comment with @relation(REQ-001)
 
-// TODO rustc +nightly -Zunpretty=ast-tree your_file.rs
-
 pub fn test003() {
     println!("Hello, world!");
 }
