@@ -138,13 +138,13 @@ impl Visitor {
         visitor.places
     }
 
-    pub fn process(&mut self, scope: Scope, span: Span, attributes: &[Attribute]) {
+    fn process(&mut self, scope: Scope, span: Span, attributes: &[Attribute]) {
         let mut place = Place {
             scope,
             span,
             docs: vec![],
         };
-     // println!("\n{:?}", &place);
+        // println!("\n{:?}", &place);
         for attribute in attributes {
             if let Meta::NameValue(MetaNameValue {
                 value:
@@ -159,7 +159,10 @@ impl Visitor {
                 place.docs.push(literal_string.value());
             }
         }
-        self.places.push(place);
+        if !place.docs.is_empty() {
+            // println!("{:?}\n", &place);
+            self.places.push(place);
+        }
     }
 }
 

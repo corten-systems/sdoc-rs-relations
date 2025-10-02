@@ -1,0 +1,1002 @@
+[
+  {
+    "file": "relations2.rs",
+    "hash": {
+      "sha256": "cd08279de66c256ab1763660fff864a35e4915c9a81208619333f5200da8bf7a"
+    },
+    "relations": [
+      {
+        "relation": "m9k3x7q2",
+        "scope": "File",
+        "span": {
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 276,
+            "column": 1
+          }
+        }
+      },
+      {
+        "relation": "a5f8n1p4",
+        "scope": "ItemConst",
+        "span": {
+          "start": {
+            "line": 4,
+            "column": 0
+          },
+          "end": {
+            "line": 6,
+            "column": 33
+          }
+        }
+      },
+      {
+        "relation": "z7w2b9j6",
+        "attributes": {
+          "XxWjbz": "0aLQ5"
+        },
+        "scope": "ItemStatic",
+        "span": {
+          "start": {
+            "line": 8,
+            "column": 0
+          },
+          "end": {
+            "line": 10,
+            "column": 46
+          }
+        }
+      },
+      {
+        "relation": "k4m8r3t1",
+        "attributes": {
+          "yEY7vrE": "r9iq"
+        },
+        "scope": "ItemType",
+        "span": {
+          "start": {
+            "line": 12,
+            "column": 0
+          },
+          "end": {
+            "line": 14,
+            "column": 65
+          }
+        }
+      },
+      {
+        "relation": "p2n7x5v9",
+        "scope": "ItemStruct",
+        "span": {
+          "start": {
+            "line": 16,
+            "column": 0
+          },
+          "end": {
+            "line": 26,
+            "column": 1
+          }
+        }
+      },
+      {
+        "relation": "q1w3e5r7",
+        "attributes": {
+          "aUU": "LsN0tu"
+        },
+        "scope": "Field",
+        "span": {
+          "start": {
+            "line": 19,
+            "column": 4
+          },
+          "end": {
+            "line": 21,
+            "column": 20
+          }
+        }
+      },
+      {
+        "relation": "y8u6i4o2",
+        "attributes": {
+          "DEUO": "ecH4"
+        },
+        "scope": "Field",
+        "span": {
+          "start": {
+            "line": 23,
+            "column": 4
+          },
+          "end": {
+            "line": 25,
+            "column": 14
+          }
+        }
+      },
+      {
+        "relation": "h3j5k7l9",
+        "attributes": {
+          "9iMOw": "lbo"
+        },
+        "scope": "ItemEnum",
+        "span": {
+          "start": {
+            "line": 28,
+            "column": 0
+          },
+          "end": {
+            "line": 50,
+            "column": 1
+          }
+        }
+      },
+      {
+        "relation": "f2g4h6j8",
+        "attributes": {
+          "liMBBSb": "8Ood",
+          "vEzHEO": "3dAsUV5"
+        },
+        "scope": "Variant",
+        "span": {
+          "start": {
+            "line": 31,
+            "column": 4
+          },
+          "end": {
+            "line": 33,
+            "column": 10
+          }
+        }
+      },
+      {
+        "relation": "d9s7a5f3",
+        "attributes": {
+          "sY0": "6j9mJS"
+        },
+        "scope": "Variant",
+        "span": {
+          "start": {
+            "line": 35,
+            "column": 4
+          },
+          "end": {
+            "line": 41,
+            "column": 5
+          }
+        }
+      },
+      {
+        "relation": "c1v3b5n7",
+        "attributes": {
+          "6vdi": "TCuIsN",
+          "JqUG": "HQf"
+        },
+        "scope": "Field",
+        "span": {
+          "start": {
+            "line": 38,
+            "column": 8
+          },
+          "end": {
+            "line": 40,
+            "column": 21
+          }
+        }
+      },
+      {
+        "relation": "x2z4m6k8",
+        "scope": "Variant",
+        "span": {
+          "start": {
+            "line": 43,
+            "column": 4
+          },
+          "end": {
+            "line": 49,
+            "column": 5
+          }
+        }
+      },
+      {
+        "relation": "l1p3q5w7",
+        "attributes": {
+          "o5EIM": "ZC4OHaK"
+        },
+        "scope": "Field",
+        "span": {
+          "start": {
+            "line": 46,
+            "column": 8
+          },
+          "end": {
+            "line": 48,
+            "column": 11
+          }
+        }
+      },
+      {
+        "relation": "r9t1y3u5",
+        "attributes": {
+          "Czfkxd": "GogZWF",
+          "G6LChzr": "aaVdl"
+        },
+        "scope": "ItemUnion",
+        "span": {
+          "start": {
+            "line": 52,
+            "column": 0
+          },
+          "end": {
+            "line": 62,
+            "column": 1
+          }
+        }
+      },
+      {
+        "relation": "i7o9p1a3",
+        "attributes": {
+          "ZZ1f": "iVYp",
+          "ifbiS7": "h1Cs"
+        },
+        "scope": "Field",
+        "span": {
+          "start": {
+            "line": 55,
+            "column": 4
+          },
+          "end": {
+            "line": 57,
+            "column": 10
+          }
+        }
+      },
+      {
+        "relation": "s5d7f9g1",
+        "scope": "Field",
+        "span": {
+          "start": {
+            "line": 59,
+            "column": 4
+          },
+          "end": {
+            "line": 61,
+            "column": 10
+          }
+        }
+      },
+      {
+        "relation": "h2j4k6l8",
+        "attributes": {
+          "TPEk": "Md3EX"
+        },
+        "scope": "ItemTrait",
+        "span": {
+          "start": {
+            "line": 64,
+            "column": 0
+          },
+          "end": {
+            "line": 84,
+            "column": 1
+          }
+        }
+      },
+      {
+        "relation": "z3x5c7v9",
+        "attributes": {
+          "0Yo": "YRo2",
+          "VaeD": "i1LbF"
+        },
+        "scope": "TraitItemType",
+        "span": {
+          "start": {
+            "line": 67,
+            "column": 4
+          },
+          "end": {
+            "line": 69,
+            "column": 16
+          }
+        }
+      },
+      {
+        "relation": "b1n3m5q7",
+        "scope": "TraitItemConst",
+        "span": {
+          "start": {
+            "line": 71,
+            "column": 4
+          },
+          "end": {
+            "line": 73,
+            "column": 26
+          }
+        }
+      },
+      {
+        "relation": "w9e1r3t5",
+        "attributes": {
+          "1m3F3b": "gYOe0V7"
+        },
+        "scope": "TraitItemFn",
+        "span": {
+          "start": {
+            "line": 75,
+            "column": 4
+          },
+          "end": {
+            "line": 77,
+            "column": 51
+          }
+        }
+      },
+      {
+        "relation": "y7u9i1o3",
+        "attributes": {
+          "9OtjNT": "qMs"
+        },
+        "scope": "TraitItemFn",
+        "span": {
+          "start": {
+            "line": 79,
+            "column": 4
+          },
+          "end": {
+            "line": 83,
+            "column": 5
+          }
+        }
+      },
+      {
+        "relation": "p5a7s9d1",
+        "scope": "ItemTraitAlias",
+        "span": {
+          "start": {
+            "line": 86,
+            "column": 0
+          },
+          "end": {
+            "line": 88,
+            "column": 45
+          }
+        }
+      },
+      {
+        "relation": "f3g5h7j9",
+        "attributes": {
+          "1FNGO": "AFfHB6w"
+        },
+        "scope": "ItemImpl",
+        "span": {
+          "start": {
+            "line": 90,
+            "column": 0
+          },
+          "end": {
+            "line": 106,
+            "column": 1
+          }
+        }
+      },
+      {
+        "relation": "k1l3z5x7",
+        "attributes": {
+          "YdL9vkp": "neW"
+        },
+        "scope": "ImplItemType",
+        "span": {
+          "start": {
+            "line": 93,
+            "column": 4
+          },
+          "end": {
+            "line": 95,
+            "column": 25
+          }
+        }
+      },
+      {
+        "relation": "c9v1b3n5",
+        "attributes": {
+          "EQY": "BRH1E",
+          "FKz1maJ": "kVp3t"
+        },
+        "scope": "ImplItemConst",
+        "span": {
+          "start": {
+            "line": 97,
+            "column": 4
+          },
+          "end": {
+            "line": 99,
+            "column": 33
+          }
+        }
+      },
+      {
+        "relation": "m7q9w1e3",
+        "attributes": {
+          "tAD": "HI4"
+        },
+        "scope": "ImplItemFn",
+        "span": {
+          "start": {
+            "line": 101,
+            "column": 4
+          },
+          "end": {
+            "line": 105,
+            "column": 5
+          }
+        }
+      },
+      {
+        "relation": "r5t7y9u1",
+        "attributes": {
+          "J7383xm": "fgP",
+          "qBj": "uCh"
+        },
+        "scope": "ItemImpl",
+        "span": {
+          "start": {
+            "line": 108,
+            "column": 0
+          },
+          "end": {
+            "line": 122,
+            "column": 1
+          }
+        }
+      },
+      {
+        "relation": "i3o5p7a9",
+        "attributes": {
+          "jNV6o": "FqT",
+          "qwShYy": "YWYfK"
+        },
+        "scope": "ImplItemFn",
+        "span": {
+          "start": {
+            "line": 111,
+            "column": 4
+          },
+          "end": {
+            "line": 115,
+            "column": 5
+          }
+        }
+      },
+      {
+        "relation": "s1d3f5g7",
+        "attributes": {
+          "cChAc": "slTq",
+          "jfAXOYM": "3EZ"
+        },
+        "scope": "ImplItemFn",
+        "span": {
+          "start": {
+            "line": 117,
+            "column": 4
+          },
+          "end": {
+            "line": 121,
+            "column": 5
+          }
+        }
+      },
+      {
+        "relation": "h9j1k3l5",
+        "scope": "ItemFn",
+        "span": {
+          "start": {
+            "line": 124,
+            "column": 0
+          },
+          "end": {
+            "line": 128,
+            "column": 1
+          }
+        }
+      },
+      {
+        "relation": "z7x9c1v3",
+        "attributes": {
+          "Z7U2GEG": "c6GZxj",
+          "jVI": "ALPlKXQ"
+        },
+        "scope": "ItemFn",
+        "span": {
+          "start": {
+            "line": 130,
+            "column": 0
+          },
+          "end": {
+            "line": 134,
+            "column": 1
+          }
+        }
+      },
+      {
+        "relation": "b5n7m9q1",
+        "attributes": {
+          "45M": "ggLpw"
+        },
+        "scope": "ItemFn",
+        "span": {
+          "start": {
+            "line": 136,
+            "column": 0
+          },
+          "end": {
+            "line": 140,
+            "column": 1
+          }
+        }
+      },
+      {
+        "relation": "w3e5r7t9",
+        "attributes": {
+          "SqkiSV": "c9CLOx",
+          "cAIsq8": "Tdnpauy"
+        },
+        "scope": "ItemFn",
+        "span": {
+          "start": {
+            "line": 142,
+            "column": 0
+          },
+          "end": {
+            "line": 148,
+            "column": 1
+          }
+        }
+      },
+      {
+        "relation": "y1u3i5o7",
+        "attributes": {
+          "FgHNF": "r0ct9Rm"
+        },
+        "scope": "ItemExternCrate",
+        "span": {
+          "start": {
+            "line": 150,
+            "column": 0
+          },
+          "end": {
+            "line": 152,
+            "column": 17
+          }
+        }
+      },
+      {
+        "relation": "p9a1s3d5",
+        "scope": "ItemMod",
+        "span": {
+          "start": {
+            "line": 154,
+            "column": 0
+          },
+          "end": {
+            "line": 167,
+            "column": 1
+          }
+        }
+      },
+      {
+        "relation": "f7g9h1j3",
+        "attributes": {
+          "1m8zFE": "eh88r"
+        },
+        "scope": "ItemMod",
+        "span": {
+          "start": {
+            "line": 154,
+            "column": 0
+          },
+          "end": {
+            "line": 167,
+            "column": 1
+          }
+        }
+      },
+      {
+        "relation": "k5l7z9x1",
+        "scope": "ItemStruct",
+        "span": {
+          "start": {
+            "line": 160,
+            "column": 4
+          },
+          "end": {
+            "line": 166,
+            "column": 5
+          }
+        }
+      },
+      {
+        "relation": "c3v5b7n9",
+        "scope": "Field",
+        "span": {
+          "start": {
+            "line": 163,
+            "column": 8
+          },
+          "end": {
+            "line": 165,
+            "column": 21
+          }
+        }
+      },
+      {
+        "relation": "m1q3w5e7",
+        "attributes": {
+          "vgg3U": "0bxFnL"
+        },
+        "scope": "ItemForeignMod",
+        "span": {
+          "start": {
+            "line": 169,
+            "column": 0
+          },
+          "end": {
+            "line": 183,
+            "column": 1
+          }
+        }
+      },
+      {
+        "relation": "r9t1y3u5",
+        "attributes": {
+          "zEgI": "XJSsNA"
+        },
+        "scope": "ForeignItemFn",
+        "span": {
+          "start": {
+            "line": 172,
+            "column": 4
+          },
+          "end": {
+            "line": 174,
+            "column": 36
+          }
+        }
+      },
+      {
+        "relation": "i7o9p1a3",
+        "scope": "ForeignItemStatic",
+        "span": {
+          "start": {
+            "line": 176,
+            "column": 4
+          },
+          "end": {
+            "line": 178,
+            "column": 29
+          }
+        }
+      },
+      {
+        "relation": "s5d7f9g1",
+        "attributes": {
+          "rPugJ": "Edomk"
+        },
+        "scope": "ForeignItemType",
+        "span": {
+          "start": {
+            "line": 180,
+            "column": 4
+          },
+          "end": {
+            "line": 182,
+            "column": 20
+          }
+        }
+      },
+      {
+        "relation": "h3j5k7l9",
+        "attributes": {
+          "4j2Ppj3": "T35YJt",
+          "vUrUoa9": "ijL"
+        },
+        "scope": "ItemMacro",
+        "span": {
+          "start": {
+            "line": 185,
+            "column": 0
+          },
+          "end": {
+            "line": 191,
+            "column": 1
+          }
+        }
+      },
+      {
+        "relation": "a2s4d6f8",
+        "attributes": {
+          "bNvQL": "JWLA4"
+        },
+        "scope": "ItemFn",
+        "span": {
+          "start": {
+            "line": 193,
+            "column": 0
+          },
+          "end": {
+            "line": 205,
+            "column": 1
+          }
+        }
+      },
+      {
+        "relation": "z1x3c5v7",
+        "attributes": {
+          "7gTm": "k9TzW"
+        },
+        "scope": "Arm",
+        "span": {
+          "start": {
+            "line": 197,
+            "column": 8
+          },
+          "end": {
+            "line": 199,
+            "column": 25
+          }
+        }
+      },
+      {
+        "relation": "q9w1e3r5",
+        "attributes": {
+          "BzKg": "1Birt"
+        },
+        "scope": "Arm",
+        "span": {
+          "start": {
+            "line": 201,
+            "column": 8
+          },
+          "end": {
+            "line": 203,
+            "column": 18
+          }
+        }
+      },
+      {
+        "relation": "t7y9u1i3",
+        "attributes": {
+          "hJE": "92CU",
+          "uNIX": "OkVNm4"
+        },
+        "scope": "ItemFn",
+        "span": {
+          "start": {
+            "line": 207,
+            "column": 0
+          },
+          "end": {
+            "line": 221,
+            "column": 1
+          }
+        }
+      },
+      {
+        "relation": "o5p7a9s1",
+        "attributes": {
+          "2Y0": "mnsl",
+          "L2zB": "V25YEN"
+        },
+        "scope": "TypeParam",
+        "span": {
+          "start": {
+            "line": 210,
+            "column": 4
+          },
+          "end": {
+            "line": 212,
+            "column": 12
+          }
+        }
+      },
+      {
+        "relation": "d3f5g7h9",
+        "scope": "ConstParam",
+        "span": {
+          "start": {
+            "line": 214,
+            "column": 4
+          },
+          "end": {
+            "line": 216,
+            "column": 18
+          }
+        }
+      },
+      {
+        "relation": "j1k3l5z7",
+        "attributes": {
+          "Pr6": "73XHO3U",
+          "QyjfRiQ": "HhEFcO5"
+        },
+        "scope": "ItemStruct",
+        "span": {
+          "start": {
+            "line": 223,
+            "column": 0
+          },
+          "end": {
+            "line": 239,
+            "column": 1
+          }
+        }
+      },
+      {
+        "relation": "n7m9q1w3",
+        "attributes": {
+          "LWq29Ex": "ma3sw",
+          "NeUaL7G": "cZDZxhc"
+        },
+        "scope": "LifetimeParam",
+        "span": {
+          "start": {
+            "line": 226,
+            "column": 4
+          },
+          "end": {
+            "line": 228,
+            "column": 6
+          }
+        }
+      },
+      {
+        "relation": "x9c1v3b5",
+        "attributes": {
+          "kPrB2": "Gidkjb"
+        },
+        "scope": "TypeParam",
+        "span": {
+          "start": {
+            "line": 230,
+            "column": 4
+          },
+          "end": {
+            "line": 232,
+            "column": 5
+          }
+        }
+      },
+      {
+        "relation": "e5r7t9y1",
+        "attributes": {
+          "XiByxM": "9Ymce0",
+          "yszlQJ": "IKzjXB"
+        },
+        "scope": "Field",
+        "span": {
+          "start": {
+            "line": 236,
+            "column": 4
+          },
+          "end": {
+            "line": 238,
+            "column": 19
+          }
+        }
+      },
+      {
+        "relation": "u3i5o7p9",
+        "attributes": {
+          "n0IABJM": "PK78"
+        },
+        "scope": "ItemFn",
+        "span": {
+          "start": {
+            "line": 241,
+            "column": 0
+          },
+          "end": {
+            "line": 250,
+            "column": 1
+          }
+        }
+      },
+      {
+        "relation": "a1s3d5f7",
+        "scope": "FieldValue",
+        "span": {
+          "start": {
+            "line": 246,
+            "column": 8
+          },
+          "end": {
+            "line": 247,
+            "column": 34
+          }
+        }
+      },
+      {
+        "relation": "wke73fo1",
+        "scope": "ExprLit",
+        "span": {
+          "start": {
+            "line": 254,
+            "column": 4
+          },
+          "end": {
+            "line": 255,
+            "column": 11
+          }
+        }
+      },
+      {
+        "relation": "md732kh2",
+        "scope": "ExprPath",
+        "span": {
+          "start": {
+            "line": 256,
+            "column": 4
+          },
+          "end": {
+            "line": 257,
+            "column": 5
+          }
+        }
+      },
+      {
+        "relation": "ssp1x3j0",
+        "attributes": {
+          "Cht": "ijeJ5",
+          "X42oyGn": "z01HK9S"
+        },
+        "scope": "Local",
+        "span": {
+          "start": {
+            "line": 262,
+            "column": 4
+          },
+          "end": {
+            "line": 263,
+            "column": 18
+          }
+        }
+      },
+      {
+        "relation": "e7p9w1i5",
+        "attributes": {
+          "35C": "9lkTVA8",
+          "MRjrSV": "mYE"
+        },
+        "scope": "ExprPath",
+        "span": {
+          "start": {
+            "line": 264,
+            "column": 4
+          },
+          "end": {
+            "line": 265,
+            "column": 5
+          }
+        }
+      },
+      {
+        "relation": "g9h1j3k5",
+        "attributes": {
+          "EcK2FL": "PZS54H",
+          "XrnbhaF": "2gvL5Y"
+        },
+        "scope": "ItemFn",
+        "span": {
+          "start": {
+            "line": 270,
+            "column": 4
+          },
+          "end": {
+            "line": 275,
+            "column": 5
+          }
+        }
+      }
+    ]
+  }
+]
