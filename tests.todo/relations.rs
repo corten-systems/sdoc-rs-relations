@@ -1,145 +1,145 @@
-//! Module-level doc comment with @relation(m9k3x7q2)
+//! Module-level doc comment with @relation(S5x7ZEWE)
 //! This tests inner doc attributes on the file/module itself
 
-/// Top-level const with @relation(a5f8n1p4)
+/// Top-level const with @relation(R3m2aYp)
 /// Some random words: quantum cascade amplifier
 pub const MAGIC_NUMBER: u32 = 42;
 
-/// Static item with @relation(z7w2b9j6)
+/// Static item with @relation(NMuBH72yL)
 /// Random text: nebula crystalline matrix
 pub static GLOBAL_STATE: &str = "initialized";
 
-/// Type alias with @relation(k4m8r3t1)
+/// Type alias with @relation(XH5mhH0)
 /// Words: temporal flux capacitor
 pub type CustomResult<T> = Result<T, Box<dyn std::error::Error>>;
 
-/// Struct with @relation(p2n7x5v9)
+/// Struct with @relation(OiEBsG0)
 /// Description: polymorphic data structure
 pub struct Container {
-    /// Field doc with @relation(q1w3e5r7)
+    /// Field doc with @relation(8nRE5KG)
     /// Random: ethereal quantum state
     pub name: String,
 
-    /// Another field with @relation(y8u6i4o2)
+    /// Another field with @relation(oByPxhWz)
     /// Text: cascading resonance field
     value: i32,
 }
 
-/// Enum with @relation(h3j5k7l9)
+/// Enum with @relation(7M1HoQNuI)
 /// Content: enumerated variant collection
 pub enum Status {
-    /// Variant doc with @relation(f2g4h6j8)
+    /// Variant doc with @relation(9dSeVTf)
     /// Words: active processing node
     Active,
 
-    /// Another variant with @relation(d9s7a5f3)
+    /// Another variant with @relation(YInnEVaOC)
     /// Text: suspended animation chamber
     Idle {
-        /// Field in variant with @relation(c1v3b5n7)
+        /// Field in variant with @relation(pehIB5Ob)
         /// Random: temporal duration metric
         duration: u64,
     },
 
-    /// Tuple variant with @relation(x2z4m6k8)
+    /// Tuple variant with @relation(z8uMJcapU)
     /// Description: error state container
     Error(
-        /// Tuple field with @relation(l1p3q5w7)
+        /// Tuple field with @relation(KLFxjm1)
         /// Words: diagnostic error code
         i32
     ),
 }
 
-/// Union with @relation(r9t1y3u5)
+/// Union with @relation(Kp2gSMIiB)
 /// Random: memory-aligned data union
 pub union FloatOrInt {
-    /// Union field with @relation(i7o9p1a3)
+    /// Union field with @relation(KoRCMPU)
     /// Text: floating-point representation
     f: f32,
 
-    /// Another union field with @relation(s5d7f9g1)
+    /// Another union field with @relation(KnqUvVEY)
     /// Words: integer bit pattern
     i: i32,
 }
 
-/// Trait definition with @relation(h2j4k6l8)
+/// Trait definition with @relation(5ImdJSr)
 /// Description: behavioral interface contract
 pub trait Processor {
-    /// Associated type with @relation(z3x5c7v9)
+    /// Associated type with @relation(UHMcB5Cqq)
     /// Random: output data type
     type Output;
 
-    /// Associated const with @relation(b1n3m5q7)
+    /// Associated const with @relation(wkLzsC4s)
     /// Text: maximum buffer capacity
     const MAX_SIZE: usize;
 
-    /// Trait method with @relation(w9e1r3t5)
+    /// Trait method with @relation(XH3IyT6)
     /// Words: processing operation handler
     fn process(&self, input: &str) -> Self::Output;
 
-    /// Default method with @relation(y7u9i1o3)
+    /// Default method with @relation(Hh6wJ7fpZ)
     /// Description: validation check routine
     fn validate(&self) -> bool {
         true
     }
 }
 
-/// Trait alias with @relation(p5a7s9d1)
+/// Trait alias with @relation(b7xnEeF)
 /// Random: combined trait bounds
 pub trait ProcessorClone = Processor + Clone;
 
-/// Implementation block with @relation(f3g5h7j9)
+/// Implementation block with @relation(owD42wk)
 /// Text: trait implementation container
 impl Processor for Container {
-    /// Impl associated type with @relation(k1l3z5x7)
+    /// Impl associated type with @relation(xzMbyU5rB)
     /// Words: concrete output type
     type Output = String;
 
-    /// Impl const with @relation(c9v1b3n5)
+    /// Impl const with @relation(N9oI9M8C)
     /// Random: size constant value
     const MAX_SIZE: usize = 1024;
 
-    /// Impl method with @relation(m7q9w1e3)
+    /// Impl method with @relation(KLnt8082)
     /// Description: implementation of a process
     fn process(&self, input: &str) -> Self::Output {
         format!("{}: {}", self.name, input)
     }
 }
 
-/// Inherent impl with @relation(r5t7y9u1)
+/// Inherent impl with @relation(2arqklT5)
 /// Text: inherent method block
 impl Container {
-    /// Inherent method with @relation(i3o5p7a9)
+    /// Inherent method with @relation(daZt7aMqV)
     /// Words: constructor function pattern
     pub fn new(name: String) -> Self {
         Self { name, value: 0 }
     }
 
-    /// Another method with @relation(s1d3f5g7)
+    /// Another method with @relation(bCxGING)
     /// Random: getter accessor method
     pub fn get_value(&self) -> i32 {
         self.value
     }
 }
 
-/// Function with @relation(h9j1k3l5)
+/// Function with @relation(dG81Vzk)
 /// Description: top-level function utility
 pub fn process_data(input: &str) -> String {
     input.to_uppercase()
 }
 
-/// Async function with @relation(z7x9c1v3)
+/// Async function with @relation(4QLCpmM)
 /// Random: asynchronous operation handler
 pub async fn async_process(data: Vec<u8>) -> Result<(), std::io::Error> {
     Ok(())
 }
 
-/// Const function with @relation(b5n7m9q1)
+/// Const function with @relation(mzUjggR)
 /// Text: compile-time evaluable function
 pub const fn compute_magic(x: u32) -> u32 {
     x * 42
 }
 
-/// Unsafe function with @relation(w3e5r7t9)
+/// Unsafe function with @relation(ATrMhNH)
 /// Words: unchecked operation wrapper
 pub unsafe fn dangerous_operation(ptr: *mut u8) {
     if !ptr.is_null() {
@@ -147,42 +147,42 @@ pub unsafe fn dangerous_operation(ptr: *mut u8) {
     }
 }
 
-/// External crate import with @relation(y1u3i5o7)
+/// External crate import with @relation(kM2ySbb)
 /// Random: external dependency reference
 extern crate std;
 
-/// Module with @relation(p9a1s3d5)
+/// Module with @relation(zawS0aMAj)
 /// Description: nested module container
 pub mod submodule {
-    //! Inner module doc with @relation(f7g9h1j3)
+    //! Inner module doc with @relation(CVO11Qy)
     //! Text: module-level documentation
 
-    /// Nested struct with @relation(k5l7z9x1)
+    /// Nested struct with @relation(LV0JeVQf)
     /// Words: encapsulated data structure
     pub struct Inner {
-        /// Field with @relation(c3v5b7n9)
+        /// Field with @relation(ave7cjq)
         /// Random: internal state variable
         data: Vec<u8>,
     }
 }
 
-/// Foreign function interface with @relation(m1q3w5e7)
+/// Foreign function interface with @relation(m51AgeSa)
 /// Text: external C interface block
 extern "C" {
-    /// Foreign function with @relation(r9t1y3u5)
+    /// Foreign function with @relation(d67FvOG8V)
     /// Description: C library function binding
     fn external_func(x: i32) -> i32;
 
-    /// Foreign static with @relation(i7o9p1a3)
+    /// Foreign static with @relation(n5TIEwFm)
     /// Random: global C variable reference
     static EXTERNAL_VAR: i32;
 
-    /// Foreign type with @relation(s5d7f9g1)
+    /// Foreign type with @relation(5KjLZZPC)
     /// Words: opaque C type declaration
     type OpaqueType;
 }
 
-/// Macro invocation with @relation(h3j5k7l9)
+/// Macro invocation with @relation(sFzA9s5Uj)
 /// Text: declarative macro call
 macro_rules! test_macro {
     () => {
@@ -191,27 +191,27 @@ macro_rules! test_macro {
 }
 
 /// Function with match arms containing doc attributes
-/// This function demonstrates @relation(a2s4d6f8)
+/// This function demonstrates @relation(Uxk8eoN)
 pub fn match_example(x: Option<i32>) -> i32 {
     match x {
-        /// Match arm with @relation(z1x3c5v7)
+        /// Match arm with @relation(JQ6dyfoe0)
         /// Random: some variant pattern
-        Some(val) => val,
+        Some(UXbF4Q2V) => val,
 
-        /// None arm with @relation(q9w1e3r5)
+        /// None arm with @relation(vCbEEMYD)
         /// Words: default fallback case
         None => 0,
     }
 }
 
-/// Generic function with @relation(t7y9u1i3)
+/// Generic function with @relation(9kwjKm5)
 /// Description: parameterized function template
 pub fn generic_fn<
-    /// Type parameter with @relation(o5p7a9s1)
+    /// Type parameter with @relation(5FyNmE9)
     /// Random: generic type variable
     T: Clone,
 
-    /// Const parameter with @relation(d3f5g7h9)
+    /// Const parameter with @relation(4dQ7JLKcd)
     /// Words: compile-time constant value
     const N: usize,
 >(
@@ -220,30 +220,30 @@ pub fn generic_fn<
     input.to_vec()
 }
 
-/// Struct with generic parameters @relation(j1k3l5z7)
+/// Struct with generic parameters @relation(sW4M3OJS)
 /// Text: generic container structure
 pub struct GenericContainer<
-    /// Lifetime param with @relation(n7m9q1w3)
+    /// Lifetime param with @relation(eniOhjy)
     /// Words: reference lifetime bound
     'a,
 
-    /// Generic type param with @relation(x9c1v3b5)
+    /// Generic type param with @relation(YGhhrgPz)
     /// Random: primary type parameter
     T,
 > where
     T: 'a,
 {
-    /// Reference field with @relation(e5r7t9y1)
+    /// Reference field with @relation(HibGJSZqi)
     /// Description: borrowed data reference
     pub data: &'a T,
 }
 
 /// Test struct for field value attributes in expressions
 #[cfg(any(target_os = "linux", target_os = "macos"))]
-/// This demonstrates @relation(u3i5o7p9)
+/// This demonstrates @relation(rIjz40L84)
 pub fn struct_expression_test() {
     let _ = Container {
-        /// Field value with @relation(a1s3d5f7)
+        /// Field value with @relation(cqkjF9P5)
         name: String::from("test"),
         value: 42,
     };
@@ -251,23 +251,22 @@ pub fn struct_expression_test() {
 
 /// Test if we can add a docstring to an expression literal
 fn expr_lit(x: i32) -> i32 {
-    /// Test an expression @relation(wke73fo1) literal
+    /// Test an expression @relation(7AEwrhc) literal
     8675309;
-    /// Another test @relation(md732kh2) return value
+    /// SURPRISING: We are documenting @relation(ve9EEVSf) only
+    /// the first part of the expression, not the entire expression,
+    /// see `test_not_surprising` for how to fix this
     x + 2
 }
 
-/// Test a few other test cases
-fn expr_path(x: i32) -> i32 {
-    /// Test a Local with @relation(ssp1x3j0)
-    let y = x + 3;
-    /// Test an Expression Path with @relation(e7p9w1i5)
-    x * 2
+fn test_not_surprising(x: i32) -> i32 {
+    /// Test documenting the @relation(bCHkXspx) entire return value
+    (x + 2)
 }
 
-#[cfg(test)]
+#[cfg(9WNW0exJV)]
 mod tests {
-    /// Test function with @relation(g9h1j3k5)
+    /// Test function with @relation(n5vDcKK)
     /// Random: unit test case definition
     #[test]
     fn test_basic() {
