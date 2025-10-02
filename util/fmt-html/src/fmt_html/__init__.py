@@ -74,8 +74,8 @@ def build_html(code_html: str, style_css: str, relations: List[Relation], title:
             f"<tr class=\"rel-row\" data-start=\"{r.span.start_line}\" data-end=\"{r.span.end_line}\" data-id=\"{r.relation}\">"
             f"<td class=\"mono\">{r.relation}</td>"
             f"<td class=\"mono\">{r.scope}</td>"
-            f"<td class=\"mono right\">{r.span.start_line}:{r.span.start_col}</td>"
-            f"<td class=\"mono right\">{r.span.end_line}:{r.span.end_col}</td>"
+            f"<td class=\"mono center\">{r.span.start_line}:{r.span.start_col}</td>"
+            f"<td class=\"mono center\">{r.span.end_line}:{r.span.end_col}</td>"
             f"</tr>"
         )
     table_html = (
@@ -111,6 +111,7 @@ def build_html(code_html: str, style_css: str, relations: List[Relation], title:
     .relations thead th:nth-child(3), .relations thead th:nth-child(4) {{ text-align: center; }}
     .mono {{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace; }}
     .right {{ text-align: right; }}
+    .center {{ text-align: center; }}
     .rel-row:hover {{ background: #f0f7ff; cursor: pointer; }}
 
     /* Highlight selected code rows */
