@@ -106,6 +106,9 @@ def build_html(code_html: str, style_css: str, relations: List[Relation], title:
     .relations {{ width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 12px; }}
     .relations th, .relations td {{ border-bottom: 1px solid #eee; padding: 4px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
     .relations thead th {{ position: sticky; top: 0; background: #f8f8f8; z-index: 1; }}
+    /* Header alignment: relation/scope left; start/end centered */
+    .relations thead th:nth-child(1), .relations thead th:nth-child(2) {{ text-align: left; }}
+    .relations thead th:nth-child(3), .relations thead th:nth-child(4) {{ text-align: center; }}
     .mono {{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace; }}
     .right {{ text-align: right; }}
     .rel-row:hover {{ background: #f0f7ff; cursor: pointer; }}
