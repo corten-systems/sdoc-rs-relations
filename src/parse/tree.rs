@@ -163,7 +163,7 @@ macro_rules! visit {
 /// Therefore, we can always infer which thing the attribute should
 /// be attached to, since that thing's visitor will always already have been called.
 ///
-/// To see the raw AST, use `rustc +nightly -Z unpretty=ast-tree file.rs`
+/// To see the raw AST, use `rustc +nightly --edition 2024 -Z unpretty=ast-tree file.rs`
 ///
 impl<'ast> Visit<'ast> for Visitor {
     fn visit_attribute(&mut self, node: &'ast Attribute) {
