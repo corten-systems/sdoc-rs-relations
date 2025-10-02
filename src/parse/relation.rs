@@ -51,11 +51,12 @@ fn equals(input: &str) -> IResult<&str, ()> {
 fn restricted_ascii(input: &str) -> IResult<&str, &str> {
     // Accept one or more ASCII "graphic" characters excluding: [,=()]
     // - `is_ascii_graphic()` matches '!'..='~' (printable, non-space)
-    // - we then then exclude the additional disallowed characters
+    // - we then explicitly exclude additional disallowed characters
     take_while1(|c: char| c.is_ascii_graphic() && !matches!(c, ',' | '=' | '(' | ')'))(input)
 }
 
 fn identifier(input: &str) -> IResult<&str, &str> {
+    let (input, _) = hspace.parse(input)?;
     restricted_ascii.parse(input)
 }
 
