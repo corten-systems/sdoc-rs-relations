@@ -56,22 +56,20 @@ fn restricted_ascii(input: &str) -> IResult<&str, &str> {
 }
 
 fn identifier(input: &str) -> IResult<&str, &str> {
-    let (input, _) = hspace.parse(input)?;
     restricted_ascii.parse(input)
 }
 
 fn attribute_key(input: &str) -> IResult<&str, &str> {
-    restricted_ascii.parse(input)
+    identifier.parse(input)
 }
 
 fn attribute_value(input: &str) -> IResult<&str, &str> {
-    restricted_ascii.parse(input)
+    identifier.parse(input)
 }
 
 pub fn relation(input: &str) -> IResult<&str, Relation> {
-    let (input, (_, identifier, attributes, _)) = (
-        opening,
-        identifier,
+    let (input, (_, _, identifier, attributes, _)) = (
+        opening, hspace, identifier,
         many0((comma, attribute_key, equals, attribute_value)),
         closing,
     )

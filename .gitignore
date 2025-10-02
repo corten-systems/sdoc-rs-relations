@@ -4,12 +4,15 @@
 ~*
 @*
 
+*.o
+*.log
+*.tmp
+*.tmp.*
+
 /.venv/
+
 /build/
 /target/
 
 .DS_Store
-
-*.log
-*.tmp.*
 

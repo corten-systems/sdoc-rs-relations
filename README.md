@@ -6,3 +6,5 @@ FIXME [![Crates.io](https://img.shields.io/crates/d/path-munge)](https://crates.
 FIXME ![Release Workflow](https://img.shields.io/github/actions/workflow/status/adfernandes/path-munge/release.yml)
 
 Parse Rust source trees for [StrictDoc](https://strictdoc.readthedocs.io/) `@relation` markers to yield JSON source code spans.
+
+TODO Integration Tests
