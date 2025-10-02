@@ -1,0 +1,17 @@
+[project]
+name = "fmt-html"
+version = "1.0.0"
+description = "Formats the output of `sdoc-rs-relations` to highlight the original source code."
+readme = "README.md"
+authors = [
+    { name = "Andrew Fernandes", email = "andrew.fernandes@corten.systems" }
+]
+requires-python = ">=3.13"
+dependencies = []
+
+[project.scripts]
+fmt-html = "fmt_html:main"
+
+[build-system]
+requires = ["uv_build>=0.8.22,<0.9.0"]
+build-backend = "uv_build"
