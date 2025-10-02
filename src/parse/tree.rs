@@ -137,55 +137,47 @@ impl Visitor {
         visitor.visit_file(file);
         visitor.places
     }
+
+    pub fn process(&mut self, scope: Scope, span: Span, attributes: &[Attribute]) {
+        let mut place = Place {
+            scope,
+            span,
+            docs: vec![],
+        };
+     // println!("\n{:?}", &place);
+        for attribute in attributes {
+            if let Meta::NameValue(MetaNameValue {
+                value:
+                    syn::Expr::Lit(syn::ExprLit {
+                        lit: syn::Lit::Str(literal_string),
+                        ..
+                    }),
+                ..
+            }) = &attribute.meta
+                && attribute.path().is_ident("doc")
+            {
+                place.docs.push(literal_string.value());
+            }
+        }
+        self.places.push(place);
+    }
 }
 
 macro_rules! visit {
     ($ident:ident) => {
         paste! {
             fn [<visit_ $ident:snake>](&mut self, node: &'ast syn::$ident) {
-                let place = Place {
-                    scope: Scope::$ident,
-                    span: node.span().into(),
-                    docs: vec![],
-                };
-                self.places.push(place);
+                self.process(Scope::$ident, node.span().into(), &node.attrs);
                 visit::[<visit_ $ident:snake>](self, node);
             }
         }
     };
 }
 
-/// FIXME Documentation below...
-///
-/// `visit_file` and `visit_item` are called for each item in the AST **before** `visit_attribute`,
-/// including for inner and outer attributes.
-///
-/// Therefore, we can always infer which thing the attribute should
-/// be attached to, since that thing's visitor will always already have been called.
-///
 /// To see the raw AST, use `rustc +nightly --edition 2024 -Z unpretty=ast-tree file.rs`
 ///
 impl<'ast> Visit<'ast> for Visitor {
-    fn visit_attribute(&mut self, node: &'ast Attribute) {
-        if let Meta::NameValue(MetaNameValue {
-            value:
-                syn::Expr::Lit(syn::ExprLit {
-                    lit: syn::Lit::Str(literal_string),
-                    ..
-                }),
-            ..
-        }) = &node.meta
-            && node.path().is_ident("doc")
-        {
-            self.places
-                .last_mut()
-                .unwrap()
-                .docs
-                .push(literal_string.value());
-        }
-        visit::visit_attribute(self, node);
-    }
-
+    //
     // These should be one-to-one with the `Scope` enum.
     //
     visit!(Arm);

@@ -1,4 +1,5 @@
 use crate::parse::Relation;
+
 use std::collections::BTreeMap;
 
 use nom::bytes::complete::{tag, take_until, take_while, take_while1};
@@ -69,7 +70,8 @@ fn attribute_value(input: &str) -> IResult<&str, &str> {
 
 pub fn relation(input: &str) -> IResult<&str, Relation> {
     let (input, (_, _, identifier, attributes, _)) = (
-        opening, hspace, identifier,
+        opening,
+        hspace, identifier,
         many0((comma, attribute_key, equals, attribute_value)),
         closing,
     )
