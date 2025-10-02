@@ -239,6 +239,7 @@ pub struct GenericContainer<
 }
 
 /// Test struct for field value attributes in expressions
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 /// This demonstrates @relation(u3i5o7p9)
 pub fn struct_expression_test() {
     let _ = Container {
@@ -246,6 +247,14 @@ pub fn struct_expression_test() {
         name: String::from("test"),
         value: 42,
     };
+}
+
+/// Test if we can add a docstring to an expression literal
+fn expr_lit(x: i32) -> i32 {
+    /// Test an expression @relation(wke73fo1) literal
+    8675309;
+    /// Another test @relation(md732kh2) return value
+    x + 2
 }
 
 /// Test a few other test cases
