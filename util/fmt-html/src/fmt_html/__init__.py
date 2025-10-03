@@ -1,15 +1,14 @@
 from __future__ import annotations
 
 import argparse
-import json
 import hashlib
+import json
+
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, List
+from typing import List
 
-from pygments import highlight
-from pygments.formatters import HtmlFormatter
-from pygments.lexers import RustLexer
+from pygments import formatters, highlight, lexers
 
 
 @dataclass
@@ -55,13 +54,13 @@ def load_relations(json_path: Path) -> List[Relation]:
 
 
 def render_code_html(code: str) -> tuple[str, str]:
-    lexer = RustLexer()
-    formatter = HtmlFormatter(
+    lexer = lexers.RustLexer()
+    formatter = formatters.HtmlFormatter(
         linenos="table",  # table with a separate line number column
         lineanchors="L",  # id="L-<line>" on each line number (left column)
         linespans="LC",   # wrap each code line in <span id="LC-<line>">...</span>
-        anchorlinenos=True,
         noclasses=False,  # emit CSS classes; we'll inject CSS styles
+        anchorlinenos=True,
     )
     highlighted = highlight(code, lexer, formatter)
     styles = formatter.get_style_defs('.highlight')
@@ -96,54 +95,41 @@ def build_html(code_html: str, style_css: str, relations: List[Relation], title:
   <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
   <title>{title}</title>
   <style>
-    /* Pygments styles */
     {style_css}
-
-    html, body {{ height: 100%; margin: 0; padding: 0; }}
+    html, body {{ height: 100%; margin: 6px; padding: 6px; }}
     body {{ font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, \"Apple Color Emoji\", \"Segoe UI Emoji\"; }}
-
-    .topbar {{ position: sticky; top: 0; z-index: 5; background: #ffffff; border-bottom: 1px solid #e5e5e5; padding: 8px 12px; display: flex; gap: 16px; align-items: baseline; }}
-    .topbar .title {{ font-weight: 600; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace; }}
-    .topbar .hash {{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace; color: #555; font-size: 12px; }}
+    .top-bar {{ position: sticky; top: 0; z-index: 5; background: #ffffff; border-bottom: 1px solid #e5e5e5; padding: 8px 12px; display: flex; gap: 16px; align-items: baseline; }}
+    .top-bar .title {{ font-weight: 600; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace; }}
+    .top-bar .hash {{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace; color: #555; font-size: 12px; }}
     .container {{ display: flex; height: calc(100vh - 44px); overflow: hidden; }}
     .pane {{ overflow: auto; }}
     .pane-header {{ position: sticky; top: 0; z-index: 2; background: #f6f8fa; border-bottom: 1px solid #e5e5e5; padding: 6px 8px; font-weight: 600; font-size: 16px; text-align: left; }}
     .pane .code-wrap {{ padding: 8px; }}
-    .left {{ border-right: 1px solid #ddd; flex: 0 0 33.333%; max-width: 33.333%; font-size: 12px; }}
-    .right {{ flex: 1 1 66.666%; }}
+    .left {{ border-right: 1px solid #ddd; flex: 0 0 30%; max-width: 30%; font-size: 12px; }}
+    .right {{ flex: 1 1 70%; }}
     .relations {{ width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 12px; }}
     .relations th, .relations td {{ border-bottom: 1px solid #eee; padding: 4px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
     .relations thead th {{ position: sticky; top: 0; background: #f8f8f8; z-index: 1; }}
-    /* Header alignment: relation/scope left; start/end centered */
     .relations thead th:nth-child(1), .relations thead th:nth-child(2) {{ text-align: left; }}
     .relations thead th:nth-child(3), .relations thead th:nth-child(4) {{ text-align: center; }}
     .mono {{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace; }}
     .center {{ text-align: center; }}
     .rel-row:hover {{ background: #f0f7ff; cursor: pointer; }}
-
-    /* Highlight selected code rows: applied via row-specific rule below */
-
-    /* Make the pygments table span full width */
-    .highlighttable {{ width: 100%; border-collapse: collapse; }}
-    .highlighttable td {{ vertical-align: top; }}
-    .highlighttable .linenos {{ user-select: none; background: #f8f8f8; color: #999; }}
-    .highlighttable .linenos a {{ color: #aaa; text-decoration: none; font-size: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }}
-    .highlighttable .linenos a:visited {{ color: #aaa; text-decoration: none; }}
-    .highlighttable .linenos a:hover {{ color: #666; text-decoration: none; }}
-    .highlighttable .linenos a:focus, .highlighttable .linenos a:active {{ color: #666; text-decoration: none; }}
-    .highlighttable pre {{ margin: 0; }}
-    /* Ensure code text is left-aligned and not justified */
-    .highlighttable td.code, .highlighttable .code, .highlighttable pre {{ text-align: left !important; }}
-
-    /* Highlight individual code lines when class 'hl' is set on their line span */
+    .highlight-table {{ width: 100%; border-collapse: collapse; }}
+    .highlight-table td {{ vertical-align: top; }}
+    .highlight-table .linenos {{ user-select: none; background: #f8f8f8; color: #999; }}
+    a {{ color: #aaa; text-decoration: none; font-size: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }}
+    a:visited {{ color: #aaa; text-decoration: none; }}
+    a:hover {{ color: #666; text-decoration: none; }}
+    a:focus, a:active {{ color: #666; text-decoration: none; }}
+    .highlight-table pre {{ margin: 0; }}
+    .highlight-table td.code, .highlight-table .code, .highlight-table pre {{ text-align: left !important; }}
     [id^="LC-"] .hl {{ background: #fff3bf; display: block; }}
-
-    /* Code pane padding */
     #code-pane {{ padding: 0; }}
   </style>
 </head>
 <body>
-  <div class=\"topbar\">\n    <span class=\"title\">{filename}</span>\n    <span class=\"hash\">SHA256: {sha256_hex}</span>\n  </div>
+  <div class=\"top-bar\">\n    <span class=\"title\">{filename}</span>\n    <span class=\"hash\">SHA256: {sha256_hex}</span>\n  </div>
   <div class=\"container\">
     <div class=\"pane left\" id=\"left-pane\">\n      <div class=\"pane-header\">Relations</div>
       {table_html}
@@ -156,7 +142,7 @@ def build_html(code_html: str, style_css: str, relations: List[Relation], title:
     (function() {{
       const codePane = document.getElementById('code-pane');
       function lineEl(n) {{
-        // Prefer per-line code span generated via Pygments linespans
+        // Prefer per-line code span generated via Pygments lines-pans
         const span = document.getElementById(`LC-${{n}}`);
         if (span) return span;
         // Fallback: try to find the table row (older output formats)
@@ -170,7 +156,7 @@ def build_html(code_html: str, style_css: str, relations: List[Relation], title:
         const sel = window.getSelection && window.getSelection();
         if (sel && sel.removeAllRanges) sel.removeAllRanges();
         // Also remove any legacy CSS highlights if present
-        document.querySelectorAll('.highlighttable tr.hl').forEach(tr => tr.classList.remove('hl'));
+        document.querySelectorAll('.highlight-table tr.hl').forEach(tr => tr.classList.remove('hl'));
         document.querySelectorAll('[id^="LC-"] .hl').forEach(el => el.classList.remove('hl'));
       }}
       function textPositionInLine(spanEl, col) {{
