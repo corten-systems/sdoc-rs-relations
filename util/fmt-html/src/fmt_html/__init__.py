@@ -273,7 +273,7 @@ def build_html(code_html: str, style_css: str, relations: List[Relation], title:
         </div>
     </div>
     <script>
-        (function() {{
+        (() => {{
 
             function lineElement(n) {{
                 const span = document.getElementById(`LC-${{n}}`);
@@ -354,22 +354,7 @@ def build_html(code_html: str, style_css: str, relations: List[Relation], title:
 
             }}
 
-            function scrollToAnchor() {{
-                if (!location.hash) return;
-                const match = location.hash.slice(1).match(/^L-(\\d+)$/);
-                if (!match) return;
-                const line = parseInt(match[1], 10);
-                const span = lineElement(line);
-                if (!span) return null;
-                span.scrollIntoView({{
-                    behavior: 'smooth',
-                    block: 'center',
-                    inline: 'center'
-                }});    
-            }}
-
-            document.addEventListener('DOMContentLoaded', function() {{
-            
+            document.addEventListener('DOMContentLoaded', () => {{
                 document.querySelectorAll('.rel-row').forEach(row => {{
                     row.addEventListener('click', () => {{
                         const start = parseInt(row.dataset.start, 10);
@@ -379,10 +364,34 @@ def build_html(code_html: str, style_css: str, relations: List[Relation], title:
                         selectRange(start, startCol, end, endCol);
                     }});
                 }});
-    
-                scrollToAnchor();
-                
             }});
+
+            function scrollToAnchor() {{
+                if (!location.hash) return;
+                const match = location.hash.slice(1).match(/^L-(\\d+)$/);
+                if (!match) return;
+                const line = parseInt(match[1], 10);
+                const element = lineElement(line);              
+                if (!element) return;
+                clearSelection();
+                element.scrollIntoView({{
+                    behavior: 'smooth',
+                    block: 'center',
+                    inline: 'center'
+                }});                      
+            }}
+
+            ['load', 'hashchange'].forEach((event) => {{
+                window.addEventListener(event, () => {{
+                    if (window.location.hash) {{
+                        requestAnimationFrame(() => {{
+                            requestAnimationFrame(() => {{
+                                scrollToAnchor();
+                            }});
+                        }});
+                    }}
+                }});
+            }});     
 
         }})();
     </script>
