@@ -6,7 +6,7 @@ import json
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List
+from typing import List, Tuple
 
 from pygments import formatters, highlight, lexers
 
@@ -26,39 +26,35 @@ class Relation:
     span: Span
 
 
-def load_relations(path: Path) -> List[Relation]:
-    data = json.loads(path.read_text())
-    # File format is an array; take all objects' relations
+def load_relations(path: Path, hash: str) -> Tuple[str, List[Relation]]:
+    file = ""
     relations: List[Relation] = []
-    for obj in data:
-        for rel in obj.get("relations", []):
-            span = rel.get("span", {})
-            s_obj = span.get("start", {})
-            e_obj = span.get("end", {})
-            s_line = s_obj.get("line")
-            e_line = e_obj.get("line")
-            if s_line is None or e_line is None:
-                continue
-            s_col = s_obj.get("column", 0)
-            e_col = e_obj.get("column", 0)
+    elements = json.loads(path.read_text())
+    matching = 0
+    for element in elements:
+        if element["hash"]["sha256"] != hash:
+            continue
+        file = element["file"]
+        for relation in element["relations"]:
             relations.append(
                 Relation(
-                    relation=str(rel.get("relation", "")),
-                    scope=str(rel.get("scope", "")),
-                    span=Span(int(s_line), int(s_col), int(e_line), int(e_col)),
-                )
-            )
-    return relations
+                    relation=str(relation["relation"]),
+                    scope=str(relation["scope"]),
+                    span=Span(int(relation["span"]["start"]["line"]), int(relation["span"]["start"]["column"]), int(relation["span"]["end"]["line"]), int(relation["span"]["end"]["column"]))))
+        matching += 1
+    assert len(relations) > 0, "No relations were found that had a matching hash"
+    assert matching == 1, f"Found {matching} relations with a matching hash, but expected exactly one"
+    return file, relations
 
 
 def render_code_html(code: str) -> tuple[str, str]:
     lexer = lexers.RustLexer()
     formatter = formatters.HtmlFormatter(
-        linenos="table",  # table with a separate line number column
-        lineanchors="L",  # id="L-<line>" on each line number (left column)
-        linespans="LC",   # wrap each code line in <span id="LC-<line>">...</span>
-        noclasses=False,  # emit CSS classes; we'll inject CSS styles
-        anchorlinenos=True,
+        linenos="table",    # table with a separate line number column
+        lineanchors="L",    # id="L-<line>" on each line number (left column)
+        linespans="LC",     # wrap each code line in <span id="LC-<line>">...</span>
+        noclasses=False,    # emit CSS classes; we'll inject CSS styles
+        anchorlinenos=True, # we will use these for optional navigation
     )
     highlighted = highlight(code, lexer, formatter)
     styles = formatter.get_style_defs('.highlight')
@@ -409,10 +405,9 @@ def main() -> None:
     rust_file_hash = hashlib.sha256(rust_file_bytes).hexdigest()
     rust_code = rust_file_bytes.decode("utf-8")
 
-    relations = load_relations(args.json_file)
+    filename, relations = load_relations(args.json_file, rust_file_hash)
     code_html, style_css = render_code_html(rust_code)
 
-
-    title = f"{args.rust_file.name} relations"
+    title = f"{filename} relations"
     html = build_html(code_html, style_css, relations, title, args.rust_file.name, rust_file_hash)
     print(html)
