@@ -233,7 +233,7 @@ def build_html(code_html: str, style_css: str, relations: List[Relation], title:
         }}
         
         a {{
-            color: #a0a0a0;
+            color: #b0b0b0;
             font-size: 12px;
             text-decoration: none;
         }}
@@ -241,7 +241,7 @@ def build_html(code_html: str, style_css: str, relations: List[Relation], title:
         a:hover,
         a:focus,
         a:active {{
-            color: #606060;
+            color: #404040;
         }}
         
         a:visited {{
