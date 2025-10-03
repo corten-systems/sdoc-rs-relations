@@ -408,6 +408,6 @@ def main() -> None:
     filename, relations = load_relations(args.json_file, rust_file_hash)
     code_html, style_css = render_code_html(rust_code)
 
-    title = f"{filename} relations"
+    title = f"@relations({filename})"
     html = build_html(code_html, style_css, relations, title, args.rust_file.name, rust_file_hash)
     print(html)
