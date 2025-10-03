@@ -1,0 +1,797 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>relations.rs — relations</title>
+  <style>
+    /* Pygments styles */
+    pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #ffffcc }
+.highlight { background: #f8f8f8; }
+.highlight .c { color: #3D7B7B; font-style: italic } /* Comment */
+.highlight .err { border: 1px solid #F00 } /* Error */
+.highlight .k { color: #008000; font-weight: bold } /* Keyword */
+.highlight .o { color: #666 } /* Operator */
+.highlight .ch { color: #3D7B7B; font-style: italic } /* Comment.Hashbang */
+.highlight .cm { color: #3D7B7B; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #9C6500 } /* Comment.Preproc */
+.highlight .cpf { color: #3D7B7B; font-style: italic } /* Comment.PreprocFile */
+.highlight .c1 { color: #3D7B7B; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
+.highlight .gd { color: #A00000 } /* Generic.Deleted */
+.highlight .ge { font-style: italic } /* Generic.Emph */
+.highlight .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.highlight .gr { color: #E40000 } /* Generic.Error */
+.highlight .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.highlight .gi { color: #008400 } /* Generic.Inserted */
+.highlight .go { color: #717171 } /* Generic.Output */
+.highlight .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.highlight .gs { font-weight: bold } /* Generic.Strong */
+.highlight .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.highlight .gt { color: #04D } /* Generic.Traceback */
+.highlight .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.highlight .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { color: #008000 } /* Keyword.Pseudo */
+.highlight .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #B00040 } /* Keyword.Type */
+.highlight .m { color: #666 } /* Literal.Number */
+.highlight .s { color: #BA2121 } /* Literal.String */
+.highlight .na { color: #687822 } /* Name.Attribute */
+.highlight .nb { color: #008000 } /* Name.Builtin */
+.highlight .nc { color: #00F; font-weight: bold } /* Name.Class */
+.highlight .no { color: #800 } /* Name.Constant */
+.highlight .nd { color: #A2F } /* Name.Decorator */
+.highlight .ni { color: #717171; font-weight: bold } /* Name.Entity */
+.highlight .ne { color: #CB3F38; font-weight: bold } /* Name.Exception */
+.highlight .nf { color: #00F } /* Name.Function */
+.highlight .nl { color: #767600 } /* Name.Label */
+.highlight .nn { color: #00F; font-weight: bold } /* Name.Namespace */
+.highlight .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.highlight .nv { color: #19177C } /* Name.Variable */
+.highlight .ow { color: #A2F; font-weight: bold } /* Operator.Word */
+.highlight .w { color: #BBB } /* Text.Whitespace */
+.highlight .mb { color: #666 } /* Literal.Number.Bin */
+.highlight .mf { color: #666 } /* Literal.Number.Float */
+.highlight .mh { color: #666 } /* Literal.Number.Hex */
+.highlight .mi { color: #666 } /* Literal.Number.Integer */
+.highlight .mo { color: #666 } /* Literal.Number.Oct */
+.highlight .sa { color: #BA2121 } /* Literal.String.Affix */
+.highlight .sb { color: #BA2121 } /* Literal.String.Backtick */
+.highlight .sc { color: #BA2121 } /* Literal.String.Char */
+.highlight .dl { color: #BA2121 } /* Literal.String.Delimiter */
+.highlight .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.highlight .s2 { color: #BA2121 } /* Literal.String.Double */
+.highlight .se { color: #AA5D1F; font-weight: bold } /* Literal.String.Escape */
+.highlight .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.highlight .si { color: #A45A77; font-weight: bold } /* Literal.String.Interpol */
+.highlight .sx { color: #008000 } /* Literal.String.Other */
+.highlight .sr { color: #A45A77 } /* Literal.String.Regex */
+.highlight .s1 { color: #BA2121 } /* Literal.String.Single */
+.highlight .ss { color: #19177C } /* Literal.String.Symbol */
+.highlight .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #00F } /* Name.Function.Magic */
+.highlight .vc { color: #19177C } /* Name.Variable.Class */
+.highlight .vg { color: #19177C } /* Name.Variable.Global */
+.highlight .vi { color: #19177C } /* Name.Variable.Instance */
+.highlight .vm { color: #19177C } /* Name.Variable.Magic */
+.highlight .il { color: #666 } /* Literal.Number.Integer.Long */
+
+    html, body { height: 100%; margin: 0; padding: 0; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; }
+
+    .topbar { position: sticky; top: 0; z-index: 5; background: #ffffff; border-bottom: 1px solid #e5e5e5; padding: 8px 12px; display: flex; gap: 16px; align-items: baseline; }
+    .topbar .title { font-weight: 600; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .topbar .hash { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; color: #555; font-size: 12px; }
+    .container { display: flex; height: calc(100vh - 44px); overflow: hidden; }
+    .pane { overflow: auto; }
+    .pane-header { position: sticky; top: 0; z-index: 2; background: #f6f8fa; border-bottom: 1px solid #e5e5e5; padding: 6px 8px; font-weight: 600; font-size: 16px; text-align: left; }
+    .pane .code-wrap { padding: 8px; }
+    .left { border-right: 1px solid #ddd; flex: 0 0 33.333%; max-width: 33.333%; font-size: 12px; }
+    .right { flex: 1 1 66.666%; }
+    .relations { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 12px; }
+    .relations th, .relations td { border-bottom: 1px solid #eee; padding: 4px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .relations thead th { position: sticky; top: 0; background: #f8f8f8; z-index: 1; }
+    /* Header alignment: relation/scope left; start/end centered */
+    .relations thead th:nth-child(1), .relations thead th:nth-child(2) { text-align: left; }
+    .relations thead th:nth-child(3), .relations thead th:nth-child(4) { text-align: center; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .center { text-align: center; }
+    .rel-row:hover { background: #f0f7ff; cursor: pointer; }
+
+    /* Highlight selected code rows: applied via row-specific rule below */
+
+    /* Make the pygments table span full width */
+    .highlighttable { width: 100%; border-collapse: collapse; }
+    .highlighttable td { vertical-align: top; }
+    .highlighttable .linenos { user-select: none; background: #f8f8f8; color: #999; }
+    .highlighttable .linenos a { color: #aaa; text-decoration: none; font-size: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .highlighttable .linenos a:visited { color: #aaa; text-decoration: none; }
+    .highlighttable .linenos a:hover { color: #666; text-decoration: none; }
+    .highlighttable .linenos a:focus, .highlighttable .linenos a:active { color: #666; text-decoration: none; }
+    .highlighttable pre { margin: 0; }
+    /* Ensure code text is left-aligned and not justified */
+    .highlighttable td.code, .highlighttable .code, .highlighttable pre { text-align: left !important; }
+
+    /* Highlight individual code lines when class 'hl' is set on their line span */
+    [id^="LC-"] .hl { background: #fff3bf; display: block; }
+
+    /* Code pane padding */
+    #code-pane { padding: 0; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <span class="title">relations.rs</span>
+    <span class="hash">SHA256: a08599f900610ab706eeab0f3f272719548364bd95dbd3cef2e10584eae0111f</span>
+  </div>
+  <div class="container">
+    <div class="pane left" id="left-pane">
+      <div class="pane-header">Relations</div>
+      <table class="relations"><thead><tr><th>relation</th><th>scope</th><th>start</th><th>end</th></tr></thead><tbody><tr class="rel-row" data-start="1" data-end="275" data-start-col="0" data-end-col="1" data-id="S5x7ZEWE"><td class="mono">S5x7ZEWE</td><td class="mono">File</td><td class="mono center">1:0</td><td class="mono center">275:1</td></tr><tr class="rel-row" data-start="4" data-end="6" data-start-col="0" data-end-col="33" data-id="R3m2aYp"><td class="mono">R3m2aYp</td><td class="mono">ItemConst</td><td class="mono center">4:0</td><td class="mono center">6:33</td></tr><tr class="rel-row" data-start="8" data-end="10" data-start-col="0" data-end-col="46" data-id="NMuBH72yL"><td class="mono">NMuBH72yL</td><td class="mono">ItemStatic</td><td class="mono center">8:0</td><td class="mono center">10:46</td></tr><tr class="rel-row" data-start="12" data-end="14" data-start-col="0" data-end-col="65" data-id="XH5mhH0"><td class="mono">XH5mhH0</td><td class="mono">ItemType</td><td class="mono center">12:0</td><td class="mono center">14:65</td></tr><tr class="rel-row" data-start="16" data-end="26" data-start-col="0" data-end-col="1" data-id="OiEBsG0"><td class="mono">OiEBsG0</td><td class="mono">ItemStruct</td><td class="mono center">16:0</td><td class="mono center">26:1</td></tr><tr class="rel-row" data-start="19" data-end="21" data-start-col="4" data-end-col="20" data-id="8nRE5KG"><td class="mono">8nRE5KG</td><td class="mono">Field</td><td class="mono center">19:4</td><td class="mono center">21:20</td></tr><tr class="rel-row" data-start="23" data-end="25" data-start-col="4" data-end-col="14" data-id="oByPxhWz"><td class="mono">oByPxhWz</td><td class="mono">Field</td><td class="mono center">23:4</td><td class="mono center">25:14</td></tr><tr class="rel-row" data-start="28" data-end="50" data-start-col="0" data-end-col="1" data-id="7M1HoQNuI"><td class="mono">7M1HoQNuI</td><td class="mono">ItemEnum</td><td class="mono center">28:0</td><td class="mono center">50:1</td></tr><tr class="rel-row" data-start="31" data-end="33" data-start-col="4" data-end-col="10" data-id="9dSeVTf"><td class="mono">9dSeVTf</td><td class="mono">Variant</td><td class="mono center">31:4</td><td class="mono center">33:10</td></tr><tr class="rel-row" data-start="35" data-end="41" data-start-col="4" data-end-col="5" data-id="YInnEVaOC"><td class="mono">YInnEVaOC</td><td class="mono">Variant</td><td class="mono center">35:4</td><td class="mono center">41:5</td></tr><tr class="rel-row" data-start="38" data-end="40" data-start-col="8" data-end-col="21" data-id="pehIB5Ob"><td class="mono">pehIB5Ob</td><td class="mono">Field</td><td class="mono center">38:8</td><td class="mono center">40:21</td></tr><tr class="rel-row" data-start="43" data-end="49" data-start-col="4" data-end-col="5" data-id="z8uMJcapU"><td class="mono">z8uMJcapU</td><td class="mono">Variant</td><td class="mono center">43:4</td><td class="mono center">49:5</td></tr><tr class="rel-row" data-start="46" data-end="48" data-start-col="8" data-end-col="11" data-id="KLFxjm1"><td class="mono">KLFxjm1</td><td class="mono">Field</td><td class="mono center">46:8</td><td class="mono center">48:11</td></tr><tr class="rel-row" data-start="52" data-end="62" data-start-col="0" data-end-col="1" data-id="Kp2gSMIiB"><td class="mono">Kp2gSMIiB</td><td class="mono">ItemUnion</td><td class="mono center">52:0</td><td class="mono center">62:1</td></tr><tr class="rel-row" data-start="55" data-end="57" data-start-col="4" data-end-col="10" data-id="KoRCMPU"><td class="mono">KoRCMPU</td><td class="mono">Field</td><td class="mono center">55:4</td><td class="mono center">57:10</td></tr><tr class="rel-row" data-start="59" data-end="61" data-start-col="4" data-end-col="10" data-id="KnqUvVEY"><td class="mono">KnqUvVEY</td><td class="mono">Field</td><td class="mono center">59:4</td><td class="mono center">61:10</td></tr><tr class="rel-row" data-start="64" data-end="84" data-start-col="0" data-end-col="1" data-id="5ImdJSr"><td class="mono">5ImdJSr</td><td class="mono">ItemTrait</td><td class="mono center">64:0</td><td class="mono center">84:1</td></tr><tr class="rel-row" data-start="67" data-end="69" data-start-col="4" data-end-col="16" data-id="UHMcB5Cqq"><td class="mono">UHMcB5Cqq</td><td class="mono">TraitItemType</td><td class="mono center">67:4</td><td class="mono center">69:16</td></tr><tr class="rel-row" data-start="71" data-end="73" data-start-col="4" data-end-col="26" data-id="wkLzsC4s"><td class="mono">wkLzsC4s</td><td class="mono">TraitItemConst</td><td class="mono center">71:4</td><td class="mono center">73:26</td></tr><tr class="rel-row" data-start="75" data-end="77" data-start-col="4" data-end-col="51" data-id="XH3IyT6"><td class="mono">XH3IyT6</td><td class="mono">TraitItemFn</td><td class="mono center">75:4</td><td class="mono center">77:51</td></tr><tr class="rel-row" data-start="79" data-end="83" data-start-col="4" data-end-col="5" data-id="Hh6wJ7fpZ"><td class="mono">Hh6wJ7fpZ</td><td class="mono">TraitItemFn</td><td class="mono center">79:4</td><td class="mono center">83:5</td></tr><tr class="rel-row" data-start="86" data-end="88" data-start-col="0" data-end-col="45" data-id="b7xnEeF"><td class="mono">b7xnEeF</td><td class="mono">ItemTraitAlias</td><td class="mono center">86:0</td><td class="mono center">88:45</td></tr><tr class="rel-row" data-start="90" data-end="106" data-start-col="0" data-end-col="1" data-id="owD42wk"><td class="mono">owD42wk</td><td class="mono">ItemImpl</td><td class="mono center">90:0</td><td class="mono center">106:1</td></tr><tr class="rel-row" data-start="93" data-end="95" data-start-col="4" data-end-col="25" data-id="xzMbyU5rB"><td class="mono">xzMbyU5rB</td><td class="mono">ImplItemType</td><td class="mono center">93:4</td><td class="mono center">95:25</td></tr><tr class="rel-row" data-start="97" data-end="99" data-start-col="4" data-end-col="33" data-id="N9oI9M8C"><td class="mono">N9oI9M8C</td><td class="mono">ImplItemConst</td><td class="mono center">97:4</td><td class="mono center">99:33</td></tr><tr class="rel-row" data-start="101" data-end="105" data-start-col="4" data-end-col="5" data-id="KLnt8082"><td class="mono">KLnt8082</td><td class="mono">ImplItemFn</td><td class="mono center">101:4</td><td class="mono center">105:5</td></tr><tr class="rel-row" data-start="108" data-end="122" data-start-col="0" data-end-col="1" data-id="2arqklT5"><td class="mono">2arqklT5</td><td class="mono">ItemImpl</td><td class="mono center">108:0</td><td class="mono center">122:1</td></tr><tr class="rel-row" data-start="111" data-end="115" data-start-col="4" data-end-col="5" data-id="daZt7aMqV"><td class="mono">daZt7aMqV</td><td class="mono">ImplItemFn</td><td class="mono center">111:4</td><td class="mono center">115:5</td></tr><tr class="rel-row" data-start="117" data-end="121" data-start-col="4" data-end-col="5" data-id="bCxGING"><td class="mono">bCxGING</td><td class="mono">ImplItemFn</td><td class="mono center">117:4</td><td class="mono center">121:5</td></tr><tr class="rel-row" data-start="124" data-end="128" data-start-col="0" data-end-col="1" data-id="dG81Vzk"><td class="mono">dG81Vzk</td><td class="mono">ItemFn</td><td class="mono center">124:0</td><td class="mono center">128:1</td></tr><tr class="rel-row" data-start="130" data-end="134" data-start-col="0" data-end-col="1" data-id="4QLCpmM"><td class="mono">4QLCpmM</td><td class="mono">ItemFn</td><td class="mono center">130:0</td><td class="mono center">134:1</td></tr><tr class="rel-row" data-start="136" data-end="140" data-start-col="0" data-end-col="1" data-id="mzUjggR"><td class="mono">mzUjggR</td><td class="mono">ItemFn</td><td class="mono center">136:0</td><td class="mono center">140:1</td></tr><tr class="rel-row" data-start="142" data-end="148" data-start-col="0" data-end-col="1" data-id="ATrMhNH"><td class="mono">ATrMhNH</td><td class="mono">ItemFn</td><td class="mono center">142:0</td><td class="mono center">148:1</td></tr><tr class="rel-row" data-start="150" data-end="152" data-start-col="0" data-end-col="17" data-id="kM2ySbb"><td class="mono">kM2ySbb</td><td class="mono">ItemExternCrate</td><td class="mono center">150:0</td><td class="mono center">152:17</td></tr><tr class="rel-row" data-start="154" data-end="167" data-start-col="0" data-end-col="1" data-id="CVO11Qy"><td class="mono">CVO11Qy</td><td class="mono">ItemMod</td><td class="mono center">154:0</td><td class="mono center">167:1</td></tr><tr class="rel-row" data-start="154" data-end="167" data-start-col="0" data-end-col="1" data-id="zawS0aMAj"><td class="mono">zawS0aMAj</td><td class="mono">ItemMod</td><td class="mono center">154:0</td><td class="mono center">167:1</td></tr><tr class="rel-row" data-start="160" data-end="166" data-start-col="4" data-end-col="5" data-id="LV0JeVQf"><td class="mono">LV0JeVQf</td><td class="mono">ItemStruct</td><td class="mono center">160:4</td><td class="mono center">166:5</td></tr><tr class="rel-row" data-start="163" data-end="165" data-start-col="8" data-end-col="21" data-id="ave7cjq"><td class="mono">ave7cjq</td><td class="mono">Field</td><td class="mono center">163:8</td><td class="mono center">165:21</td></tr><tr class="rel-row" data-start="169" data-end="183" data-start-col="0" data-end-col="1" data-id="m51AgeSa"><td class="mono">m51AgeSa</td><td class="mono">ItemForeignMod</td><td class="mono center">169:0</td><td class="mono center">183:1</td></tr><tr class="rel-row" data-start="172" data-end="174" data-start-col="4" data-end-col="36" data-id="d67FvOG8V"><td class="mono">d67FvOG8V</td><td class="mono">ForeignItemFn</td><td class="mono center">172:4</td><td class="mono center">174:36</td></tr><tr class="rel-row" data-start="176" data-end="178" data-start-col="4" data-end-col="29" data-id="n5TIEwFm"><td class="mono">n5TIEwFm</td><td class="mono">ForeignItemStatic</td><td class="mono center">176:4</td><td class="mono center">178:29</td></tr><tr class="rel-row" data-start="180" data-end="182" data-start-col="4" data-end-col="20" data-id="5KjLZZPC"><td class="mono">5KjLZZPC</td><td class="mono">ForeignItemType</td><td class="mono center">180:4</td><td class="mono center">182:20</td></tr><tr class="rel-row" data-start="185" data-end="191" data-start-col="0" data-end-col="1" data-id="sFzA9s5Uj"><td class="mono">sFzA9s5Uj</td><td class="mono">ItemMacro</td><td class="mono center">185:0</td><td class="mono center">191:1</td></tr><tr class="rel-row" data-start="193" data-end="205" data-start-col="0" data-end-col="1" data-id="Uxk8eoN"><td class="mono">Uxk8eoN</td><td class="mono">ItemFn</td><td class="mono center">193:0</td><td class="mono center">205:1</td></tr><tr class="rel-row" data-start="197" data-end="199" data-start-col="8" data-end-col="30" data-id="JQ6dyfoe0"><td class="mono">JQ6dyfoe0</td><td class="mono">Arm</td><td class="mono center">197:8</td><td class="mono center">199:30</td></tr><tr class="rel-row" data-start="201" data-end="203" data-start-col="8" data-end-col="18" data-id="vCbEEMYD"><td class="mono">vCbEEMYD</td><td class="mono">Arm</td><td class="mono center">201:8</td><td class="mono center">203:18</td></tr><tr class="rel-row" data-start="207" data-end="221" data-start-col="0" data-end-col="1" data-id="9kwjKm5"><td class="mono">9kwjKm5</td><td class="mono">ItemFn</td><td class="mono center">207:0</td><td class="mono center">221:1</td></tr><tr class="rel-row" data-start="210" data-end="212" data-start-col="4" data-end-col="12" data-id="5FyNmE9"><td class="mono">5FyNmE9</td><td class="mono">TypeParam</td><td class="mono center">210:4</td><td class="mono center">212:12</td></tr><tr class="rel-row" data-start="214" data-end="216" data-start-col="4" data-end-col="18" data-id="4dQ7JLKcd"><td class="mono">4dQ7JLKcd</td><td class="mono">ConstParam</td><td class="mono center">214:4</td><td class="mono center">216:18</td></tr><tr class="rel-row" data-start="223" data-end="239" data-start-col="0" data-end-col="1" data-id="sW4M3OJS"><td class="mono">sW4M3OJS</td><td class="mono">ItemStruct</td><td class="mono center">223:0</td><td class="mono center">239:1</td></tr><tr class="rel-row" data-start="226" data-end="228" data-start-col="4" data-end-col="6" data-id="eniOhjy"><td class="mono">eniOhjy</td><td class="mono">LifetimeParam</td><td class="mono center">226:4</td><td class="mono center">228:6</td></tr><tr class="rel-row" data-start="230" data-end="232" data-start-col="4" data-end-col="5" data-id="YGhhrgPz"><td class="mono">YGhhrgPz</td><td class="mono">TypeParam</td><td class="mono center">230:4</td><td class="mono center">232:5</td></tr><tr class="rel-row" data-start="236" data-end="238" data-start-col="4" data-end-col="19" data-id="HibGJSZqi"><td class="mono">HibGJSZqi</td><td class="mono">Field</td><td class="mono center">236:4</td><td class="mono center">238:19</td></tr><tr class="rel-row" data-start="241" data-end="250" data-start-col="0" data-end-col="1" data-id="rIjz40L84"><td class="mono">rIjz40L84</td><td class="mono">ItemFn</td><td class="mono center">241:0</td><td class="mono center">250:1</td></tr><tr class="rel-row" data-start="246" data-end="247" data-start-col="8" data-end-col="34" data-id="cqkjF9P5"><td class="mono">cqkjF9P5</td><td class="mono">FieldValue</td><td class="mono center">246:8</td><td class="mono center">247:34</td></tr><tr class="rel-row" data-start="254" data-end="255" data-start-col="4" data-end-col="11" data-id="7AEwrhc"><td class="mono">7AEwrhc</td><td class="mono">ExprLit</td><td class="mono center">254:4</td><td class="mono center">255:11</td></tr><tr class="rel-row" data-start="256" data-end="259" data-start-col="4" data-end-col="5" data-id="ve9EEVSf"><td class="mono">ve9EEVSf</td><td class="mono">ExprPath</td><td class="mono center">256:4</td><td class="mono center">259:5</td></tr><tr class="rel-row" data-start="263" data-end="264" data-start-col="4" data-end-col="11" data-id="bCHkXspx"><td class="mono">bCHkXspx</td><td class="mono">ExprParen</td><td class="mono center">263:4</td><td class="mono center">264:11</td></tr><tr class="rel-row" data-start="269" data-end="274" data-start-col="4" data-end-col="5" data-id="n5vDcKK"><td class="mono">n5vDcKK</td><td class="mono">ItemFn</td><td class="mono center">269:4</td><td class="mono center">274:5</td></tr></tbody></table>
+    </div>
+    <div class="pane right" id="code-pane">
+      <div class="pane-header">Source</div>
+      <div class="code-wrap">
+      <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"><a href="#L-1">  1</a></span>
+<span class="normal"><a href="#L-2">  2</a></span>
+<span class="normal"><a href="#L-3">  3</a></span>
+<span class="normal"><a href="#L-4">  4</a></span>
+<span class="normal"><a href="#L-5">  5</a></span>
+<span class="normal"><a href="#L-6">  6</a></span>
+<span class="normal"><a href="#L-7">  7</a></span>
+<span class="normal"><a href="#L-8">  8</a></span>
+<span class="normal"><a href="#L-9">  9</a></span>
+<span class="normal"><a href="#L-10"> 10</a></span>
+<span class="normal"><a href="#L-11"> 11</a></span>
+<span class="normal"><a href="#L-12"> 12</a></span>
+<span class="normal"><a href="#L-13"> 13</a></span>
+<span class="normal"><a href="#L-14"> 14</a></span>
+<span class="normal"><a href="#L-15"> 15</a></span>
+<span class="normal"><a href="#L-16"> 16</a></span>
+<span class="normal"><a href="#L-17"> 17</a></span>
+<span class="normal"><a href="#L-18"> 18</a></span>
+<span class="normal"><a href="#L-19"> 19</a></span>
+<span class="normal"><a href="#L-20"> 20</a></span>
+<span class="normal"><a href="#L-21"> 21</a></span>
+<span class="normal"><a href="#L-22"> 22</a></span>
+<span class="normal"><a href="#L-23"> 23</a></span>
+<span class="normal"><a href="#L-24"> 24</a></span>
+<span class="normal"><a href="#L-25"> 25</a></span>
+<span class="normal"><a href="#L-26"> 26</a></span>
+<span class="normal"><a href="#L-27"> 27</a></span>
+<span class="normal"><a href="#L-28"> 28</a></span>
+<span class="normal"><a href="#L-29"> 29</a></span>
+<span class="normal"><a href="#L-30"> 30</a></span>
+<span class="normal"><a href="#L-31"> 31</a></span>
+<span class="normal"><a href="#L-32"> 32</a></span>
+<span class="normal"><a href="#L-33"> 33</a></span>
+<span class="normal"><a href="#L-34"> 34</a></span>
+<span class="normal"><a href="#L-35"> 35</a></span>
+<span class="normal"><a href="#L-36"> 36</a></span>
+<span class="normal"><a href="#L-37"> 37</a></span>
+<span class="normal"><a href="#L-38"> 38</a></span>
+<span class="normal"><a href="#L-39"> 39</a></span>
+<span class="normal"><a href="#L-40"> 40</a></span>
+<span class="normal"><a href="#L-41"> 41</a></span>
+<span class="normal"><a href="#L-42"> 42</a></span>
+<span class="normal"><a href="#L-43"> 43</a></span>
+<span class="normal"><a href="#L-44"> 44</a></span>
+<span class="normal"><a href="#L-45"> 45</a></span>
+<span class="normal"><a href="#L-46"> 46</a></span>
+<span class="normal"><a href="#L-47"> 47</a></span>
+<span class="normal"><a href="#L-48"> 48</a></span>
+<span class="normal"><a href="#L-49"> 49</a></span>
+<span class="normal"><a href="#L-50"> 50</a></span>
+<span class="normal"><a href="#L-51"> 51</a></span>
+<span class="normal"><a href="#L-52"> 52</a></span>
+<span class="normal"><a href="#L-53"> 53</a></span>
+<span class="normal"><a href="#L-54"> 54</a></span>
+<span class="normal"><a href="#L-55"> 55</a></span>
+<span class="normal"><a href="#L-56"> 56</a></span>
+<span class="normal"><a href="#L-57"> 57</a></span>
+<span class="normal"><a href="#L-58"> 58</a></span>
+<span class="normal"><a href="#L-59"> 59</a></span>
+<span class="normal"><a href="#L-60"> 60</a></span>
+<span class="normal"><a href="#L-61"> 61</a></span>
+<span class="normal"><a href="#L-62"> 62</a></span>
+<span class="normal"><a href="#L-63"> 63</a></span>
+<span class="normal"><a href="#L-64"> 64</a></span>
+<span class="normal"><a href="#L-65"> 65</a></span>
+<span class="normal"><a href="#L-66"> 66</a></span>
+<span class="normal"><a href="#L-67"> 67</a></span>
+<span class="normal"><a href="#L-68"> 68</a></span>
+<span class="normal"><a href="#L-69"> 69</a></span>
+<span class="normal"><a href="#L-70"> 70</a></span>
+<span class="normal"><a href="#L-71"> 71</a></span>
+<span class="normal"><a href="#L-72"> 72</a></span>
+<span class="normal"><a href="#L-73"> 73</a></span>
+<span class="normal"><a href="#L-74"> 74</a></span>
+<span class="normal"><a href="#L-75"> 75</a></span>
+<span class="normal"><a href="#L-76"> 76</a></span>
+<span class="normal"><a href="#L-77"> 77</a></span>
+<span class="normal"><a href="#L-78"> 78</a></span>
+<span class="normal"><a href="#L-79"> 79</a></span>
+<span class="normal"><a href="#L-80"> 80</a></span>
+<span class="normal"><a href="#L-81"> 81</a></span>
+<span class="normal"><a href="#L-82"> 82</a></span>
+<span class="normal"><a href="#L-83"> 83</a></span>
+<span class="normal"><a href="#L-84"> 84</a></span>
+<span class="normal"><a href="#L-85"> 85</a></span>
+<span class="normal"><a href="#L-86"> 86</a></span>
+<span class="normal"><a href="#L-87"> 87</a></span>
+<span class="normal"><a href="#L-88"> 88</a></span>
+<span class="normal"><a href="#L-89"> 89</a></span>
+<span class="normal"><a href="#L-90"> 90</a></span>
+<span class="normal"><a href="#L-91"> 91</a></span>
+<span class="normal"><a href="#L-92"> 92</a></span>
+<span class="normal"><a href="#L-93"> 93</a></span>
+<span class="normal"><a href="#L-94"> 94</a></span>
+<span class="normal"><a href="#L-95"> 95</a></span>
+<span class="normal"><a href="#L-96"> 96</a></span>
+<span class="normal"><a href="#L-97"> 97</a></span>
+<span class="normal"><a href="#L-98"> 98</a></span>
+<span class="normal"><a href="#L-99"> 99</a></span>
+<span class="normal"><a href="#L-100">100</a></span>
+<span class="normal"><a href="#L-101">101</a></span>
+<span class="normal"><a href="#L-102">102</a></span>
+<span class="normal"><a href="#L-103">103</a></span>
+<span class="normal"><a href="#L-104">104</a></span>
+<span class="normal"><a href="#L-105">105</a></span>
+<span class="normal"><a href="#L-106">106</a></span>
+<span class="normal"><a href="#L-107">107</a></span>
+<span class="normal"><a href="#L-108">108</a></span>
+<span class="normal"><a href="#L-109">109</a></span>
+<span class="normal"><a href="#L-110">110</a></span>
+<span class="normal"><a href="#L-111">111</a></span>
+<span class="normal"><a href="#L-112">112</a></span>
+<span class="normal"><a href="#L-113">113</a></span>
+<span class="normal"><a href="#L-114">114</a></span>
+<span class="normal"><a href="#L-115">115</a></span>
+<span class="normal"><a href="#L-116">116</a></span>
+<span class="normal"><a href="#L-117">117</a></span>
+<span class="normal"><a href="#L-118">118</a></span>
+<span class="normal"><a href="#L-119">119</a></span>
+<span class="normal"><a href="#L-120">120</a></span>
+<span class="normal"><a href="#L-121">121</a></span>
+<span class="normal"><a href="#L-122">122</a></span>
+<span class="normal"><a href="#L-123">123</a></span>
+<span class="normal"><a href="#L-124">124</a></span>
+<span class="normal"><a href="#L-125">125</a></span>
+<span class="normal"><a href="#L-126">126</a></span>
+<span class="normal"><a href="#L-127">127</a></span>
+<span class="normal"><a href="#L-128">128</a></span>
+<span class="normal"><a href="#L-129">129</a></span>
+<span class="normal"><a href="#L-130">130</a></span>
+<span class="normal"><a href="#L-131">131</a></span>
+<span class="normal"><a href="#L-132">132</a></span>
+<span class="normal"><a href="#L-133">133</a></span>
+<span class="normal"><a href="#L-134">134</a></span>
+<span class="normal"><a href="#L-135">135</a></span>
+<span class="normal"><a href="#L-136">136</a></span>
+<span class="normal"><a href="#L-137">137</a></span>
+<span class="normal"><a href="#L-138">138</a></span>
+<span class="normal"><a href="#L-139">139</a></span>
+<span class="normal"><a href="#L-140">140</a></span>
+<span class="normal"><a href="#L-141">141</a></span>
+<span class="normal"><a href="#L-142">142</a></span>
+<span class="normal"><a href="#L-143">143</a></span>
+<span class="normal"><a href="#L-144">144</a></span>
+<span class="normal"><a href="#L-145">145</a></span>
+<span class="normal"><a href="#L-146">146</a></span>
+<span class="normal"><a href="#L-147">147</a></span>
+<span class="normal"><a href="#L-148">148</a></span>
+<span class="normal"><a href="#L-149">149</a></span>
+<span class="normal"><a href="#L-150">150</a></span>
+<span class="normal"><a href="#L-151">151</a></span>
+<span class="normal"><a href="#L-152">152</a></span>
+<span class="normal"><a href="#L-153">153</a></span>
+<span class="normal"><a href="#L-154">154</a></span>
+<span class="normal"><a href="#L-155">155</a></span>
+<span class="normal"><a href="#L-156">156</a></span>
+<span class="normal"><a href="#L-157">157</a></span>
+<span class="normal"><a href="#L-158">158</a></span>
+<span class="normal"><a href="#L-159">159</a></span>
+<span class="normal"><a href="#L-160">160</a></span>
+<span class="normal"><a href="#L-161">161</a></span>
+<span class="normal"><a href="#L-162">162</a></span>
+<span class="normal"><a href="#L-163">163</a></span>
+<span class="normal"><a href="#L-164">164</a></span>
+<span class="normal"><a href="#L-165">165</a></span>
+<span class="normal"><a href="#L-166">166</a></span>
+<span class="normal"><a href="#L-167">167</a></span>
+<span class="normal"><a href="#L-168">168</a></span>
+<span class="normal"><a href="#L-169">169</a></span>
+<span class="normal"><a href="#L-170">170</a></span>
+<span class="normal"><a href="#L-171">171</a></span>
+<span class="normal"><a href="#L-172">172</a></span>
+<span class="normal"><a href="#L-173">173</a></span>
+<span class="normal"><a href="#L-174">174</a></span>
+<span class="normal"><a href="#L-175">175</a></span>
+<span class="normal"><a href="#L-176">176</a></span>
+<span class="normal"><a href="#L-177">177</a></span>
+<span class="normal"><a href="#L-178">178</a></span>
+<span class="normal"><a href="#L-179">179</a></span>
+<span class="normal"><a href="#L-180">180</a></span>
+<span class="normal"><a href="#L-181">181</a></span>
+<span class="normal"><a href="#L-182">182</a></span>
+<span class="normal"><a href="#L-183">183</a></span>
+<span class="normal"><a href="#L-184">184</a></span>
+<span class="normal"><a href="#L-185">185</a></span>
+<span class="normal"><a href="#L-186">186</a></span>
+<span class="normal"><a href="#L-187">187</a></span>
+<span class="normal"><a href="#L-188">188</a></span>
+<span class="normal"><a href="#L-189">189</a></span>
+<span class="normal"><a href="#L-190">190</a></span>
+<span class="normal"><a href="#L-191">191</a></span>
+<span class="normal"><a href="#L-192">192</a></span>
+<span class="normal"><a href="#L-193">193</a></span>
+<span class="normal"><a href="#L-194">194</a></span>
+<span class="normal"><a href="#L-195">195</a></span>
+<span class="normal"><a href="#L-196">196</a></span>
+<span class="normal"><a href="#L-197">197</a></span>
+<span class="normal"><a href="#L-198">198</a></span>
+<span class="normal"><a href="#L-199">199</a></span>
+<span class="normal"><a href="#L-200">200</a></span>
+<span class="normal"><a href="#L-201">201</a></span>
+<span class="normal"><a href="#L-202">202</a></span>
+<span class="normal"><a href="#L-203">203</a></span>
+<span class="normal"><a href="#L-204">204</a></span>
+<span class="normal"><a href="#L-205">205</a></span>
+<span class="normal"><a href="#L-206">206</a></span>
+<span class="normal"><a href="#L-207">207</a></span>
+<span class="normal"><a href="#L-208">208</a></span>
+<span class="normal"><a href="#L-209">209</a></span>
+<span class="normal"><a href="#L-210">210</a></span>
+<span class="normal"><a href="#L-211">211</a></span>
+<span class="normal"><a href="#L-212">212</a></span>
+<span class="normal"><a href="#L-213">213</a></span>
+<span class="normal"><a href="#L-214">214</a></span>
+<span class="normal"><a href="#L-215">215</a></span>
+<span class="normal"><a href="#L-216">216</a></span>
+<span class="normal"><a href="#L-217">217</a></span>
+<span class="normal"><a href="#L-218">218</a></span>
+<span class="normal"><a href="#L-219">219</a></span>
+<span class="normal"><a href="#L-220">220</a></span>
+<span class="normal"><a href="#L-221">221</a></span>
+<span class="normal"><a href="#L-222">222</a></span>
+<span class="normal"><a href="#L-223">223</a></span>
+<span class="normal"><a href="#L-224">224</a></span>
+<span class="normal"><a href="#L-225">225</a></span>
+<span class="normal"><a href="#L-226">226</a></span>
+<span class="normal"><a href="#L-227">227</a></span>
+<span class="normal"><a href="#L-228">228</a></span>
+<span class="normal"><a href="#L-229">229</a></span>
+<span class="normal"><a href="#L-230">230</a></span>
+<span class="normal"><a href="#L-231">231</a></span>
+<span class="normal"><a href="#L-232">232</a></span>
+<span class="normal"><a href="#L-233">233</a></span>
+<span class="normal"><a href="#L-234">234</a></span>
+<span class="normal"><a href="#L-235">235</a></span>
+<span class="normal"><a href="#L-236">236</a></span>
+<span class="normal"><a href="#L-237">237</a></span>
+<span class="normal"><a href="#L-238">238</a></span>
+<span class="normal"><a href="#L-239">239</a></span>
+<span class="normal"><a href="#L-240">240</a></span>
+<span class="normal"><a href="#L-241">241</a></span>
+<span class="normal"><a href="#L-242">242</a></span>
+<span class="normal"><a href="#L-243">243</a></span>
+<span class="normal"><a href="#L-244">244</a></span>
+<span class="normal"><a href="#L-245">245</a></span>
+<span class="normal"><a href="#L-246">246</a></span>
+<span class="normal"><a href="#L-247">247</a></span>
+<span class="normal"><a href="#L-248">248</a></span>
+<span class="normal"><a href="#L-249">249</a></span>
+<span class="normal"><a href="#L-250">250</a></span>
+<span class="normal"><a href="#L-251">251</a></span>
+<span class="normal"><a href="#L-252">252</a></span>
+<span class="normal"><a href="#L-253">253</a></span>
+<span class="normal"><a href="#L-254">254</a></span>
+<span class="normal"><a href="#L-255">255</a></span>
+<span class="normal"><a href="#L-256">256</a></span>
+<span class="normal"><a href="#L-257">257</a></span>
+<span class="normal"><a href="#L-258">258</a></span>
+<span class="normal"><a href="#L-259">259</a></span>
+<span class="normal"><a href="#L-260">260</a></span>
+<span class="normal"><a href="#L-261">261</a></span>
+<span class="normal"><a href="#L-262">262</a></span>
+<span class="normal"><a href="#L-263">263</a></span>
+<span class="normal"><a href="#L-264">264</a></span>
+<span class="normal"><a href="#L-265">265</a></span>
+<span class="normal"><a href="#L-266">266</a></span>
+<span class="normal"><a href="#L-267">267</a></span>
+<span class="normal"><a href="#L-268">268</a></span>
+<span class="normal"><a href="#L-269">269</a></span>
+<span class="normal"><a href="#L-270">270</a></span>
+<span class="normal"><a href="#L-271">271</a></span>
+<span class="normal"><a href="#L-272">272</a></span>
+<span class="normal"><a href="#L-273">273</a></span>
+<span class="normal"><a href="#L-274">274</a></span>
+<span class="normal"><a href="#L-275">275</a></span></pre></div></td><td class="code"><div><pre><span></span><span id="LC-1"><a id="L-1" name="L-1"></a><span class="sd">//! Module-level doc comment with @relation(S5x7ZEWE)</span>
+</span><span id="LC-2"><a id="L-2" name="L-2"></a><span class="sd">//! This tests inner doc attributes on the file/module itself</span>
+</span><span id="LC-3"><a id="L-3" name="L-3"></a>
+</span><span id="LC-4"><a id="L-4" name="L-4"></a><span class="sd">/// Top-level const with @relation(R3m2aYp)</span>
+</span><span id="LC-5"><a id="L-5" name="L-5"></a><span class="sd">/// Some random words: quantum cascade amplifier</span>
+</span><span id="LC-6"><a id="L-6" name="L-6"></a><span class="k">pub</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">MAGIC_NUMBER</span><span class="p">:</span><span class="w"> </span><span class="kt">u32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span><span class="p">;</span>
+</span><span id="LC-7"><a id="L-7" name="L-7"></a>
+</span><span id="LC-8"><a id="L-8" name="L-8"></a><span class="sd">/// Static item with @relation(NMuBH72yL)</span>
+</span><span id="LC-9"><a id="L-9" name="L-9"></a><span class="sd">/// Random text: nebula crystalline matrix</span>
+</span><span id="LC-10"><a id="L-10" name="L-10"></a><span class="k">pub</span><span class="w"> </span><span class="k">static</span><span class="w"> </span><span class="n">GLOBAL_STATE</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="kt">str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;initialized&quot;</span><span class="p">;</span>
+</span><span id="LC-11"><a id="L-11" name="L-11"></a>
+</span><span id="LC-12"><a id="L-12" name="L-12"></a><span class="sd">/// Type alias with @relation(XH5mhH0)</span>
+</span><span id="LC-13"><a id="L-13" name="L-13"></a><span class="sd">/// Words: temporal flux capacitor</span>
+</span><span id="LC-14"><a id="L-14" name="L-14"></a><span class="k">pub</span><span class="w"> </span><span class="k">type</span><span class="w"> </span><span class="nc">CustomResult</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Result</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="nb">Box</span><span class="o">&lt;</span><span class="k">dyn</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">error</span><span class="p">::</span><span class="n">Error</span><span class="o">&gt;&gt;</span><span class="p">;</span>
+</span><span id="LC-15"><a id="L-15" name="L-15"></a>
+</span><span id="LC-16"><a id="L-16" name="L-16"></a><span class="sd">/// Struct with @relation(OiEBsG0)</span>
+</span><span id="LC-17"><a id="L-17" name="L-17"></a><span class="sd">/// Description: polymorphic data structure</span>
+</span><span id="LC-18"><a id="L-18" name="L-18"></a><span class="k">pub</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">Container</span><span class="w"> </span><span class="p">{</span>
+</span><span id="LC-19"><a id="L-19" name="L-19"></a><span class="w">    </span><span class="sd">/// Field doc with @relation(8nRE5KG)</span>
+</span><span id="LC-20"><a id="L-20" name="L-20"></a><span class="w">    </span><span class="sd">/// Random: ethereal quantum state</span>
+</span><span id="LC-21"><a id="L-21" name="L-21"></a><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">name</span><span class="p">:</span><span class="w"> </span><span class="nb">String</span><span class="p">,</span>
+</span><span id="LC-22"><a id="L-22" name="L-22"></a>
+</span><span id="LC-23"><a id="L-23" name="L-23"></a><span class="w">    </span><span class="sd">/// Another field with @relation(oByPxhWz)</span>
+</span><span id="LC-24"><a id="L-24" name="L-24"></a><span class="w">    </span><span class="sd">/// Text: cascading resonance field</span>
+</span><span id="LC-25"><a id="L-25" name="L-25"></a><span class="w">    </span><span class="n">value</span><span class="p">:</span><span class="w"> </span><span class="kt">i32</span><span class="p">,</span>
+</span><span id="LC-26"><a id="L-26" name="L-26"></a><span class="p">}</span>
+</span><span id="LC-27"><a id="L-27" name="L-27"></a>
+</span><span id="LC-28"><a id="L-28" name="L-28"></a><span class="sd">/// Enum with @relation(7M1HoQNuI)</span>
+</span><span id="LC-29"><a id="L-29" name="L-29"></a><span class="sd">/// Content: enumerated variant collection</span>
+</span><span id="LC-30"><a id="L-30" name="L-30"></a><span class="k">pub</span><span class="w"> </span><span class="k">enum</span><span class="w"> </span><span class="nc">Status</span><span class="w"> </span><span class="p">{</span>
+</span><span id="LC-31"><a id="L-31" name="L-31"></a><span class="w">    </span><span class="sd">/// Variant doc with @relation(9dSeVTf)</span>
+</span><span id="LC-32"><a id="L-32" name="L-32"></a><span class="w">    </span><span class="sd">/// Words: active processing node</span>
+</span><span id="LC-33"><a id="L-33" name="L-33"></a><span class="w">    </span><span class="n">Active</span><span class="p">,</span>
+</span><span id="LC-34"><a id="L-34" name="L-34"></a>
+</span><span id="LC-35"><a id="L-35" name="L-35"></a><span class="w">    </span><span class="sd">/// Another variant with @relation(YInnEVaOC)</span>
+</span><span id="LC-36"><a id="L-36" name="L-36"></a><span class="w">    </span><span class="sd">/// Text: suspended animation chamber</span>
+</span><span id="LC-37"><a id="L-37" name="L-37"></a><span class="w">    </span><span class="n">Idle</span><span class="w"> </span><span class="p">{</span>
+</span><span id="LC-38"><a id="L-38" name="L-38"></a><span class="w">        </span><span class="sd">/// Field in variant with @relation(pehIB5Ob)</span>
+</span><span id="LC-39"><a id="L-39" name="L-39"></a><span class="w">        </span><span class="sd">/// Random: temporal duration metric</span>
+</span><span id="LC-40"><a id="L-40" name="L-40"></a><span class="w">        </span><span class="n">duration</span><span class="p">:</span><span class="w"> </span><span class="kt">u64</span><span class="p">,</span>
+</span><span id="LC-41"><a id="L-41" name="L-41"></a><span class="w">    </span><span class="p">},</span>
+</span><span id="LC-42"><a id="L-42" name="L-42"></a>
+</span><span id="LC-43"><a id="L-43" name="L-43"></a><span class="w">    </span><span class="sd">/// Tuple variant with @relation(z8uMJcapU)</span>
+</span><span id="LC-44"><a id="L-44" name="L-44"></a><span class="w">    </span><span class="sd">/// Description: error state container</span>
+</span><span id="LC-45"><a id="L-45" name="L-45"></a><span class="w">    </span><span class="n">Error</span><span class="p">(</span>
+</span><span id="LC-46"><a id="L-46" name="L-46"></a><span class="w">        </span><span class="sd">/// Tuple field with @relation(KLFxjm1)</span>
+</span><span id="LC-47"><a id="L-47" name="L-47"></a><span class="w">        </span><span class="sd">/// Words: diagnostic error code</span>
+</span><span id="LC-48"><a id="L-48" name="L-48"></a><span class="w">        </span><span class="kt">i32</span>
+</span><span id="LC-49"><a id="L-49" name="L-49"></a><span class="w">    </span><span class="p">),</span>
+</span><span id="LC-50"><a id="L-50" name="L-50"></a><span class="p">}</span>
+</span><span id="LC-51"><a id="L-51" name="L-51"></a>
+</span><span id="LC-52"><a id="L-52" name="L-52"></a><span class="sd">/// Union with @relation(Kp2gSMIiB)</span>
+</span><span id="LC-53"><a id="L-53" name="L-53"></a><span class="sd">/// Random: memory-aligned data union</span>
+</span><span id="LC-54"><a id="L-54" name="L-54"></a><span class="k">pub</span><span class="w"> </span><span class="k">union</span><span class="w"> </span><span class="nc">FloatOrInt</span><span class="w"> </span><span class="p">{</span>
+</span><span id="LC-55"><a id="L-55" name="L-55"></a><span class="w">    </span><span class="sd">/// Union field with @relation(KoRCMPU)</span>
+</span><span id="LC-56"><a id="L-56" name="L-56"></a><span class="w">    </span><span class="sd">/// Text: floating-point representation</span>
+</span><span id="LC-57"><a id="L-57" name="L-57"></a><span class="w">    </span><span class="n">f</span><span class="p">:</span><span class="w"> </span><span class="kt">f32</span><span class="p">,</span>
+</span><span id="LC-58"><a id="L-58" name="L-58"></a>
+</span><span id="LC-59"><a id="L-59" name="L-59"></a><span class="w">    </span><span class="sd">/// Another union field with @relation(KnqUvVEY)</span>
+</span><span id="LC-60"><a id="L-60" name="L-60"></a><span class="w">    </span><span class="sd">/// Words: integer bit pattern</span>
+</span><span id="LC-61"><a id="L-61" name="L-61"></a><span class="w">    </span><span class="n">i</span><span class="p">:</span><span class="w"> </span><span class="kt">i32</span><span class="p">,</span>
+</span><span id="LC-62"><a id="L-62" name="L-62"></a><span class="p">}</span>
+</span><span id="LC-63"><a id="L-63" name="L-63"></a>
+</span><span id="LC-64"><a id="L-64" name="L-64"></a><span class="sd">/// Trait definition with @relation(5ImdJSr)</span>
+</span><span id="LC-65"><a id="L-65" name="L-65"></a><span class="sd">/// Description: behavioral interface contract</span>
+</span><span id="LC-66"><a id="L-66" name="L-66"></a><span class="k">pub</span><span class="w"> </span><span class="k">trait</span><span class="w"> </span><span class="n">Processor</span><span class="w"> </span><span class="p">{</span>
+</span><span id="LC-67"><a id="L-67" name="L-67"></a><span class="w">    </span><span class="sd">/// Associated type with @relation(UHMcB5Cqq)</span>
+</span><span id="LC-68"><a id="L-68" name="L-68"></a><span class="w">    </span><span class="sd">/// Random: output data type</span>
+</span><span id="LC-69"><a id="L-69" name="L-69"></a><span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="nc">Output</span><span class="p">;</span>
+</span><span id="LC-70"><a id="L-70" name="L-70"></a>
+</span><span id="LC-71"><a id="L-71" name="L-71"></a><span class="w">    </span><span class="sd">/// Associated const with @relation(wkLzsC4s)</span>
+</span><span id="LC-72"><a id="L-72" name="L-72"></a><span class="w">    </span><span class="sd">/// Text: maximum buffer capacity</span>
+</span><span id="LC-73"><a id="L-73" name="L-73"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">MAX_SIZE</span><span class="p">:</span><span class="w"> </span><span class="kt">usize</span><span class="p">;</span>
+</span><span id="LC-74"><a id="L-74" name="L-74"></a>
+</span><span id="LC-75"><a id="L-75" name="L-75"></a><span class="w">    </span><span class="sd">/// Trait method with @relation(XH3IyT6)</span>
+</span><span id="LC-76"><a id="L-76" name="L-76"></a><span class="w">    </span><span class="sd">/// Words: processing operation handler</span>
+</span><span id="LC-77"><a id="L-77" name="L-77"></a><span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">process</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">input</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="kt">str</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nc">Self</span><span class="p">::</span><span class="n">Output</span><span class="p">;</span>
+</span><span id="LC-78"><a id="L-78" name="L-78"></a>
+</span><span id="LC-79"><a id="L-79" name="L-79"></a><span class="w">    </span><span class="sd">/// Default method with @relation(Hh6wJ7fpZ)</span>
+</span><span id="LC-80"><a id="L-80" name="L-80"></a><span class="w">    </span><span class="sd">/// Description: validation check routine</span>
+</span><span id="LC-81"><a id="L-81" name="L-81"></a><span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="p">{</span>
+</span><span id="LC-82"><a id="L-82" name="L-82"></a><span class="w">        </span><span class="kc">true</span>
+</span><span id="LC-83"><a id="L-83" name="L-83"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="LC-84"><a id="L-84" name="L-84"></a><span class="p">}</span>
+</span><span id="LC-85"><a id="L-85" name="L-85"></a>
+</span><span id="LC-86"><a id="L-86" name="L-86"></a><span class="sd">/// Trait alias with @relation(b7xnEeF)</span>
+</span><span id="LC-87"><a id="L-87" name="L-87"></a><span class="sd">/// Random: combined trait bounds</span>
+</span><span id="LC-88"><a id="L-88" name="L-88"></a><span class="k">pub</span><span class="w"> </span><span class="k">trait</span><span class="w"> </span><span class="n">ProcessorClone</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Processor</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">Clone</span><span class="p">;</span>
+</span><span id="LC-89"><a id="L-89" name="L-89"></a>
+</span><span id="LC-90"><a id="L-90" name="L-90"></a><span class="sd">/// Implementation block with @relation(owD42wk)</span>
+</span><span id="LC-91"><a id="L-91" name="L-91"></a><span class="sd">/// Text: trait implementation container</span>
+</span><span id="LC-92"><a id="L-92" name="L-92"></a><span class="k">impl</span><span class="w"> </span><span class="n">Processor</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">Container</span><span class="w"> </span><span class="p">{</span>
+</span><span id="LC-93"><a id="L-93" name="L-93"></a><span class="w">    </span><span class="sd">/// Impl associated type with @relation(xzMbyU5rB)</span>
+</span><span id="LC-94"><a id="L-94" name="L-94"></a><span class="w">    </span><span class="sd">/// Words: concrete output type</span>
+</span><span id="LC-95"><a id="L-95" name="L-95"></a><span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="nc">Output</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">String</span><span class="p">;</span>
+</span><span id="LC-96"><a id="L-96" name="L-96"></a>
+</span><span id="LC-97"><a id="L-97" name="L-97"></a><span class="w">    </span><span class="sd">/// Impl const with @relation(N9oI9M8C)</span>
+</span><span id="LC-98"><a id="L-98" name="L-98"></a><span class="w">    </span><span class="sd">/// Random: size constant value</span>
+</span><span id="LC-99"><a id="L-99" name="L-99"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">MAX_SIZE</span><span class="p">:</span><span class="w"> </span><span class="kt">usize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1024</span><span class="p">;</span>
+</span><span id="LC-100"><a id="L-100" name="L-100"></a>
+</span><span id="LC-101"><a id="L-101" name="L-101"></a><span class="w">    </span><span class="sd">/// Impl method with @relation(KLnt8082)</span>
+</span><span id="LC-102"><a id="L-102" name="L-102"></a><span class="w">    </span><span class="sd">/// Description: implementation of a process</span>
+</span><span id="LC-103"><a id="L-103" name="L-103"></a><span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">process</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">input</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="kt">str</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nc">Self</span><span class="p">::</span><span class="n">Output</span><span class="w"> </span><span class="p">{</span>
+</span><span id="LC-104"><a id="L-104" name="L-104"></a><span class="w">        </span><span class="fm">format!</span><span class="p">(</span><span class="s">&quot;{}: {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="p">.</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">input</span><span class="p">)</span>
+</span><span id="LC-105"><a id="L-105" name="L-105"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="LC-106"><a id="L-106" name="L-106"></a><span class="p">}</span>
+</span><span id="LC-107"><a id="L-107" name="L-107"></a>
+</span><span id="LC-108"><a id="L-108" name="L-108"></a><span class="sd">/// Inherent impl with @relation(2arqklT5)</span>
+</span><span id="LC-109"><a id="L-109" name="L-109"></a><span class="sd">/// Text: inherent method block</span>
+</span><span id="LC-110"><a id="L-110" name="L-110"></a><span class="k">impl</span><span class="w"> </span><span class="n">Container</span><span class="w"> </span><span class="p">{</span>
+</span><span id="LC-111"><a id="L-111" name="L-111"></a><span class="w">    </span><span class="sd">/// Inherent method with @relation(daZt7aMqV)</span>
+</span><span id="LC-112"><a id="L-112" name="L-112"></a><span class="w">    </span><span class="sd">/// Words: constructor function pattern</span>
+</span><span id="LC-113"><a id="L-113" name="L-113"></a><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span><span class="w"> </span><span class="nf">new</span><span class="p">(</span><span class="n">name</span><span class="p">:</span><span class="w"> </span><span class="nb">String</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nc">Self</span><span class="w"> </span><span class="p">{</span>
+</span><span id="LC-114"><a id="L-114" name="L-114"></a><span class="w">        </span><span class="bp">Self</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">}</span>
+</span><span id="LC-115"><a id="L-115" name="L-115"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="LC-116"><a id="L-116" name="L-116"></a>
+</span><span id="LC-117"><a id="L-117" name="L-117"></a><span class="w">    </span><span class="sd">/// Another method with @relation(bCxGING)</span>
+</span><span id="LC-118"><a id="L-118" name="L-118"></a><span class="w">    </span><span class="sd">/// Random: getter accessor method</span>
+</span><span id="LC-119"><a id="L-119" name="L-119"></a><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span><span class="w"> </span><span class="nf">get_value</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="kt">i32</span><span class="w"> </span><span class="p">{</span>
+</span><span id="LC-120"><a id="L-120" name="L-120"></a><span class="w">        </span><span class="bp">self</span><span class="p">.</span><span class="n">value</span>
+</span><span id="LC-121"><a id="L-121" name="L-121"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="LC-122"><a id="L-122" name="L-122"></a><span class="p">}</span>
+</span><span id="LC-123"><a id="L-123" name="L-123"></a>
+</span><span id="LC-124"><a id="L-124" name="L-124"></a><span class="sd">/// Function with @relation(dG81Vzk)</span>
+</span><span id="LC-125"><a id="L-125" name="L-125"></a><span class="sd">/// Description: top-level function utility</span>
+</span><span id="LC-126"><a id="L-126" name="L-126"></a><span class="k">pub</span><span class="w"> </span><span class="k">fn</span><span class="w"> </span><span class="nf">process_data</span><span class="p">(</span><span class="n">input</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="kt">str</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nb">String</span><span class="w"> </span><span class="p">{</span>
+</span><span id="LC-127"><a id="L-127" name="L-127"></a><span class="w">    </span><span class="n">input</span><span class="p">.</span><span class="n">to_uppercase</span><span class="p">()</span>
+</span><span id="LC-128"><a id="L-128" name="L-128"></a><span class="p">}</span>
+</span><span id="LC-129"><a id="L-129" name="L-129"></a>
+</span><span id="LC-130"><a id="L-130" name="L-130"></a><span class="sd">/// Async function with @relation(4QLCpmM)</span>
+</span><span id="LC-131"><a id="L-131" name="L-131"></a><span class="sd">/// Random: asynchronous operation handler</span>
+</span><span id="LC-132"><a id="L-132" name="L-132"></a><span class="k">pub</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="k">fn</span><span class="w"> </span><span class="nf">async_process</span><span class="p">(</span><span class="n">data</span><span class="p">:</span><span class="w"> </span><span class="nb">Vec</span><span class="o">&lt;</span><span class="kt">u8</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nb">Result</span><span class="o">&lt;</span><span class="p">(),</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">io</span><span class="p">::</span><span class="n">Error</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="LC-133"><a id="L-133" name="L-133"></a><span class="w">    </span><span class="nb">Ok</span><span class="p">(())</span>
+</span><span id="LC-134"><a id="L-134" name="L-134"></a><span class="p">}</span>
+</span><span id="LC-135"><a id="L-135" name="L-135"></a>
+</span><span id="LC-136"><a id="L-136" name="L-136"></a><span class="sd">/// Const function with @relation(mzUjggR)</span>
+</span><span id="LC-137"><a id="L-137" name="L-137"></a><span class="sd">/// Text: compile-time evaluable function</span>
+</span><span id="LC-138"><a id="L-138" name="L-138"></a><span class="k">pub</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">fn</span><span class="w"> </span><span class="nf">compute_magic</span><span class="p">(</span><span class="n">x</span><span class="p">:</span><span class="w"> </span><span class="kt">u32</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="kt">u32</span><span class="w"> </span><span class="p">{</span>
+</span><span id="LC-139"><a id="L-139" name="L-139"></a><span class="w">    </span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">42</span>
+</span><span id="LC-140"><a id="L-140" name="L-140"></a><span class="p">}</span>
+</span><span id="LC-141"><a id="L-141" name="L-141"></a>
+</span><span id="LC-142"><a id="L-142" name="L-142"></a><span class="sd">/// Unsafe function with @relation(ATrMhNH)</span>
+</span><span id="LC-143"><a id="L-143" name="L-143"></a><span class="sd">/// Words: unchecked operation wrapper</span>
+</span><span id="LC-144"><a id="L-144" name="L-144"></a><span class="k">pub</span><span class="w"> </span><span class="k">unsafe</span><span class="w"> </span><span class="k">fn</span><span class="w"> </span><span class="nf">dangerous_operation</span><span class="p">(</span><span class="n">ptr</span><span class="p">:</span><span class="w"> </span><span class="o">*</span><span class="k">mut</span><span class="w"> </span><span class="kt">u8</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="LC-145"><a id="L-145" name="L-145"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">!</span><span class="n">ptr</span><span class="p">.</span><span class="n">is_null</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="LC-146"><a id="L-146" name="L-146"></a><span class="w">        </span><span class="o">*</span><span class="n">ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</span><span id="LC-147"><a id="L-147" name="L-147"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="LC-148"><a id="L-148" name="L-148"></a><span class="p">}</span>
+</span><span id="LC-149"><a id="L-149" name="L-149"></a>
+</span><span id="LC-150"><a id="L-150" name="L-150"></a><span class="sd">/// External crate import with @relation(kM2ySbb)</span>
+</span><span id="LC-151"><a id="L-151" name="L-151"></a><span class="sd">/// Random: external dependency reference</span>
+</span><span id="LC-152"><a id="L-152" name="L-152"></a><span class="k">extern</span><span class="w"> </span><span class="k">crate</span><span class="w"> </span><span class="n">std</span><span class="p">;</span>
+</span><span id="LC-153"><a id="L-153" name="L-153"></a>
+</span><span id="LC-154"><a id="L-154" name="L-154"></a><span class="sd">/// Module with @relation(zawS0aMAj)</span>
+</span><span id="LC-155"><a id="L-155" name="L-155"></a><span class="sd">/// Description: nested module container</span>
+</span><span id="LC-156"><a id="L-156" name="L-156"></a><span class="k">pub</span><span class="w"> </span><span class="k">mod</span><span class="w"> </span><span class="nn">submodule</span><span class="w"> </span><span class="p">{</span>
+</span><span id="LC-157"><a id="L-157" name="L-157"></a><span class="w">    </span><span class="sd">//! Inner module doc with @relation(CVO11Qy)</span>
+</span><span id="LC-158"><a id="L-158" name="L-158"></a><span class="w">    </span><span class="sd">//! Text: module-level documentation</span>
+</span><span id="LC-159"><a id="L-159" name="L-159"></a>
+</span><span id="LC-160"><a id="L-160" name="L-160"></a><span class="w">    </span><span class="sd">/// Nested struct with @relation(LV0JeVQf)</span>
+</span><span id="LC-161"><a id="L-161" name="L-161"></a><span class="w">    </span><span class="sd">/// Words: encapsulated data structure</span>
+</span><span id="LC-162"><a id="L-162" name="L-162"></a><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">Inner</span><span class="w"> </span><span class="p">{</span>
+</span><span id="LC-163"><a id="L-163" name="L-163"></a><span class="w">        </span><span class="sd">/// Field with @relation(ave7cjq)</span>
+</span><span id="LC-164"><a id="L-164" name="L-164"></a><span class="w">        </span><span class="sd">/// Random: internal state variable</span>
+</span><span id="LC-165"><a id="L-165" name="L-165"></a><span class="w">        </span><span class="n">data</span><span class="p">:</span><span class="w"> </span><span class="nb">Vec</span><span class="o">&lt;</span><span class="kt">u8</span><span class="o">&gt;</span><span class="p">,</span>
+</span><span id="LC-166"><a id="L-166" name="L-166"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="LC-167"><a id="L-167" name="L-167"></a><span class="p">}</span>
+</span><span id="LC-168"><a id="L-168" name="L-168"></a>
+</span><span id="LC-169"><a id="L-169" name="L-169"></a><span class="sd">/// Foreign function interface with @relation(m51AgeSa)</span>
+</span><span id="LC-170"><a id="L-170" name="L-170"></a><span class="sd">/// Text: external C interface block</span>
+</span><span id="LC-171"><a id="L-171" name="L-171"></a><span class="k">extern</span><span class="w"> </span><span class="s">&quot;C&quot;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="LC-172"><a id="L-172" name="L-172"></a><span class="w">    </span><span class="sd">/// Foreign function with @relation(d67FvOG8V)</span>
+</span><span id="LC-173"><a id="L-173" name="L-173"></a><span class="w">    </span><span class="sd">/// Description: C library function binding</span>
+</span><span id="LC-174"><a id="L-174" name="L-174"></a><span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">external_func</span><span class="p">(</span><span class="n">x</span><span class="p">:</span><span class="w"> </span><span class="kt">i32</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="kt">i32</span><span class="p">;</span>
+</span><span id="LC-175"><a id="L-175" name="L-175"></a>
+</span><span id="LC-176"><a id="L-176" name="L-176"></a><span class="w">    </span><span class="sd">/// Foreign static with @relation(n5TIEwFm)</span>
+</span><span id="LC-177"><a id="L-177" name="L-177"></a><span class="w">    </span><span class="sd">/// Random: global C variable reference</span>
+</span><span id="LC-178"><a id="L-178" name="L-178"></a><span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="n">EXTERNAL_VAR</span><span class="p">:</span><span class="w"> </span><span class="kt">i32</span><span class="p">;</span>
+</span><span id="LC-179"><a id="L-179" name="L-179"></a>
+</span><span id="LC-180"><a id="L-180" name="L-180"></a><span class="w">    </span><span class="sd">/// Foreign type with @relation(5KjLZZPC)</span>
+</span><span id="LC-181"><a id="L-181" name="L-181"></a><span class="w">    </span><span class="sd">/// Words: opaque C type declaration</span>
+</span><span id="LC-182"><a id="L-182" name="L-182"></a><span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="nc">OpaqueType</span><span class="p">;</span>
+</span><span id="LC-183"><a id="L-183" name="L-183"></a><span class="p">}</span>
+</span><span id="LC-184"><a id="L-184" name="L-184"></a>
+</span><span id="LC-185"><a id="L-185" name="L-185"></a><span class="sd">/// Macro invocation with @relation(sFzA9s5Uj)</span>
+</span><span id="LC-186"><a id="L-186" name="L-186"></a><span class="sd">/// Text: declarative macro call</span>
+</span><span id="LC-187"><a id="L-187" name="L-187"></a><span class="fm">macro_rules!</span><span class="w"> </span><span class="n">test_macro</span><span class="w"> </span><span class="p">{</span>
+</span><span id="LC-188"><a id="L-188" name="L-188"></a><span class="w">    </span><span class="p">()</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="LC-189"><a id="L-189" name="L-189"></a><span class="w">        </span><span class="fm">println!</span><span class="p">(</span><span class="s">&quot;test&quot;</span><span class="p">);</span>
+</span><span id="LC-190"><a id="L-190" name="L-190"></a><span class="w">    </span><span class="p">};</span>
+</span><span id="LC-191"><a id="L-191" name="L-191"></a><span class="p">}</span>
+</span><span id="LC-192"><a id="L-192" name="L-192"></a>
+</span><span id="LC-193"><a id="L-193" name="L-193"></a><span class="sd">/// Function with match arms containing doc attributes</span>
+</span><span id="LC-194"><a id="L-194" name="L-194"></a><span class="sd">/// This function demonstrates @relation(Uxk8eoN)</span>
+</span><span id="LC-195"><a id="L-195" name="L-195"></a><span class="k">pub</span><span class="w"> </span><span class="k">fn</span><span class="w"> </span><span class="nf">match_example</span><span class="p">(</span><span class="n">x</span><span class="p">:</span><span class="w"> </span><span class="nb">Option</span><span class="o">&lt;</span><span class="kt">i32</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="kt">i32</span><span class="w"> </span><span class="p">{</span>
+</span><span id="LC-196"><a id="L-196" name="L-196"></a><span class="w">    </span><span class="k">match</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="p">{</span>
+</span><span id="LC-197"><a id="L-197" name="L-197"></a><span class="w">        </span><span class="sd">/// Match arm with @relation(JQ6dyfoe0)</span>
+</span><span id="LC-198"><a id="L-198" name="L-198"></a><span class="w">        </span><span class="sd">/// Random: some variant pattern</span>
+</span><span id="LC-199"><a id="L-199" name="L-199"></a><span class="w">        </span><span class="nb">Some</span><span class="p">(</span><span class="n">UXbF4Q2V</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">val</span><span class="p">,</span>
+</span><span id="LC-200"><a id="L-200" name="L-200"></a>
+</span><span id="LC-201"><a id="L-201" name="L-201"></a><span class="w">        </span><span class="sd">/// None arm with @relation(vCbEEMYD)</span>
+</span><span id="LC-202"><a id="L-202" name="L-202"></a><span class="w">        </span><span class="sd">/// Words: default fallback case</span>
+</span><span id="LC-203"><a id="L-203" name="L-203"></a><span class="w">        </span><span class="nb">None</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+</span><span id="LC-204"><a id="L-204" name="L-204"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="LC-205"><a id="L-205" name="L-205"></a><span class="p">}</span>
+</span><span id="LC-206"><a id="L-206" name="L-206"></a>
+</span><span id="LC-207"><a id="L-207" name="L-207"></a><span class="sd">/// Generic function with @relation(9kwjKm5)</span>
+</span><span id="LC-208"><a id="L-208" name="L-208"></a><span class="sd">/// Description: parameterized function template</span>
+</span><span id="LC-209"><a id="L-209" name="L-209"></a><span class="k">pub</span><span class="w"> </span><span class="k">fn</span><span class="w"> </span><span class="nf">generic_fn</span><span class="o">&lt;</span>
+</span><span id="LC-210"><a id="L-210" name="L-210"></a><span class="w">    </span><span class="sd">/// Type parameter with @relation(5FyNmE9)</span>
+</span><span id="LC-211"><a id="L-211" name="L-211"></a><span class="w">    </span><span class="sd">/// Random: generic type variable</span>
+</span><span id="LC-212"><a id="L-212" name="L-212"></a><span class="w">    </span><span class="n">T</span><span class="p">:</span><span class="w"> </span><span class="nb">Clone</span><span class="p">,</span>
+</span><span id="LC-213"><a id="L-213" name="L-213"></a>
+</span><span id="LC-214"><a id="L-214" name="L-214"></a><span class="w">    </span><span class="sd">/// Const parameter with @relation(4dQ7JLKcd)</span>
+</span><span id="LC-215"><a id="L-215" name="L-215"></a><span class="w">    </span><span class="sd">/// Words: compile-time constant value</span>
+</span><span id="LC-216"><a id="L-216" name="L-216"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">N</span><span class="p">:</span><span class="w"> </span><span class="kt">usize</span><span class="p">,</span>
+</span><span id="LC-217"><a id="L-217" name="L-217"></a><span class="o">&gt;</span><span class="p">(</span>
+</span><span id="LC-218"><a id="L-218" name="L-218"></a><span class="w">    </span><span class="n">input</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="n">T</span><span class="p">;</span><span class="w"> </span><span class="n">N</span><span class="p">],</span>
+</span><span id="LC-219"><a id="L-219" name="L-219"></a><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nb">Vec</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="LC-220"><a id="L-220" name="L-220"></a><span class="w">    </span><span class="n">input</span><span class="p">.</span><span class="n">to_vec</span><span class="p">()</span>
+</span><span id="LC-221"><a id="L-221" name="L-221"></a><span class="p">}</span>
+</span><span id="LC-222"><a id="L-222" name="L-222"></a>
+</span><span id="LC-223"><a id="L-223" name="L-223"></a><span class="sd">/// Struct with generic parameters @relation(sW4M3OJS)</span>
+</span><span id="LC-224"><a id="L-224" name="L-224"></a><span class="sd">/// Text: generic container structure</span>
+</span><span id="LC-225"><a id="L-225" name="L-225"></a><span class="k">pub</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">GenericContainer</span><span class="o">&lt;</span>
+</span><span id="LC-226"><a id="L-226" name="L-226"></a><span class="w">    </span><span class="sd">/// Lifetime param with @relation(eniOhjy)</span>
+</span><span id="LC-227"><a id="L-227" name="L-227"></a><span class="w">    </span><span class="sd">/// Words: reference lifetime bound</span>
+</span><span id="LC-228"><a id="L-228" name="L-228"></a><span class="w">    </span><span class="o">&#39;</span><span class="na">a</span><span class="p">,</span>
+</span><span id="LC-229"><a id="L-229" name="L-229"></a>
+</span><span id="LC-230"><a id="L-230" name="L-230"></a><span class="w">    </span><span class="sd">/// Generic type param with @relation(YGhhrgPz)</span>
+</span><span id="LC-231"><a id="L-231" name="L-231"></a><span class="w">    </span><span class="sd">/// Random: primary type parameter</span>
+</span><span id="LC-232"><a id="L-232" name="L-232"></a><span class="w">    </span><span class="n">T</span><span class="p">,</span>
+</span><span id="LC-233"><a id="L-233" name="L-233"></a><span class="o">&gt;</span><span class="w"> </span><span class="k">where</span>
+</span><span id="LC-234"><a id="L-234" name="L-234"></a><span class="w">    </span><span class="n">T</span><span class="p">:</span><span class="w"> </span><span class="o">&#39;</span><span class="na">a</span><span class="p">,</span>
+</span><span id="LC-235"><a id="L-235" name="L-235"></a><span class="p">{</span>
+</span><span id="LC-236"><a id="L-236" name="L-236"></a><span class="w">    </span><span class="sd">/// Reference field with @relation(HibGJSZqi)</span>
+</span><span id="LC-237"><a id="L-237" name="L-237"></a><span class="w">    </span><span class="sd">/// Description: borrowed data reference</span>
+</span><span id="LC-238"><a id="L-238" name="L-238"></a><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="n">data</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="o">&#39;</span><span class="na">a</span><span class="w"> </span><span class="nc">T</span><span class="p">,</span>
+</span><span id="LC-239"><a id="L-239" name="L-239"></a><span class="p">}</span>
+</span><span id="LC-240"><a id="L-240" name="L-240"></a>
+</span><span id="LC-241"><a id="L-241" name="L-241"></a><span class="sd">/// Test struct for field value attributes in expressions</span>
+</span><span id="LC-242"><a id="L-242" name="L-242"></a><span class="cp">#[cfg(any(target_os = </span><span class="s">&quot;linux&quot;</span><span class="cp">, target_os = </span><span class="s">&quot;macos&quot;</span><span class="cp">))]</span>
+</span><span id="LC-243"><a id="L-243" name="L-243"></a><span class="sd">/// This demonstrates @relation(rIjz40L84)</span>
+</span><span id="LC-244"><a id="L-244" name="L-244"></a><span class="k">pub</span><span class="w"> </span><span class="k">fn</span><span class="w"> </span><span class="nf">struct_expression_test</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="LC-245"><a id="L-245" name="L-245"></a><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Container</span><span class="w"> </span><span class="p">{</span>
+</span><span id="LC-246"><a id="L-246" name="L-246"></a><span class="w">        </span><span class="sd">/// Field value with @relation(cqkjF9P5)</span>
+</span><span id="LC-247"><a id="L-247" name="L-247"></a><span class="w">        </span><span class="n">name</span><span class="p">:</span><span class="w"> </span><span class="nb">String</span><span class="p">::</span><span class="n">from</span><span class="p">(</span><span class="s">&quot;test&quot;</span><span class="p">),</span>
+</span><span id="LC-248"><a id="L-248" name="L-248"></a><span class="w">        </span><span class="n">value</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">,</span>
+</span><span id="LC-249"><a id="L-249" name="L-249"></a><span class="w">    </span><span class="p">};</span>
+</span><span id="LC-250"><a id="L-250" name="L-250"></a><span class="p">}</span>
+</span><span id="LC-251"><a id="L-251" name="L-251"></a>
+</span><span id="LC-252"><a id="L-252" name="L-252"></a><span class="sd">/// Test if we can add a docstring to an expression literal</span>
+</span><span id="LC-253"><a id="L-253" name="L-253"></a><span class="k">fn</span><span class="w"> </span><span class="nf">expr_lit</span><span class="p">(</span><span class="n">x</span><span class="p">:</span><span class="w"> </span><span class="kt">i32</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="kt">i32</span><span class="w"> </span><span class="p">{</span>
+</span><span id="LC-254"><a id="L-254" name="L-254"></a><span class="w">    </span><span class="sd">/// Test an expression @relation(7AEwrhc) literal</span>
+</span><span id="LC-255"><a id="L-255" name="L-255"></a><span class="w">    </span><span class="mi">8675309</span><span class="p">;</span>
+</span><span id="LC-256"><a id="L-256" name="L-256"></a><span class="w">    </span><span class="sd">/// SURPRISING: We are documenting @relation(ve9EEVSf) only</span>
+</span><span id="LC-257"><a id="L-257" name="L-257"></a><span class="w">    </span><span class="sd">/// the first part of the expression, not the entire expression,</span>
+</span><span id="LC-258"><a id="L-258" name="L-258"></a><span class="w">    </span><span class="sd">/// see `test_not_surprising` for how to fix this</span>
+</span><span id="LC-259"><a id="L-259" name="L-259"></a><span class="w">    </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">2</span>
+</span><span id="LC-260"><a id="L-260" name="L-260"></a><span class="p">}</span>
+</span><span id="LC-261"><a id="L-261" name="L-261"></a>
+</span><span id="LC-262"><a id="L-262" name="L-262"></a><span class="k">fn</span><span class="w"> </span><span class="nf">test_not_surprising</span><span class="p">(</span><span class="n">x</span><span class="p">:</span><span class="w"> </span><span class="kt">i32</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="kt">i32</span><span class="w"> </span><span class="p">{</span>
+</span><span id="LC-263"><a id="L-263" name="L-263"></a><span class="w">    </span><span class="sd">/// Test documenting the @relation(bCHkXspx) entire return value</span>
+</span><span id="LC-264"><a id="L-264" name="L-264"></a><span class="w">    </span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span>
+</span><span id="LC-265"><a id="L-265" name="L-265"></a><span class="p">}</span>
+</span><span id="LC-266"><a id="L-266" name="L-266"></a>
+</span><span id="LC-267"><a id="L-267" name="L-267"></a><span class="cp">#[cfg(9WNW0exJV)]</span>
+</span><span id="LC-268"><a id="L-268" name="L-268"></a><span class="k">mod</span><span class="w"> </span><span class="nn">tests</span><span class="w"> </span><span class="p">{</span>
+</span><span id="LC-269"><a id="L-269" name="L-269"></a><span class="w">    </span><span class="sd">/// Test function with @relation(n5vDcKK)</span>
+</span><span id="LC-270"><a id="L-270" name="L-270"></a><span class="w">    </span><span class="sd">/// Random: unit test case definition</span>
+</span><span id="LC-271"><a id="L-271" name="L-271"></a><span class="w">    </span><span class="cp">#[test]</span>
+</span><span id="LC-272"><a id="L-272" name="L-272"></a><span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">test_basic</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="LC-273"><a id="L-273" name="L-273"></a><span class="w">        </span><span class="fm">assert_eq!</span><span class="p">(</span><span class="mi">2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">);</span>
+</span><span id="LC-274"><a id="L-274" name="L-274"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="LC-275"><a id="L-275" name="L-275"></a><span class="p">}</span>
+</span></pre></div></td></tr></table></div>
+
+    </div>
+  </div>
+  <script>
+    (function() {
+      const codePane = document.getElementById('code-pane');
+      function lineEl(n) {
+        // Prefer per-line code span generated via Pygments linespans
+        const span = document.getElementById(`LC-${n}`);
+        if (span) return span;
+        // Fallback: try to find the table row (older output formats)
+        const a = document.getElementById(`L-${n}`);
+        if (!a) return null;
+        let el = a;
+        while (el && el.tagName !== 'TR') el = el.parentElement;
+        return el;
+      }
+      function clearSelection() {
+        const sel = window.getSelection && window.getSelection();
+        if (sel && sel.removeAllRanges) sel.removeAllRanges();
+        // Also remove any legacy CSS highlights if present
+        document.querySelectorAll('.highlighttable tr.hl').forEach(tr => tr.classList.remove('hl'));
+        document.querySelectorAll('[id^="LC-"] .hl').forEach(el => el.classList.remove('hl'));
+      }
+      function textPositionInLine(spanEl, col) {
+        // Map a column offset (0-based) within the line's plain text to a specific text node and offset
+        // If col is undefined/null, return start of line for start positions and end for end via caller.
+        try {
+          let remaining = Math.max(0, Number(col) || 0);
+          const walker = document.createTreeWalker(spanEl, NodeFilter.SHOW_TEXT, null);
+          let lastText = null;
+          while (walker.nextNode()) {
+            const node = walker.currentNode;
+            const len = node.textContent.length;
+            lastText = node;
+            if (remaining <= len) {
+              return { node, offset: remaining };
+            }
+            remaining -= len;
+          }
+          if (lastText) return { node: lastText, offset: lastText.textContent.length };
+        } catch (_) {}
+        return null;
+      }
+      function endOfLine(spanEl) {
+        const walker = document.createTreeWalker(spanEl, NodeFilter.SHOW_TEXT, null);
+        let lastText = null;
+        while (walker.nextNode()) lastText = walker.currentNode;
+        if (lastText) return { node: lastText, offset: lastText.textContent.length };
+        // fallback to element itself
+        return { node: spanEl, offset: spanEl.childNodes.length };
+      }
+      function selectRange(sLine, sCol, eLine, eCol) {
+        clearSelection();
+        let startLine = Math.min(sLine, eLine);
+        let endLine = Math.max(sLine, eLine);
+        let startCol = (startLine === sLine) ? sCol : eCol;
+        let endCol = (endLine === eLine) ? eCol : sCol;
+
+        const startSpan = lineEl(startLine);
+        const endSpan = lineEl(endLine);
+        if (!startSpan || !endSpan) return;
+
+        let startPos = textPositionInLine(startSpan, startCol);
+        if (!startPos) startPos = { node: startSpan, offset: 0 };
+
+        let endPos = textPositionInLine(endSpan, endCol);
+        if (!endPos) endPos = endOfLine(endSpan);
+
+        const range = document.createRange();
+        range.setStart(startPos.node, startPos.offset);
+        range.setEnd(endPos.node, endPos.offset);
+
+        const sel = window.getSelection && window.getSelection();
+        if (sel && sel.removeAllRanges) {
+          sel.removeAllRanges();
+          sel.addRange(range);
+        }
+        startSpan.scrollIntoView({ block: 'center' });
+      }
+      document.querySelectorAll('.rel-row').forEach(row => {
+        row.addEventListener('click', () => {
+          const start = parseInt(row.dataset.start, 10);
+          const end = parseInt(row.dataset.end, 10);
+          const startCol = parseInt(row.dataset.startCol, 10);
+          const endCol = parseInt(row.dataset.endCol, 10);
+          selectRange(start, startCol, end, endCol);
+        });
+      });
+
+      // Optional: support deep-linking via hash '#L-<start>,<end>'
+      function parseHash() {
+        if (!location.hash) return null;
+        const m = location.hash.slice(1).match(/^L-(\d+)(?:,(\d+))?$/);
+        if (!m) return null;
+        const s = parseInt(m[1], 10);
+        const e = m[2] ? parseInt(m[2], 10) : s;
+        return [s, e];
+      }
+      const rng = parseHash();
+      if (rng) selectRange(rng[0], 0, rng[1], Number.MAX_SAFE_INTEGER);
+    })();
+  </script>
+</body>
+</html>
+
