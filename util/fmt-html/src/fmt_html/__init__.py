@@ -72,7 +72,7 @@ def build_html(code_html: str, style_css: str, relations: List[Relation], title:
     rows = []
     for r in relations:
         rows.append(
-            f"<tr class=\"rel-row\" data-start=\"{r.span.start_line}\" data-end=\"{r.span.end_line}\" data-id=\"{r.relation}\">"
+            f"<tr class=\"rel-row\" data-start=\"{r.span.start_line}\" data-end=\"{r.span.end_line}\" data-start-col=\"{r.span.start_col}\" data-end-col=\"{r.span.end_col}\" data-id=\"{r.relation}\">"
             f"<td class=\"mono\">{r.relation}</td>"
             f"<td class=\"mono\">{r.scope}</td>"
             f"<td class=\"mono center\">{r.span.start_line}:{r.span.start_col}</td>"
@@ -155,29 +155,76 @@ def build_html(code_html: str, style_css: str, relations: List[Relation], title:
         while (el && el.tagName !== 'TR') el = el.parentElement;
         return el;
       }}
-      function clearHighlights() {{
-        // Remove highlights from per-line spans (preferred)
-        document.querySelectorAll('[id^="LC-"]\.hl').forEach(el => el.classList.remove('hl'));
-        // And also from legacy table-row based highlight (fallback)
+      function clearSelection() {{
+        const sel = window.getSelection && window.getSelection();
+        if (sel && sel.removeAllRanges) sel.removeAllRanges();
+        // Also remove any legacy CSS highlights if present
         document.querySelectorAll('.highlighttable tr.hl').forEach(tr => tr.classList.remove('hl'));
+        document.querySelectorAll('[id^="LC-"] .hl').forEach(el => el.classList.remove('hl'));
       }}
-      function highlightRange(start, end) {{
-        clearHighlights();
-        // normalize range
-        let s = Math.min(start, end);
-        let e = Math.max(start, end);
-        for (let n = s; n <= e; n++) {{
-          const el = lineEl(n);
-          if (el) el.classList.add('hl');
+      function textPositionInLine(spanEl, col) {{
+        // Map a column offset (0-based) within the line's plain text to a specific text node and offset
+        // If col is undefined/null, return start of line for start positions and end for end via caller.
+        try {{
+          let remaining = Math.max(0, Number(col) || 0);
+          const walker = document.createTreeWalker(spanEl, NodeFilter.SHOW_TEXT, null);
+          let lastText = null;
+          while (walker.nextNode()) {{
+            const node = walker.currentNode;
+            const len = node.textContent.length;
+            lastText = node;
+            if (remaining <= len) {{
+              return {{ node, offset: remaining }};
+            }}
+            remaining -= len;
+          }}
+          if (lastText) return {{ node: lastText, offset: lastText.textContent.length }};
+        }} catch (_) {{}}
+        return null;
+      }}
+      function endOfLine(spanEl) {{
+        const walker = document.createTreeWalker(spanEl, NodeFilter.SHOW_TEXT, null);
+        let lastText = null;
+        while (walker.nextNode()) lastText = walker.currentNode;
+        if (lastText) return {{ node: lastText, offset: lastText.textContent.length }};
+        // fallback to element itself
+        return {{ node: spanEl, offset: spanEl.childNodes.length }};
+      }}
+      function selectRange(sLine, sCol, eLine, eCol) {{
+        clearSelection();
+        let startLine = Math.min(sLine, eLine);
+        let endLine = Math.max(sLine, eLine);
+        let startCol = (startLine === sLine) ? sCol : eCol;
+        let endCol = (endLine === eLine) ? eCol : sCol;
+
+        const startSpan = lineEl(startLine);
+        const endSpan = lineEl(endLine);
+        if (!startSpan || !endSpan) return;
+
+        let startPos = textPositionInLine(startSpan, startCol);
+        if (!startPos) startPos = {{ node: startSpan, offset: 0 }};
+
+        let endPos = textPositionInLine(endSpan, endCol);
+        if (!endPos) endPos = endOfLine(endSpan);
+
+        const range = document.createRange();
+        range.setStart(startPos.node, startPos.offset);
+        range.setEnd(endPos.node, endPos.offset);
+
+        const sel = window.getSelection && window.getSelection();
+        if (sel && sel.removeAllRanges) {{
+          sel.removeAllRanges();
+          sel.addRange(range);
         }}
-        const first = lineEl(s);
-        if (first) first.scrollIntoView({{block: 'center'}});
+        startSpan.scrollIntoView({{ block: 'center' }});
       }}
       document.querySelectorAll('.rel-row').forEach(row => {{
         row.addEventListener('click', () => {{
           const start = parseInt(row.dataset.start, 10);
           const end = parseInt(row.dataset.end, 10);
-          highlightRange(start, end);
+          const startCol = parseInt(row.dataset.startCol, 10);
+          const endCol = parseInt(row.dataset.endCol, 10);
+          selectRange(start, startCol, end, endCol);
         }});
       }});
 
@@ -191,7 +238,7 @@ def build_html(code_html: str, style_css: str, relations: List[Relation], title:
         return [s, e];
       }}
       const rng = parseHash();
-      if (rng) highlightRange(rng[0], rng[1]);
+      if (rng) selectRange(rng[0], 0, rng[1], Number.MAX_SAFE_INTEGER);
     }})();
   </script>
 </body>
