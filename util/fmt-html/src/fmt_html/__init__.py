@@ -48,8 +48,6 @@ def load_relations(json_path: Path) -> List[Relation]:
                     span=Span(int(s_line), int(s_col), int(e_line), int(e_col)),
                 )
             )
-    # Stable ordering by start line then end line then relation id
-    relations.sort(key=lambda r: (r.span.start_line, r.span.end_line, r.relation))
     return relations
 
 
