@@ -2,12 +2,12 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>relations1.rs — relations</title>
-  <style>
-    /* Pygments styles */
-    pre { line-height: 125%; }
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>relations1.rs relations</title>
+    <style>
+  
+        pre { line-height: 125%; }
 td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
 span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
 td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
@@ -82,64 +82,182 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 .highlight .vi { color: #19177C } /* Name.Variable.Instance */
 .highlight .vm { color: #19177C } /* Name.Variable.Magic */
 .highlight .il { color: #666 } /* Literal.Number.Integer.Long */
+      
+        ::selection {
+            background: #cceeff;
+        }
+      
+        #code-pane {
+            padding: 0;
+        }
+        
+        .container {
+            display: flex;
+            height: calc(100vh - 44px);
+            overflow: hidden;
+        }
 
-    html, body { height: 100%; margin: 0; padding: 0; }
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; }
-
-    .topbar { position: sticky; top: 0; z-index: 5; background: #ffffff; border-bottom: 1px solid #e5e5e5; padding: 8px 12px; display: flex; gap: 16px; align-items: baseline; }
-    .topbar .title { font-weight: 600; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
-    .topbar .hash { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; color: #555; font-size: 12px; }
-    .container { display: flex; height: calc(100vh - 44px); overflow: hidden; }
-    .pane { overflow: auto; }
-    .pane-header { position: sticky; top: 0; z-index: 2; background: #f6f8fa; border-bottom: 1px solid #e5e5e5; padding: 6px 8px; font-weight: 600; font-size: 16px; text-align: left; }
-    .pane .code-wrap { padding: 8px; }
-    .left { border-right: 1px solid #ddd; flex: 0 0 33.333%; max-width: 33.333%; font-size: 12px; }
-    .right { flex: 1 1 66.666%; }
-    .relations { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 12px; }
-    .relations th, .relations td { border-bottom: 1px solid #eee; padding: 4px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .relations thead th { position: sticky; top: 0; background: #f8f8f8; z-index: 1; }
-    /* Header alignment: relation/scope left; start/end centered */
-    .relations thead th:nth-child(1), .relations thead th:nth-child(2) { text-align: left; }
-    .relations thead th:nth-child(3), .relations thead th:nth-child(4) { text-align: center; }
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
-    .center { text-align: center; }
-    .rel-row:hover { background: #f0f7ff; cursor: pointer; }
-
-    /* Highlight selected code rows: applied via row-specific rule below */
-
-    /* Make the pygments table span full width */
-    .highlighttable { width: 100%; border-collapse: collapse; }
-    .highlighttable td { vertical-align: top; }
-    .highlighttable .linenos { user-select: none; background: #f8f8f8; color: #999; }
-    .highlighttable .linenos a { color: #aaa; text-decoration: none; font-size: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
-    .highlighttable .linenos a:visited { color: #aaa; text-decoration: none; }
-    .highlighttable .linenos a:hover { color: #666; text-decoration: none; }
-    .highlighttable .linenos a:focus, .highlighttable .linenos a:active { color: #666; text-decoration: none; }
-    .highlighttable pre { margin: 0; }
-    /* Ensure code text is left-aligned and not justified */
-    .highlighttable td.code, .highlighttable .code, .highlighttable pre { text-align: left !important; }
-
-    /* Highlight individual code lines when class 'hl' is set on their line span */
-    [id^="LC-"] .hl { background: #fff3bf; display: block; }
-
-    /* Code pane padding */
-    #code-pane { padding: 0; }
-  </style>
+        .hash {
+            color: #505050;
+            font-size: 12px;
+            padding: 0 0 0 24px;
+        }
+                        
+        .highlight-table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        
+        .highlight-table .linenos {
+            background: #f8f8f8;
+            color: #909090;
+        }
+        
+        .highlight-table pre {
+            margin: 0;
+        }
+        
+        .highlight-table td {
+            vertical-align: top;
+        }
+        
+        .highlight-table td.code,
+        .highlight-table .code,
+        .highlight-table pre {
+            text-align: left !important;
+        }
+        
+        .left {
+            border-right: 1px solid #d0d0d0;
+            flex: 0 0 30%;
+            font-size: 12px;
+            max-width: 30%;
+        }
+        
+        .pane {
+            overflow: auto;
+        }
+        
+        .pane .code-wrap {
+            padding: 8px;
+        }
+        
+        .pane-header {
+            background: #e0e0e0;
+            border-bottom: 1px solid #e5e5e5;
+            font-size: 16px;
+            font-weight: 600;
+            padding: 12px 6px 12px 6px;
+            position: sticky;
+            text-align: left;
+            text-decoration: underline;
+            top: 0;
+            z-index: 2;
+        }
+        
+        .rel-row:hover {
+            background: #fff7b3;
+            cursor: pointer;
+        }
+        
+        .relations {
+            border-collapse: collapse;
+            font-size: 12px;
+            table-layout: fixed;
+            width: 100%;
+        }
+        
+        .relations th,
+        .relations td {
+            border-bottom: 1px solid #e0e0e0;
+            overflow: hidden;
+            padding: 4px 6px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .relations thead th {
+            background: #f0f0f0;
+            position: sticky;
+            top: 44px;
+            z-index: 1;
+        }
+        
+        .relations thead th:nth-child(1),
+        .relations thead th:nth-child(2) {
+            text-align: left;
+        }
+        
+        .relations thead th:nth-child(3),
+        .relations thead th:nth-child(4),
+        .center {
+            text-align: center;
+        }
+        
+        .right {
+            flex: 1 1 70%;
+        }
+                
+        .title {
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: underline;
+        }
+        
+        .top-bar {
+            align-items: baseline;
+            background: #ffffff;
+            border-bottom: 1px solid #e5e5e5;
+            display: flex;
+            padding: 0 6px 8px 6px;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+        
+        a {
+            color: #b0b0b0;
+            font-size: 12px;
+            text-decoration: none;
+        }
+        
+        a:hover,
+        a:focus,
+        a:active {
+            color: #404040;
+        }
+        
+        a:visited {
+            color: #a0a0a0;
+        }
+        
+        body {
+            font-family: monospace;
+        }
+        
+        html,
+        body {
+            height: 100%;
+            margin: 3px 6px 3px 6px;
+            padding: 3px 6px 3px 6px;
+        }
+        
+    </style>
 </head>
 <body>
-  <div class="topbar">
-    <span class="title">relations1.rs</span>
-    <span class="hash">SHA256: 3286b0a15ce77448d296ae05a1e2d16cf8a39be3363771c654a63b9f3f41f720</span>
-  </div>
-  <div class="container">
-    <div class="pane left" id="left-pane">
-      <div class="pane-header">Relations</div>
-      <table class="relations"><thead><tr><th>relation</th><th>scope</th><th>start</th><th>end</th></tr></thead><tbody><tr class="rel-row" data-start="1" data-end="275" data-start-col="0" data-end-col="1" data-id="S5x7ZEWE"><td class="mono">S5x7ZEWE</td><td class="mono">File</td><td class="mono center">1:0</td><td class="mono center">275:1</td></tr><tr class="rel-row" data-start="4" data-end="6" data-start-col="0" data-end-col="33" data-id="R3m2aYp"><td class="mono">R3m2aYp</td><td class="mono">ItemConst</td><td class="mono center">4:0</td><td class="mono center">6:33</td></tr><tr class="rel-row" data-start="8" data-end="10" data-start-col="0" data-end-col="46" data-id="NMuBH72yL"><td class="mono">NMuBH72yL</td><td class="mono">ItemStatic</td><td class="mono center">8:0</td><td class="mono center">10:46</td></tr><tr class="rel-row" data-start="12" data-end="14" data-start-col="0" data-end-col="65" data-id="XH5mhH0"><td class="mono">XH5mhH0</td><td class="mono">ItemType</td><td class="mono center">12:0</td><td class="mono center">14:65</td></tr><tr class="rel-row" data-start="16" data-end="26" data-start-col="0" data-end-col="1" data-id="OiEBsG0"><td class="mono">OiEBsG0</td><td class="mono">ItemStruct</td><td class="mono center">16:0</td><td class="mono center">26:1</td></tr><tr class="rel-row" data-start="19" data-end="21" data-start-col="4" data-end-col="20" data-id="8nRE5KG"><td class="mono">8nRE5KG</td><td class="mono">Field</td><td class="mono center">19:4</td><td class="mono center">21:20</td></tr><tr class="rel-row" data-start="23" data-end="25" data-start-col="4" data-end-col="14" data-id="oByPxhWz"><td class="mono">oByPxhWz</td><td class="mono">Field</td><td class="mono center">23:4</td><td class="mono center">25:14</td></tr><tr class="rel-row" data-start="28" data-end="50" data-start-col="0" data-end-col="1" data-id="7M1HoQNuI"><td class="mono">7M1HoQNuI</td><td class="mono">ItemEnum</td><td class="mono center">28:0</td><td class="mono center">50:1</td></tr><tr class="rel-row" data-start="31" data-end="33" data-start-col="4" data-end-col="10" data-id="9dSeVTf"><td class="mono">9dSeVTf</td><td class="mono">Variant</td><td class="mono center">31:4</td><td class="mono center">33:10</td></tr><tr class="rel-row" data-start="35" data-end="41" data-start-col="4" data-end-col="5" data-id="YInnEVaOC"><td class="mono">YInnEVaOC</td><td class="mono">Variant</td><td class="mono center">35:4</td><td class="mono center">41:5</td></tr><tr class="rel-row" data-start="38" data-end="40" data-start-col="8" data-end-col="21" data-id="pehIB5Ob"><td class="mono">pehIB5Ob</td><td class="mono">Field</td><td class="mono center">38:8</td><td class="mono center">40:21</td></tr><tr class="rel-row" data-start="43" data-end="49" data-start-col="4" data-end-col="5" data-id="z8uMJcapU"><td class="mono">z8uMJcapU</td><td class="mono">Variant</td><td class="mono center">43:4</td><td class="mono center">49:5</td></tr><tr class="rel-row" data-start="46" data-end="48" data-start-col="8" data-end-col="11" data-id="KLFxjm1"><td class="mono">KLFxjm1</td><td class="mono">Field</td><td class="mono center">46:8</td><td class="mono center">48:11</td></tr><tr class="rel-row" data-start="52" data-end="62" data-start-col="0" data-end-col="1" data-id="Kp2gSMIiB"><td class="mono">Kp2gSMIiB</td><td class="mono">ItemUnion</td><td class="mono center">52:0</td><td class="mono center">62:1</td></tr><tr class="rel-row" data-start="55" data-end="57" data-start-col="4" data-end-col="10" data-id="KoRCMPU"><td class="mono">KoRCMPU</td><td class="mono">Field</td><td class="mono center">55:4</td><td class="mono center">57:10</td></tr><tr class="rel-row" data-start="59" data-end="61" data-start-col="4" data-end-col="10" data-id="KnqUvVEY"><td class="mono">KnqUvVEY</td><td class="mono">Field</td><td class="mono center">59:4</td><td class="mono center">61:10</td></tr><tr class="rel-row" data-start="64" data-end="84" data-start-col="0" data-end-col="1" data-id="5ImdJSr"><td class="mono">5ImdJSr</td><td class="mono">ItemTrait</td><td class="mono center">64:0</td><td class="mono center">84:1</td></tr><tr class="rel-row" data-start="67" data-end="69" data-start-col="4" data-end-col="16" data-id="UHMcB5Cqq"><td class="mono">UHMcB5Cqq</td><td class="mono">TraitItemType</td><td class="mono center">67:4</td><td class="mono center">69:16</td></tr><tr class="rel-row" data-start="71" data-end="73" data-start-col="4" data-end-col="26" data-id="wkLzsC4s"><td class="mono">wkLzsC4s</td><td class="mono">TraitItemConst</td><td class="mono center">71:4</td><td class="mono center">73:26</td></tr><tr class="rel-row" data-start="75" data-end="77" data-start-col="4" data-end-col="51" data-id="XH3IyT6"><td class="mono">XH3IyT6</td><td class="mono">TraitItemFn</td><td class="mono center">75:4</td><td class="mono center">77:51</td></tr><tr class="rel-row" data-start="79" data-end="83" data-start-col="4" data-end-col="5" data-id="Hh6wJ7fpZ"><td class="mono">Hh6wJ7fpZ</td><td class="mono">TraitItemFn</td><td class="mono center">79:4</td><td class="mono center">83:5</td></tr><tr class="rel-row" data-start="86" data-end="88" data-start-col="0" data-end-col="45" data-id="b7xnEeF"><td class="mono">b7xnEeF</td><td class="mono">ItemTraitAlias</td><td class="mono center">86:0</td><td class="mono center">88:45</td></tr><tr class="rel-row" data-start="90" data-end="106" data-start-col="0" data-end-col="1" data-id="owD42wk"><td class="mono">owD42wk</td><td class="mono">ItemImpl</td><td class="mono center">90:0</td><td class="mono center">106:1</td></tr><tr class="rel-row" data-start="93" data-end="95" data-start-col="4" data-end-col="25" data-id="xzMbyU5rB"><td class="mono">xzMbyU5rB</td><td class="mono">ImplItemType</td><td class="mono center">93:4</td><td class="mono center">95:25</td></tr><tr class="rel-row" data-start="97" data-end="99" data-start-col="4" data-end-col="33" data-id="N9oI9M8C"><td class="mono">N9oI9M8C</td><td class="mono">ImplItemConst</td><td class="mono center">97:4</td><td class="mono center">99:33</td></tr><tr class="rel-row" data-start="101" data-end="105" data-start-col="4" data-end-col="5" data-id="KLnt8082"><td class="mono">KLnt8082</td><td class="mono">ImplItemFn</td><td class="mono center">101:4</td><td class="mono center">105:5</td></tr><tr class="rel-row" data-start="108" data-end="122" data-start-col="0" data-end-col="1" data-id="2arqklT5"><td class="mono">2arqklT5</td><td class="mono">ItemImpl</td><td class="mono center">108:0</td><td class="mono center">122:1</td></tr><tr class="rel-row" data-start="111" data-end="115" data-start-col="4" data-end-col="5" data-id="daZt7aMqV"><td class="mono">daZt7aMqV</td><td class="mono">ImplItemFn</td><td class="mono center">111:4</td><td class="mono center">115:5</td></tr><tr class="rel-row" data-start="117" data-end="121" data-start-col="4" data-end-col="5" data-id="bCxGING"><td class="mono">bCxGING</td><td class="mono">ImplItemFn</td><td class="mono center">117:4</td><td class="mono center">121:5</td></tr><tr class="rel-row" data-start="124" data-end="128" data-start-col="0" data-end-col="1" data-id="dG81Vzk"><td class="mono">dG81Vzk</td><td class="mono">ItemFn</td><td class="mono center">124:0</td><td class="mono center">128:1</td></tr><tr class="rel-row" data-start="130" data-end="134" data-start-col="0" data-end-col="1" data-id="4QLCpmM"><td class="mono">4QLCpmM</td><td class="mono">ItemFn</td><td class="mono center">130:0</td><td class="mono center">134:1</td></tr><tr class="rel-row" data-start="136" data-end="140" data-start-col="0" data-end-col="1" data-id="mzUjggR"><td class="mono">mzUjggR</td><td class="mono">ItemFn</td><td class="mono center">136:0</td><td class="mono center">140:1</td></tr><tr class="rel-row" data-start="142" data-end="148" data-start-col="0" data-end-col="1" data-id="ATrMhNH"><td class="mono">ATrMhNH</td><td class="mono">ItemFn</td><td class="mono center">142:0</td><td class="mono center">148:1</td></tr><tr class="rel-row" data-start="150" data-end="152" data-start-col="0" data-end-col="17" data-id="kM2ySbb"><td class="mono">kM2ySbb</td><td class="mono">ItemExternCrate</td><td class="mono center">150:0</td><td class="mono center">152:17</td></tr><tr class="rel-row" data-start="154" data-end="167" data-start-col="0" data-end-col="1" data-id="CVO11Qy"><td class="mono">CVO11Qy</td><td class="mono">ItemMod</td><td class="mono center">154:0</td><td class="mono center">167:1</td></tr><tr class="rel-row" data-start="154" data-end="167" data-start-col="0" data-end-col="1" data-id="zawS0aMAj"><td class="mono">zawS0aMAj</td><td class="mono">ItemMod</td><td class="mono center">154:0</td><td class="mono center">167:1</td></tr><tr class="rel-row" data-start="160" data-end="166" data-start-col="4" data-end-col="5" data-id="LV0JeVQf"><td class="mono">LV0JeVQf</td><td class="mono">ItemStruct</td><td class="mono center">160:4</td><td class="mono center">166:5</td></tr><tr class="rel-row" data-start="163" data-end="165" data-start-col="8" data-end-col="21" data-id="ave7cjq"><td class="mono">ave7cjq</td><td class="mono">Field</td><td class="mono center">163:8</td><td class="mono center">165:21</td></tr><tr class="rel-row" data-start="169" data-end="183" data-start-col="0" data-end-col="1" data-id="m51AgeSa"><td class="mono">m51AgeSa</td><td class="mono">ItemForeignMod</td><td class="mono center">169:0</td><td class="mono center">183:1</td></tr><tr class="rel-row" data-start="172" data-end="174" data-start-col="4" data-end-col="36" data-id="d67FvOG8V"><td class="mono">d67FvOG8V</td><td class="mono">ForeignItemFn</td><td class="mono center">172:4</td><td class="mono center">174:36</td></tr><tr class="rel-row" data-start="176" data-end="178" data-start-col="4" data-end-col="29" data-id="n5TIEwFm"><td class="mono">n5TIEwFm</td><td class="mono">ForeignItemStatic</td><td class="mono center">176:4</td><td class="mono center">178:29</td></tr><tr class="rel-row" data-start="180" data-end="182" data-start-col="4" data-end-col="20" data-id="5KjLZZPC"><td class="mono">5KjLZZPC</td><td class="mono">ForeignItemType</td><td class="mono center">180:4</td><td class="mono center">182:20</td></tr><tr class="rel-row" data-start="185" data-end="191" data-start-col="0" data-end-col="1" data-id="sFzA9s5Uj"><td class="mono">sFzA9s5Uj</td><td class="mono">ItemMacro</td><td class="mono center">185:0</td><td class="mono center">191:1</td></tr><tr class="rel-row" data-start="193" data-end="205" data-start-col="0" data-end-col="1" data-id="Uxk8eoN"><td class="mono">Uxk8eoN</td><td class="mono">ItemFn</td><td class="mono center">193:0</td><td class="mono center">205:1</td></tr><tr class="rel-row" data-start="197" data-end="199" data-start-col="8" data-end-col="30" data-id="JQ6dyfoe0"><td class="mono">JQ6dyfoe0</td><td class="mono">Arm</td><td class="mono center">197:8</td><td class="mono center">199:30</td></tr><tr class="rel-row" data-start="201" data-end="203" data-start-col="8" data-end-col="18" data-id="vCbEEMYD"><td class="mono">vCbEEMYD</td><td class="mono">Arm</td><td class="mono center">201:8</td><td class="mono center">203:18</td></tr><tr class="rel-row" data-start="207" data-end="221" data-start-col="0" data-end-col="1" data-id="9kwjKm5"><td class="mono">9kwjKm5</td><td class="mono">ItemFn</td><td class="mono center">207:0</td><td class="mono center">221:1</td></tr><tr class="rel-row" data-start="210" data-end="212" data-start-col="4" data-end-col="12" data-id="5FyNmE9"><td class="mono">5FyNmE9</td><td class="mono">TypeParam</td><td class="mono center">210:4</td><td class="mono center">212:12</td></tr><tr class="rel-row" data-start="214" data-end="216" data-start-col="4" data-end-col="18" data-id="4dQ7JLKcd"><td class="mono">4dQ7JLKcd</td><td class="mono">ConstParam</td><td class="mono center">214:4</td><td class="mono center">216:18</td></tr><tr class="rel-row" data-start="223" data-end="239" data-start-col="0" data-end-col="1" data-id="sW4M3OJS"><td class="mono">sW4M3OJS</td><td class="mono">ItemStruct</td><td class="mono center">223:0</td><td class="mono center">239:1</td></tr><tr class="rel-row" data-start="226" data-end="228" data-start-col="4" data-end-col="6" data-id="eniOhjy"><td class="mono">eniOhjy</td><td class="mono">LifetimeParam</td><td class="mono center">226:4</td><td class="mono center">228:6</td></tr><tr class="rel-row" data-start="230" data-end="232" data-start-col="4" data-end-col="5" data-id="YGhhrgPz"><td class="mono">YGhhrgPz</td><td class="mono">TypeParam</td><td class="mono center">230:4</td><td class="mono center">232:5</td></tr><tr class="rel-row" data-start="236" data-end="238" data-start-col="4" data-end-col="19" data-id="HibGJSZqi"><td class="mono">HibGJSZqi</td><td class="mono">Field</td><td class="mono center">236:4</td><td class="mono center">238:19</td></tr><tr class="rel-row" data-start="241" data-end="250" data-start-col="0" data-end-col="1" data-id="rIjz40L84"><td class="mono">rIjz40L84</td><td class="mono">ItemFn</td><td class="mono center">241:0</td><td class="mono center">250:1</td></tr><tr class="rel-row" data-start="246" data-end="247" data-start-col="8" data-end-col="34" data-id="cqkjF9P5"><td class="mono">cqkjF9P5</td><td class="mono">FieldValue</td><td class="mono center">246:8</td><td class="mono center">247:34</td></tr><tr class="rel-row" data-start="254" data-end="255" data-start-col="4" data-end-col="11" data-id="7AEwrhc"><td class="mono">7AEwrhc</td><td class="mono">ExprLit</td><td class="mono center">254:4</td><td class="mono center">255:11</td></tr><tr class="rel-row" data-start="256" data-end="259" data-start-col="4" data-end-col="5" data-id="ve9EEVSf"><td class="mono">ve9EEVSf</td><td class="mono">ExprPath</td><td class="mono center">256:4</td><td class="mono center">259:5</td></tr><tr class="rel-row" data-start="263" data-end="264" data-start-col="4" data-end-col="11" data-id="bCHkXspx"><td class="mono">bCHkXspx</td><td class="mono">ExprParen</td><td class="mono center">263:4</td><td class="mono center">264:11</td></tr><tr class="rel-row" data-start="269" data-end="274" data-start-col="4" data-end-col="5" data-id="n5vDcKK"><td class="mono">n5vDcKK</td><td class="mono">ItemFn</td><td class="mono center">269:4</td><td class="mono center">274:5</td></tr></tbody></table>
+    <div class="top-bar">
+        <span class="title">relations1.rs</span>
+        <span class="hash">SHA256: 3286b0a15ce77448d296ae05a1e2d16cf8a39be3363771c654a63b9f3f41f720</span>
     </div>
-    <div class="pane right" id="code-pane">
-      <div class="pane-header">Source</div>
-      <div class="code-wrap">
-      <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"><a href="#L-1">  1</a></span>
+    <div class="container">
+    <div class="pane left" id="left-pane">
+        <div class="pane-header">Relations</div>
+            <table class="relations"><thead><tr><th>relation</th><th>scope</th><th>start</th><th>end</th></tr></thead><tbody><tr class="rel-row" data-start="1" data-end="275" data-start-col="0" data-end-col="1" data-id="S5x7ZEWE"><td>S5x7ZEWE</td><td>File</td><td class="center">1:0</td><td class="center">275:1</td></tr><tr class="rel-row" data-start="4" data-end="6" data-start-col="0" data-end-col="33" data-id="R3m2aYp"><td>R3m2aYp</td><td>ItemConst</td><td class="center">4:0</td><td class="center">6:33</td></tr><tr class="rel-row" data-start="8" data-end="10" data-start-col="0" data-end-col="46" data-id="NMuBH72yL"><td>NMuBH72yL</td><td>ItemStatic</td><td class="center">8:0</td><td class="center">10:46</td></tr><tr class="rel-row" data-start="12" data-end="14" data-start-col="0" data-end-col="65" data-id="XH5mhH0"><td>XH5mhH0</td><td>ItemType</td><td class="center">12:0</td><td class="center">14:65</td></tr><tr class="rel-row" data-start="16" data-end="26" data-start-col="0" data-end-col="1" data-id="OiEBsG0"><td>OiEBsG0</td><td>ItemStruct</td><td class="center">16:0</td><td class="center">26:1</td></tr><tr class="rel-row" data-start="19" data-end="21" data-start-col="4" data-end-col="20" data-id="8nRE5KG"><td>8nRE5KG</td><td>Field</td><td class="center">19:4</td><td class="center">21:20</td></tr><tr class="rel-row" data-start="23" data-end="25" data-start-col="4" data-end-col="14" data-id="oByPxhWz"><td>oByPxhWz</td><td>Field</td><td class="center">23:4</td><td class="center">25:14</td></tr><tr class="rel-row" data-start="28" data-end="50" data-start-col="0" data-end-col="1" data-id="7M1HoQNuI"><td>7M1HoQNuI</td><td>ItemEnum</td><td class="center">28:0</td><td class="center">50:1</td></tr><tr class="rel-row" data-start="31" data-end="33" data-start-col="4" data-end-col="10" data-id="9dSeVTf"><td>9dSeVTf</td><td>Variant</td><td class="center">31:4</td><td class="center">33:10</td></tr><tr class="rel-row" data-start="35" data-end="41" data-start-col="4" data-end-col="5" data-id="YInnEVaOC"><td>YInnEVaOC</td><td>Variant</td><td class="center">35:4</td><td class="center">41:5</td></tr><tr class="rel-row" data-start="38" data-end="40" data-start-col="8" data-end-col="21" data-id="pehIB5Ob"><td>pehIB5Ob</td><td>Field</td><td class="center">38:8</td><td class="center">40:21</td></tr><tr class="rel-row" data-start="43" data-end="49" data-start-col="4" data-end-col="5" data-id="z8uMJcapU"><td>z8uMJcapU</td><td>Variant</td><td class="center">43:4</td><td class="center">49:5</td></tr><tr class="rel-row" data-start="46" data-end="48" data-start-col="8" data-end-col="11" data-id="KLFxjm1"><td>KLFxjm1</td><td>Field</td><td class="center">46:8</td><td class="center">48:11</td></tr><tr class="rel-row" data-start="52" data-end="62" data-start-col="0" data-end-col="1" data-id="Kp2gSMIiB"><td>Kp2gSMIiB</td><td>ItemUnion</td><td class="center">52:0</td><td class="center">62:1</td></tr><tr class="rel-row" data-start="55" data-end="57" data-start-col="4" data-end-col="10" data-id="KoRCMPU"><td>KoRCMPU</td><td>Field</td><td class="center">55:4</td><td class="center">57:10</td></tr><tr class="rel-row" data-start="59" data-end="61" data-start-col="4" data-end-col="10" data-id="KnqUvVEY"><td>KnqUvVEY</td><td>Field</td><td class="center">59:4</td><td class="center">61:10</td></tr><tr class="rel-row" data-start="64" data-end="84" data-start-col="0" data-end-col="1" data-id="5ImdJSr"><td>5ImdJSr</td><td>ItemTrait</td><td class="center">64:0</td><td class="center">84:1</td></tr><tr class="rel-row" data-start="67" data-end="69" data-start-col="4" data-end-col="16" data-id="UHMcB5Cqq"><td>UHMcB5Cqq</td><td>TraitItemType</td><td class="center">67:4</td><td class="center">69:16</td></tr><tr class="rel-row" data-start="71" data-end="73" data-start-col="4" data-end-col="26" data-id="wkLzsC4s"><td>wkLzsC4s</td><td>TraitItemConst</td><td class="center">71:4</td><td class="center">73:26</td></tr><tr class="rel-row" data-start="75" data-end="77" data-start-col="4" data-end-col="51" data-id="XH3IyT6"><td>XH3IyT6</td><td>TraitItemFn</td><td class="center">75:4</td><td class="center">77:51</td></tr><tr class="rel-row" data-start="79" data-end="83" data-start-col="4" data-end-col="5" data-id="Hh6wJ7fpZ"><td>Hh6wJ7fpZ</td><td>TraitItemFn</td><td class="center">79:4</td><td class="center">83:5</td></tr><tr class="rel-row" data-start="86" data-end="88" data-start-col="0" data-end-col="45" data-id="b7xnEeF"><td>b7xnEeF</td><td>ItemTraitAlias</td><td class="center">86:0</td><td class="center">88:45</td></tr><tr class="rel-row" data-start="90" data-end="106" data-start-col="0" data-end-col="1" data-id="owD42wk"><td>owD42wk</td><td>ItemImpl</td><td class="center">90:0</td><td class="center">106:1</td></tr><tr class="rel-row" data-start="93" data-end="95" data-start-col="4" data-end-col="25" data-id="xzMbyU5rB"><td>xzMbyU5rB</td><td>ImplItemType</td><td class="center">93:4</td><td class="center">95:25</td></tr><tr class="rel-row" data-start="97" data-end="99" data-start-col="4" data-end-col="33" data-id="N9oI9M8C"><td>N9oI9M8C</td><td>ImplItemConst</td><td class="center">97:4</td><td class="center">99:33</td></tr><tr class="rel-row" data-start="101" data-end="105" data-start-col="4" data-end-col="5" data-id="KLnt8082"><td>KLnt8082</td><td>ImplItemFn</td><td class="center">101:4</td><td class="center">105:5</td></tr><tr class="rel-row" data-start="108" data-end="122" data-start-col="0" data-end-col="1" data-id="2arqklT5"><td>2arqklT5</td><td>ItemImpl</td><td class="center">108:0</td><td class="center">122:1</td></tr><tr class="rel-row" data-start="111" data-end="115" data-start-col="4" data-end-col="5" data-id="daZt7aMqV"><td>daZt7aMqV</td><td>ImplItemFn</td><td class="center">111:4</td><td class="center">115:5</td></tr><tr class="rel-row" data-start="117" data-end="121" data-start-col="4" data-end-col="5" data-id="bCxGING"><td>bCxGING</td><td>ImplItemFn</td><td class="center">117:4</td><td class="center">121:5</td></tr><tr class="rel-row" data-start="124" data-end="128" data-start-col="0" data-end-col="1" data-id="dG81Vzk"><td>dG81Vzk</td><td>ItemFn</td><td class="center">124:0</td><td class="center">128:1</td></tr><tr class="rel-row" data-start="130" data-end="134" data-start-col="0" data-end-col="1" data-id="4QLCpmM"><td>4QLCpmM</td><td>ItemFn</td><td class="center">130:0</td><td class="center">134:1</td></tr><tr class="rel-row" data-start="136" data-end="140" data-start-col="0" data-end-col="1" data-id="mzUjggR"><td>mzUjggR</td><td>ItemFn</td><td class="center">136:0</td><td class="center">140:1</td></tr><tr class="rel-row" data-start="142" data-end="148" data-start-col="0" data-end-col="1" data-id="ATrMhNH"><td>ATrMhNH</td><td>ItemFn</td><td class="center">142:0</td><td class="center">148:1</td></tr><tr class="rel-row" data-start="150" data-end="152" data-start-col="0" data-end-col="17" data-id="kM2ySbb"><td>kM2ySbb</td><td>ItemExternCrate</td><td class="center">150:0</td><td class="center">152:17</td></tr><tr class="rel-row" data-start="154" data-end="167" data-start-col="0" data-end-col="1" data-id="CVO11Qy"><td>CVO11Qy</td><td>ItemMod</td><td class="center">154:0</td><td class="center">167:1</td></tr><tr class="rel-row" data-start="154" data-end="167" data-start-col="0" data-end-col="1" data-id="zawS0aMAj"><td>zawS0aMAj</td><td>ItemMod</td><td class="center">154:0</td><td class="center">167:1</td></tr><tr class="rel-row" data-start="160" data-end="166" data-start-col="4" data-end-col="5" data-id="LV0JeVQf"><td>LV0JeVQf</td><td>ItemStruct</td><td class="center">160:4</td><td class="center">166:5</td></tr><tr class="rel-row" data-start="163" data-end="165" data-start-col="8" data-end-col="21" data-id="ave7cjq"><td>ave7cjq</td><td>Field</td><td class="center">163:8</td><td class="center">165:21</td></tr><tr class="rel-row" data-start="169" data-end="183" data-start-col="0" data-end-col="1" data-id="m51AgeSa"><td>m51AgeSa</td><td>ItemForeignMod</td><td class="center">169:0</td><td class="center">183:1</td></tr><tr class="rel-row" data-start="172" data-end="174" data-start-col="4" data-end-col="36" data-id="d67FvOG8V"><td>d67FvOG8V</td><td>ForeignItemFn</td><td class="center">172:4</td><td class="center">174:36</td></tr><tr class="rel-row" data-start="176" data-end="178" data-start-col="4" data-end-col="29" data-id="n5TIEwFm"><td>n5TIEwFm</td><td>ForeignItemStatic</td><td class="center">176:4</td><td class="center">178:29</td></tr><tr class="rel-row" data-start="180" data-end="182" data-start-col="4" data-end-col="20" data-id="5KjLZZPC"><td>5KjLZZPC</td><td>ForeignItemType</td><td class="center">180:4</td><td class="center">182:20</td></tr><tr class="rel-row" data-start="185" data-end="191" data-start-col="0" data-end-col="1" data-id="sFzA9s5Uj"><td>sFzA9s5Uj</td><td>ItemMacro</td><td class="center">185:0</td><td class="center">191:1</td></tr><tr class="rel-row" data-start="193" data-end="205" data-start-col="0" data-end-col="1" data-id="Uxk8eoN"><td>Uxk8eoN</td><td>ItemFn</td><td class="center">193:0</td><td class="center">205:1</td></tr><tr class="rel-row" data-start="197" data-end="199" data-start-col="8" data-end-col="30" data-id="JQ6dyfoe0"><td>JQ6dyfoe0</td><td>Arm</td><td class="center">197:8</td><td class="center">199:30</td></tr><tr class="rel-row" data-start="201" data-end="203" data-start-col="8" data-end-col="18" data-id="vCbEEMYD"><td>vCbEEMYD</td><td>Arm</td><td class="center">201:8</td><td class="center">203:18</td></tr><tr class="rel-row" data-start="207" data-end="221" data-start-col="0" data-end-col="1" data-id="9kwjKm5"><td>9kwjKm5</td><td>ItemFn</td><td class="center">207:0</td><td class="center">221:1</td></tr><tr class="rel-row" data-start="210" data-end="212" data-start-col="4" data-end-col="12" data-id="5FyNmE9"><td>5FyNmE9</td><td>TypeParam</td><td class="center">210:4</td><td class="center">212:12</td></tr><tr class="rel-row" data-start="214" data-end="216" data-start-col="4" data-end-col="18" data-id="4dQ7JLKcd"><td>4dQ7JLKcd</td><td>ConstParam</td><td class="center">214:4</td><td class="center">216:18</td></tr><tr class="rel-row" data-start="223" data-end="239" data-start-col="0" data-end-col="1" data-id="sW4M3OJS"><td>sW4M3OJS</td><td>ItemStruct</td><td class="center">223:0</td><td class="center">239:1</td></tr><tr class="rel-row" data-start="226" data-end="228" data-start-col="4" data-end-col="6" data-id="eniOhjy"><td>eniOhjy</td><td>LifetimeParam</td><td class="center">226:4</td><td class="center">228:6</td></tr><tr class="rel-row" data-start="230" data-end="232" data-start-col="4" data-end-col="5" data-id="YGhhrgPz"><td>YGhhrgPz</td><td>TypeParam</td><td class="center">230:4</td><td class="center">232:5</td></tr><tr class="rel-row" data-start="236" data-end="238" data-start-col="4" data-end-col="19" data-id="HibGJSZqi"><td>HibGJSZqi</td><td>Field</td><td class="center">236:4</td><td class="center">238:19</td></tr><tr class="rel-row" data-start="241" data-end="250" data-start-col="0" data-end-col="1" data-id="rIjz40L84"><td>rIjz40L84</td><td>ItemFn</td><td class="center">241:0</td><td class="center">250:1</td></tr><tr class="rel-row" data-start="246" data-end="247" data-start-col="8" data-end-col="34" data-id="cqkjF9P5"><td>cqkjF9P5</td><td>FieldValue</td><td class="center">246:8</td><td class="center">247:34</td></tr><tr class="rel-row" data-start="254" data-end="255" data-start-col="4" data-end-col="11" data-id="7AEwrhc"><td>7AEwrhc</td><td>ExprLit</td><td class="center">254:4</td><td class="center">255:11</td></tr><tr class="rel-row" data-start="256" data-end="259" data-start-col="4" data-end-col="5" data-id="ve9EEVSf"><td>ve9EEVSf</td><td>ExprPath</td><td class="center">256:4</td><td class="center">259:5</td></tr><tr class="rel-row" data-start="263" data-end="264" data-start-col="4" data-end-col="11" data-id="bCHkXspx"><td>bCHkXspx</td><td>ExprParen</td><td class="center">263:4</td><td class="center">264:11</td></tr><tr class="rel-row" data-start="269" data-end="274" data-start-col="4" data-end-col="5" data-id="n5vDcKK"><td>n5vDcKK</td><td>ItemFn</td><td class="center">269:4</td><td class="center">274:5</td></tr></tbody></table>
+        </div>
+        <div class="pane right" id="code-pane">
+        <div class="pane-header">Source</div>
+        <div class="code-wrap">
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"><a href="#L-1">  1</a></span>
 <span class="normal"><a href="#L-2">  2</a></span>
 <span class="normal"><a href="#L-3">  3</a></span>
 <span class="normal"><a href="#L-4">  4</a></span>
@@ -690,108 +808,131 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </span><span id="LC-275"><a id="L-275" name="L-275"></a><span class="p">}</span>
 </span></pre></div></td></tr></table></div>
 
+        </div>
     </div>
-  </div>
-  <script>
-    (function() {
-      const codePane = document.getElementById('code-pane');
-      function lineEl(n) {
-        // Prefer per-line code span generated via Pygments linespans
-        const span = document.getElementById(`LC-${n}`);
-        if (span) return span;
-        // Fallback: try to find the table row (older output formats)
-        const a = document.getElementById(`L-${n}`);
-        if (!a) return null;
-        let el = a;
-        while (el && el.tagName !== 'TR') el = el.parentElement;
-        return el;
-      }
-      function clearSelection() {
-        const sel = window.getSelection && window.getSelection();
-        if (sel && sel.removeAllRanges) sel.removeAllRanges();
-        // Also remove any legacy CSS highlights if present
-        document.querySelectorAll('.highlighttable tr.hl').forEach(tr => tr.classList.remove('hl'));
-        document.querySelectorAll('[id^="LC-"] .hl').forEach(el => el.classList.remove('hl'));
-      }
-      function textPositionInLine(spanEl, col) {
-        // Map a column offset (0-based) within the line's plain text to a specific text node and offset
-        // If col is undefined/null, return start of line for start positions and end for end via caller.
-        try {
-          let remaining = Math.max(0, Number(col) || 0);
-          const walker = document.createTreeWalker(spanEl, NodeFilter.SHOW_TEXT, null);
-          let lastText = null;
-          while (walker.nextNode()) {
-            const node = walker.currentNode;
-            const len = node.textContent.length;
-            lastText = node;
-            if (remaining <= len) {
-              return { node, offset: remaining };
+    <script>
+        (() => {
+
+            function lineElement(n) {
+                const span = document.getElementById(`LC-${n}`);
+                if (span) return span;
+                const a = document.getElementById(`L-${n}`);
+                if (!a) return null;
+                let el = a;
+                while (el && el.tagName !== 'TR') el = el.parentElement;
+                return el;
             }
-            remaining -= len;
-          }
-          if (lastText) return { node: lastText, offset: lastText.textContent.length };
-        } catch (_) {}
-        return null;
-      }
-      function endOfLine(spanEl) {
-        const walker = document.createTreeWalker(spanEl, NodeFilter.SHOW_TEXT, null);
-        let lastText = null;
-        while (walker.nextNode()) lastText = walker.currentNode;
-        if (lastText) return { node: lastText, offset: lastText.textContent.length };
-        // fallback to element itself
-        return { node: spanEl, offset: spanEl.childNodes.length };
-      }
-      function selectRange(sLine, sCol, eLine, eCol) {
-        clearSelection();
-        let startLine = Math.min(sLine, eLine);
-        let endLine = Math.max(sLine, eLine);
-        let startCol = (startLine === sLine) ? sCol : eCol;
-        let endCol = (endLine === eLine) ? eCol : sCol;
 
-        const startSpan = lineEl(startLine);
-        const endSpan = lineEl(endLine);
-        if (!startSpan || !endSpan) return;
+            function clearSelection() {
+                const sel = window.getSelection && window.getSelection();
+                if (sel && sel.removeAllRanges) sel.removeAllRanges();
+            }
 
-        let startPos = textPositionInLine(startSpan, startCol);
-        if (!startPos) startPos = { node: startSpan, offset: 0 };
+            function textPositionInLine(spanEl, col) {
+                try {
+                    let remaining = Math.max(0, Number(col) || 0);
+                    const walker = document.createTreeWalker(spanEl, NodeFilter.SHOW_TEXT, null);
+                    let lastText = null;
+                    while (walker.nextNode()) {
+                        const node = walker.currentNode;
+                        const len = node.textContent.length;
+                        lastText = node;
+                        if (remaining <= len) {
+                            return { node, offset: remaining };
+                        }
+                        remaining -= len;
+                    }
+                    if (lastText) return { node: lastText, offset: lastText.textContent.length };
+                } catch (_) { }
+                return null;
+            }
 
-        let endPos = textPositionInLine(endSpan, endCol);
-        if (!endPos) endPos = endOfLine(endSpan);
+            function endOfLine(spanEl) {
+                const walker = document.createTreeWalker(spanEl, NodeFilter.SHOW_TEXT, null);
+                let lastText = null;
+                while (walker.nextNode()) lastText = walker.currentNode;
+                if (lastText) return { node: lastText, offset: lastText.textContent.length };
+                return { node: spanEl, offset: spanEl.childNodes.length };
+            }
 
-        const range = document.createRange();
-        range.setStart(startPos.node, startPos.offset);
-        range.setEnd(endPos.node, endPos.offset);
+            function selectRange(sLine, sCol, eLine, eCol) {
 
-        const sel = window.getSelection && window.getSelection();
-        if (sel && sel.removeAllRanges) {
-          sel.removeAllRanges();
-          sel.addRange(range);
-        }
-        startSpan.scrollIntoView({ block: 'center' });
-      }
-      document.querySelectorAll('.rel-row').forEach(row => {
-        row.addEventListener('click', () => {
-          const start = parseInt(row.dataset.start, 10);
-          const end = parseInt(row.dataset.end, 10);
-          const startCol = parseInt(row.dataset.startCol, 10);
-          const endCol = parseInt(row.dataset.endCol, 10);
-          selectRange(start, startCol, end, endCol);
-        });
-      });
+                clearSelection();
 
-      // Optional: support deep-linking via hash '#L-<start>,<end>'
-      function parseHash() {
-        if (!location.hash) return null;
-        const m = location.hash.slice(1).match(/^L-(\d+)(?:,(\d+))?$/);
-        if (!m) return null;
-        const s = parseInt(m[1], 10);
-        const e = m[2] ? parseInt(m[2], 10) : s;
-        return [s, e];
-      }
-      const rng = parseHash();
-      if (rng) selectRange(rng[0], 0, rng[1], Number.MAX_SAFE_INTEGER);
-    })();
-  </script>
+                let startLine = Math.min(sLine, eLine);
+                let endLine = Math.max(sLine, eLine);
+                let startCol = (startLine === sLine) ? sCol : eCol;
+                let endCol = (endLine === eLine) ? eCol : sCol;
+
+                const startSpan = lineElement(startLine);
+                const endSpan = lineElement(endLine);
+                if (!startSpan || !endSpan) return;
+
+                let startPos = textPositionInLine(startSpan, startCol);
+                if (!startPos) startPos = { node: startSpan, offset: 0 };
+
+                let endPos = textPositionInLine(endSpan, endCol);
+                if (!endPos) endPos = endOfLine(endSpan);
+
+                const range = document.createRange();
+                range.setStart(startPos.node, startPos.offset);
+                range.setEnd(endPos.node, endPos.offset);
+
+                const sel = window.getSelection && window.getSelection();
+                if (sel && sel.removeAllRanges) {
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                }
+
+                startSpan.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center',
+                    inline: 'center'
+                });
+
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                document.querySelectorAll('.rel-row').forEach(row => {
+                    row.addEventListener('click', () => {
+                        const start = parseInt(row.dataset.start, 10);
+                        const end = parseInt(row.dataset.end, 10);
+                        const startCol = parseInt(row.dataset.startCol, 10);
+                        const endCol = parseInt(row.dataset.endCol, 10);
+                        selectRange(start, startCol, end, endCol);
+                    });
+                });
+            });
+
+            function scrollToAnchor() {
+                if (!location.hash) return;
+                const match = location.hash.slice(1).match(/^L-(\d+)$/);
+                if (!match) return;
+                const line = parseInt(match[1], 10);
+                const element = lineElement(line);              
+                if (!element) return;
+                clearSelection();
+                element.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center',
+                    inline: 'center'
+                });                      
+            }
+
+            ['load', 'hashchange'].forEach((event) => {
+                window.addEventListener(event, () => {
+                    if (window.location.hash) {
+                        requestAnimationFrame(() => {
+                            requestAnimationFrame(() => {
+                                scrollToAnchor();
+                            });
+                        });
+                    }
+                });
+            });     
+
+        })();
+    </script>
 </body>
 </html>
 
