@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import hashlib
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, List
@@ -67,7 +68,7 @@ def render_code_html(code: str) -> tuple[str, str]:
     return highlighted, styles
 
 
-def build_html(code_html: str, style_css: str, relations: List[Relation], title: str) -> str:
+def build_html(code_html: str, style_css: str, relations: List[Relation], title: str, filename: str, sha256_hex: str) -> str:
     # Build table rows
     rows = []
     for r in relations:
@@ -100,8 +101,14 @@ def build_html(code_html: str, style_css: str, relations: List[Relation], title:
 
     html, body {{ height: 100%; margin: 0; padding: 0; }}
     body {{ font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, \"Apple Color Emoji\", \"Segoe UI Emoji\"; }}
-    .container {{ display: flex; height: 100vh; overflow: hidden; }}
+
+    .topbar {{ position: sticky; top: 0; z-index: 5; background: #ffffff; border-bottom: 1px solid #e5e5e5; padding: 8px 12px; display: flex; gap: 16px; align-items: baseline; }}
+    .topbar .title {{ font-weight: 600; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace; }}
+    .topbar .hash {{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace; color: #555; font-size: 12px; }}
+    .container {{ display: flex; height: calc(100vh - 44px); overflow: hidden; }}
     .pane {{ overflow: auto; }}
+    .pane-header {{ position: sticky; top: 0; z-index: 2; background: #f6f8fa; border-bottom: 1px solid #e5e5e5; padding: 6px 8px; font-weight: 600; font-size: 16px; text-align: left; }}
+    .pane .code-wrap {{ padding: 8px; }}
     .left {{ border-right: 1px solid #ddd; flex: 0 0 33.333%; max-width: 33.333%; font-size: 12px; }}
     .right {{ flex: 1 1 66.666%; }}
     .relations {{ width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 12px; }}
@@ -111,7 +118,6 @@ def build_html(code_html: str, style_css: str, relations: List[Relation], title:
     .relations thead th:nth-child(1), .relations thead th:nth-child(2) {{ text-align: left; }}
     .relations thead th:nth-child(3), .relations thead th:nth-child(4) {{ text-align: center; }}
     .mono {{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace; }}
-    .right {{ text-align: right; }}
     .center {{ text-align: center; }}
     .rel-row:hover {{ background: #f0f7ff; cursor: pointer; }}
 
@@ -129,15 +135,16 @@ def build_html(code_html: str, style_css: str, relations: List[Relation], title:
     [id^="LC-"] .hl {{ background: #fff3bf; display: block; }}
 
     /* Code pane padding */
-    #code-pane {{ padding: 8px; }}
+    #code-pane {{ padding: 0; }}
   </style>
 </head>
 <body>
+  <div class=\"topbar\">\n    <span class=\"title\">{filename}</span>\n    <span class=\"hash\">SHA256: {sha256_hex}</span>\n  </div>
   <div class=\"container\">
-    <div class=\"pane left\" id=\"left-pane\">
+    <div class=\"pane left\" id=\"left-pane\">\n      <div class=\"pane-header\">Relations</div>
       {table_html}
     </div>
-    <div class=\"pane right\" id=\"code-pane\">
+    <div class=\"pane right\" id=\"code-pane\">\n      <div class=\"pane-header\">Source</div>\n      <div class=\"code-wrap\">
       {code_html}
     </div>
   </div>
@@ -260,6 +267,8 @@ def main() -> None:
     relations = load_relations(json_path)
     code_html, style_css = render_code_html(code)
 
+    sha256_hex = hashlib.sha256(code.encode("utf-8")).hexdigest()
+
     title = f"{rust_path.name} — relations"
-    html = build_html(code_html, style_css, relations, title)
+    html = build_html(code_html, style_css, relations, title, rust_path.name, sha256_hex)
     print(html)
