@@ -68,15 +68,14 @@ def render_code_html(code: str) -> tuple[str, str]:
 
 
 def build_html(code_html: str, style_css: str, relations: List[Relation], title: str, filename: str, sha256_hex: str) -> str:
-    # Build table rows
     rows = []
     for r in relations:
         rows.append(
             f"<tr class=\"rel-row\" data-start=\"{r.span.start_line}\" data-end=\"{r.span.end_line}\" data-start-col=\"{r.span.start_col}\" data-end-col=\"{r.span.end_col}\" data-id=\"{r.relation}\">"
-            f"<td class=\"mono\">{r.relation}</td>"
-            f"<td class=\"mono\">{r.scope}</td>"
-            f"<td class=\"mono center\">{r.span.start_line}:{r.span.start_col}</td>"
-            f"<td class=\"mono center\">{r.span.end_line}:{r.span.end_col}</td>"
+            f"<td>{r.relation}</td>"
+            f"<td>{r.scope}</td>"
+            f"<td class=\"center\">{r.span.start_line}:{r.span.start_col}</td>"
+            f"<td class=\"center\">{r.span.end_line}:{r.span.end_col}</td>"
             f"</tr>"
         )
     table_html = (
@@ -85,8 +84,6 @@ def build_html(code_html: str, style_css: str, relations: List[Relation], title:
         f"<tbody>{''.join(rows)}</tbody>"
         "</table>"
     )
-
-    # Build full HTML with CSS and JS
     html = f"""
 <!doctype html>
 <html lang=\"en\">
@@ -95,37 +92,170 @@ def build_html(code_html: str, style_css: str, relations: List[Relation], title:
   <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
   <title>{title}</title>
   <style>
-    {style_css}
-    html, body {{ height: 100%; margin: 6px; padding: 6px; }}
-    body {{ font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, \"Apple Color Emoji\", \"Segoe UI Emoji\"; }}
-    .top-bar {{ position: sticky; top: 0; z-index: 5; background: #ffffff; border-bottom: 1px solid #e5e5e5; padding: 8px 12px; display: flex; gap: 16px; align-items: baseline; }}
-    .top-bar .title {{ font-weight: 600; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace; }}
-    .top-bar .hash {{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace; color: #555; font-size: 12px; }}
-    .container {{ display: flex; height: calc(100vh - 44px); overflow: hidden; }}
-    .pane {{ overflow: auto; }}
-    .pane-header {{ position: sticky; top: 0; z-index: 2; background: #f6f8fa; border-bottom: 1px solid #e5e5e5; padding: 6px 8px; font-weight: 600; font-size: 16px; text-align: left; }}
-    .pane .code-wrap {{ padding: 8px; }}
-    .left {{ border-right: 1px solid #ddd; flex: 0 0 30%; max-width: 30%; font-size: 12px; }}
-    .right {{ flex: 1 1 70%; }}
-    .relations {{ width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 12px; }}
-    .relations th, .relations td {{ border-bottom: 1px solid #eee; padding: 4px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
-    .relations thead th {{ position: sticky; top: 0; background: #f8f8f8; z-index: 1; }}
-    .relations thead th:nth-child(1), .relations thead th:nth-child(2) {{ text-align: left; }}
-    .relations thead th:nth-child(3), .relations thead th:nth-child(4) {{ text-align: center; }}
-    .mono {{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace; }}
-    .center {{ text-align: center; }}
-    .rel-row:hover {{ background: #f0f7ff; cursor: pointer; }}
-    .highlight-table {{ width: 100%; border-collapse: collapse; }}
-    .highlight-table td {{ vertical-align: top; }}
-    .highlight-table .linenos {{ user-select: none; background: #f8f8f8; color: #999; }}
-    a {{ color: #aaa; text-decoration: none; font-size: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }}
-    a:visited {{ color: #aaa; text-decoration: none; }}
-    a:hover {{ color: #666; text-decoration: none; }}
-    a:focus, a:active {{ color: #666; text-decoration: none; }}
-    .highlight-table pre {{ margin: 0; }}
-    .highlight-table td.code, .highlight-table .code, .highlight-table pre {{ text-align: left !important; }}
-    [id^="LC-"] .hl {{ background: #fff3bf; display: block; }}
-    #code-pane {{ padding: 0; }}
+  
+        {style_css}
+      
+        #code-pane {{
+            padding: 0;
+        }}
+        
+        .container {{
+            display: flex;
+            height: calc(100vh - 44px);
+            overflow: hidden;
+        }}
+
+        .hash {{
+            color: #505050;
+            font-size: 12px;
+            padding: 0 0 0 24px;
+        }}
+                        
+        .highlight-table {{
+            border-collapse: collapse;
+            width: 100%;
+        }}
+        
+        .highlight-table .linenos {{
+            background: #f8f8f8;
+            color: #909090;
+        }}
+        
+        .highlight-table pre {{
+            margin: 0;
+        }}
+        
+        .highlight-table td {{
+            vertical-align: top;
+        }}
+        
+        .highlight-table td.code,
+        .highlight-table .code,
+        .highlight-table pre {{
+            text-align: left !important;
+        }}
+        
+        .left {{
+            border-right: 1px solid #d0d0d0;
+            flex: 0 0 30%;
+            font-size: 12px;
+            max-width: 30%;
+        }}
+        
+        .pane {{
+            overflow: auto;
+        }}
+        
+        .pane .code-wrap {{
+            padding: 8px;
+        }}
+        
+        .pane-header {{
+            background: #e0e0e0;
+            border-bottom: 1px solid #e5e5e5;
+            font-size: 16px;
+            font-weight: 600;
+            padding: 12px 6px 12px 6px;
+            position: sticky;
+            text-align: left;
+            text-decoration: underline;
+            top: 0;
+            z-index: 2;
+        }}
+        
+        .rel-row:hover {{
+            background: #fff3bf;
+            cursor: pointer;
+        }}
+        
+        .relations {{
+            border-collapse: collapse;
+            font-size: 12px;
+            table-layout: fixed;
+            width: 100%;
+        }}
+        
+        .relations th,
+        .relations td {{
+            border-bottom: 1px solid #e0e0e0;
+            overflow: hidden;
+            padding: 4px 6px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }}
+        
+        .relations thead th {{
+            background: #f0f0f0;
+            position: sticky;
+            text-decoration: underline;
+            top: 0;
+            z-index: 1;
+        }}
+        
+        .relations thead th:nth-child(1),
+        .relations thead th:nth-child(2) {{
+            text-align: left;
+        }}
+        
+        .relations thead th:nth-child(3),
+        .relations thead th:nth-child(4),
+        .center {{
+            text-align: center;
+        }}
+        
+        .right {{
+            flex: 1 1 70%;
+        }}
+                
+        .title {{
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: underline;
+        }}
+        
+        .top-bar {{
+            align-items: baseline;
+            background: #ffffff;
+            border-bottom: 1px solid #e5e5e5;
+            display: flex;
+            padding: 0 6px 8px 6px;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }}
+        
+        /* [id^="LC-"] .hl {{
+            background: #fff3bf;
+            display: block;
+        }} */
+        
+        a {{
+            color: #a0a0a0;
+            font-size: 12px;
+            text-decoration: none;
+        }}
+        
+        a:hover,
+        a:focus,
+        a:active {{
+            color: #606060;
+        }}
+        
+        a:visited {{
+            color: #a0a0a0;
+        }}
+        
+        body {{
+            font-family: monospace;
+        }}
+        
+        html,
+        body {{
+            height: 100%;
+            margin: 3px 6px 3px 6px;
+            padding: 3px 6px 3px 6px;
+        }}
+        
   </style>
 </head>
 <body>
@@ -259,6 +389,6 @@ def main() -> None:
 
     sha256_hex = hashlib.sha256(code.encode("utf-8")).hexdigest()
 
-    title = f"{rust_path.name} — relations"
+    title = f"{rust_path.name} relations"
     html = build_html(code_html, style_css, relations, title, rust_path.name, sha256_hex)
     print(html)
