@@ -88,12 +88,16 @@ def build_html(code_html: str, style_css: str, relations: List[Relation], title:
 <!doctype html>
 <html lang=\"en\">
 <head>
-  <meta charset=\"utf-8\" />
-  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
-  <title>{title}</title>
-  <style>
+    <meta charset=\"utf-8\" />
+    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
+    <title>{title}</title>
+    <style>
   
         {style_css}
+      
+        ::selection {{
+            background: #cceeff;
+        }}
       
         #code-pane {{
             padding: 0;
@@ -106,7 +110,7 @@ def build_html(code_html: str, style_css: str, relations: List[Relation], title:
         }}
 
         .hash {{
-            color: #505050;
+            color: #555;
             font-size: 12px;
             padding: 0 0 0 24px;
         }}
@@ -118,7 +122,7 @@ def build_html(code_html: str, style_css: str, relations: List[Relation], title:
         
         .highlight-table .linenos {{
             background: #f8f8f8;
-            color: #909090;
+            color: #999;
         }}
         
         .highlight-table pre {{
@@ -136,7 +140,7 @@ def build_html(code_html: str, style_css: str, relations: List[Relation], title:
         }}
         
         .left {{
-            border-right: 1px solid #d0d0d0;
+            border-right: 1px solid #ddd;
             flex: 0 0 30%;
             font-size: 12px;
             max-width: 30%;
@@ -164,7 +168,7 @@ def build_html(code_html: str, style_css: str, relations: List[Relation], title:
         }}
         
         .rel-row:hover {{
-            background: #fff3bf;
+            background: #fff7b3;
             cursor: pointer;
         }}
         
@@ -177,7 +181,7 @@ def build_html(code_html: str, style_css: str, relations: List[Relation], title:
         
         .relations th,
         .relations td {{
-            border-bottom: 1px solid #e0e0e0;
+            border-bottom: 1px solid #eee;
             overflow: hidden;
             padding: 4px 6px;
             text-overflow: ellipsis;
@@ -187,8 +191,7 @@ def build_html(code_html: str, style_css: str, relations: List[Relation], title:
         .relations thead th {{
             background: #f0f0f0;
             position: sticky;
-            text-decoration: underline;
-            top: 0;
+            top: 44px;
             z-index: 1;
         }}
         
@@ -224,10 +227,10 @@ def build_html(code_html: str, style_css: str, relations: List[Relation], title:
             z-index: 5;
         }}
         
-        /* [id^="LC-"] .hl {{
+        [id^="LC-"] .hl {{
             background: #fff3bf;
             display: block;
-        }} */
+        }}
         
         a {{
             color: #a0a0a0;
@@ -256,118 +259,125 @@ def build_html(code_html: str, style_css: str, relations: List[Relation], title:
             padding: 3px 6px 3px 6px;
         }}
         
-  </style>
+    </style>
 </head>
 <body>
-  <div class=\"top-bar\">\n    <span class=\"title\">{filename}</span>\n    <span class=\"hash\">SHA256: {sha256_hex}</span>\n  </div>
-  <div class=\"container\">
-    <div class=\"pane left\" id=\"left-pane\">\n      <div class=\"pane-header\">Relations</div>
-      {table_html}
+    <div class=\"top-bar\">
+        <span class=\"title\">{filename}</span>
+        <span class=\"hash\">SHA256: {sha256_hex}</span>
     </div>
-    <div class=\"pane right\" id=\"code-pane\">\n      <div class=\"pane-header\">Source</div>\n      <div class=\"code-wrap\">
-      {code_html}
+    <div class=\"container\">
+    <div class=\"pane left\" id=\"left-pane\">
+        <div class=\"pane-header\">Relations</div>
+            {table_html}
+        </div>
+        <div class=\"pane right\" id=\"code-pane\">
+        <div class=\"pane-header\">Source</div>
+        <div class=\"code-wrap\">
+            {code_html}
+        </div>
     </div>
-  </div>
-  <script>
-    (function() {{
-      const codePane = document.getElementById('code-pane');
-      function lineEl(n) {{
-        // Prefer per-line code span generated via Pygments lines-pans
-        const span = document.getElementById(`LC-${{n}}`);
-        if (span) return span;
-        // Fallback: try to find the table row (older output formats)
-        const a = document.getElementById(`L-${{n}}`);
-        if (!a) return null;
-        let el = a;
-        while (el && el.tagName !== 'TR') el = el.parentElement;
-        return el;
-      }}
-      function clearSelection() {{
-        const sel = window.getSelection && window.getSelection();
-        if (sel && sel.removeAllRanges) sel.removeAllRanges();
-        // Also remove any legacy CSS highlights if present
-        document.querySelectorAll('.highlight-table tr.hl').forEach(tr => tr.classList.remove('hl'));
-        document.querySelectorAll('[id^="LC-"] .hl').forEach(el => el.classList.remove('hl'));
-      }}
-      function textPositionInLine(spanEl, col) {{
-        // Map a column offset (0-based) within the line's plain text to a specific text node and offset
-        // If col is undefined/null, return start of line for start positions and end for end via caller.
-        try {{
-          let remaining = Math.max(0, Number(col) || 0);
-          const walker = document.createTreeWalker(spanEl, NodeFilter.SHOW_TEXT, null);
-          let lastText = null;
-          while (walker.nextNode()) {{
-            const node = walker.currentNode;
-            const len = node.textContent.length;
-            lastText = node;
-            if (remaining <= len) {{
-              return {{ node, offset: remaining }};
+    <script>
+        (function() {{
+
+            const codePane = document.getElementById('code-pane');
+            
+            function lineElement(n) {{
+                const span = document.getElementById(`LC-${{n}}`);
+                if (span) return span;
+                const a = document.getElementById(`L-${{n}}`);
+                if (!a) return null;
+                let el = a;
+                while (el && el.tagName !== 'TR') el = el.parentElement;
+                return el;
             }}
-            remaining -= len;
-          }}
-          if (lastText) return {{ node: lastText, offset: lastText.textContent.length }};
-        }} catch (_) {{}}
-        return null;
-      }}
-      function endOfLine(spanEl) {{
-        const walker = document.createTreeWalker(spanEl, NodeFilter.SHOW_TEXT, null);
-        let lastText = null;
-        while (walker.nextNode()) lastText = walker.currentNode;
-        if (lastText) return {{ node: lastText, offset: lastText.textContent.length }};
-        // fallback to element itself
-        return {{ node: spanEl, offset: spanEl.childNodes.length }};
-      }}
-      function selectRange(sLine, sCol, eLine, eCol) {{
-        clearSelection();
-        let startLine = Math.min(sLine, eLine);
-        let endLine = Math.max(sLine, eLine);
-        let startCol = (startLine === sLine) ? sCol : eCol;
-        let endCol = (endLine === eLine) ? eCol : sCol;
 
-        const startSpan = lineEl(startLine);
-        const endSpan = lineEl(endLine);
-        if (!startSpan || !endSpan) return;
+            function clearSelection() {{
+                const sel = window.getSelection && window.getSelection();
+                if (sel && sel.removeAllRanges) sel.removeAllRanges();
+                document.querySelectorAll('.highlight-table tr.hl').forEach(tr => tr.classList.remove('hl'));
+                document.querySelectorAll('[id^="LC-"] .hl').forEach(el => el.classList.remove('hl'));
+            }}
 
-        let startPos = textPositionInLine(startSpan, startCol);
-        if (!startPos) startPos = {{ node: startSpan, offset: 0 }};
+            function textPositionInLine(spanEl, col) {{
+            // Map a column offset (0-based) within the line's plain text to a specific text node and offset
+            // If col is undefined/null, return start of line for start positions and end for end via caller.
+            try {{
+                let remaining = Math.max(0, Number(col) || 0);
+                const walker = document.createTreeWalker(spanEl, NodeFilter.SHOW_TEXT, null);
+                let lastText = null;
+                while (walker.nextNode()) {{
+                const node = walker.currentNode;
+                const len = node.textContent.length;
+                lastText = node;
+                if (remaining <= len) {{
+                    return {{ node, offset: remaining }};
+                }}
+                remaining -= len;
+                }}
+                if (lastText) return {{ node: lastText, offset: lastText.textContent.length }};
+            }} catch (_) {{}}
+            return null;
+            }}
+            function endOfLine(spanEl) {{
+            const walker = document.createTreeWalker(spanEl, NodeFilter.SHOW_TEXT, null);
+            let lastText = null;
+            while (walker.nextNode()) lastText = walker.currentNode;
+            if (lastText) return {{ node: lastText, offset: lastText.textContent.length }};
+            // fallback to element itself
+            return {{ node: spanEl, offset: spanEl.childNodes.length }};
+            }}
+            function selectRange(sLine, sCol, eLine, eCol) {{
+            clearSelection();
+            let startLine = Math.min(sLine, eLine);
+            let endLine = Math.max(sLine, eLine);
+            let startCol = (startLine === sLine) ? sCol : eCol;
+            let endCol = (endLine === eLine) ? eCol : sCol;
 
-        let endPos = textPositionInLine(endSpan, endCol);
-        if (!endPos) endPos = endOfLine(endSpan);
+            const startSpan = lineElement(startLine);
+            const endSpan = lineElement(endLine);
+            if (!startSpan || !endSpan) return;
 
-        const range = document.createRange();
-        range.setStart(startPos.node, startPos.offset);
-        range.setEnd(endPos.node, endPos.offset);
+            let startPos = textPositionInLine(startSpan, startCol);
+            if (!startPos) startPos = {{ node: startSpan, offset: 0 }};
 
-        const sel = window.getSelection && window.getSelection();
-        if (sel && sel.removeAllRanges) {{
-          sel.removeAllRanges();
-          sel.addRange(range);
-        }}
-        startSpan.scrollIntoView({{ block: 'center' }});
-      }}
-      document.querySelectorAll('.rel-row').forEach(row => {{
-        row.addEventListener('click', () => {{
-          const start = parseInt(row.dataset.start, 10);
-          const end = parseInt(row.dataset.end, 10);
-          const startCol = parseInt(row.dataset.startCol, 10);
-          const endCol = parseInt(row.dataset.endCol, 10);
-          selectRange(start, startCol, end, endCol);
-        }});
-      }});
+            let endPos = textPositionInLine(endSpan, endCol);
+            if (!endPos) endPos = endOfLine(endSpan);
 
-      // Optional: support deep-linking via hash '#L-<start>,<end>'
-      function parseHash() {{
-        if (!location.hash) return null;
-        const m = location.hash.slice(1).match(/^L-(\\d+)(?:,(\\d+))?$/);
-        if (!m) return null;
-        const s = parseInt(m[1], 10);
-        const e = m[2] ? parseInt(m[2], 10) : s;
-        return [s, e];
-      }}
-      const rng = parseHash();
-      if (rng) selectRange(rng[0], 0, rng[1], Number.MAX_SAFE_INTEGER);
-    }})();
-  </script>
+            const range = document.createRange();
+            range.setStart(startPos.node, startPos.offset);
+            range.setEnd(endPos.node, endPos.offset);
+
+            const sel = window.getSelection && window.getSelection();
+            if (sel && sel.removeAllRanges) {{
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }}
+            startSpan.scrollIntoView({{ block: 'center' }});
+            }}
+            document.querySelectorAll('.rel-row').forEach(row => {{
+            row.addEventListener('click', () => {{
+                const start = parseInt(row.dataset.start, 10);
+                const end = parseInt(row.dataset.end, 10);
+                const startCol = parseInt(row.dataset.startCol, 10);
+                const endCol = parseInt(row.dataset.endCol, 10);
+                selectRange(start, startCol, end, endCol);
+            }});
+            }});
+
+            // Optional: support deep-linking via hash '#L-<start>,<end>'
+            function parseHash() {{
+            if (!location.hash) return null;
+            const m = location.hash.slice(1).match(/^L-(\\d+)(?:,(\\d+))?$/);
+            if (!m) return null;
+            const s = parseInt(m[1], 10);
+            const e = m[2] ? parseInt(m[2], 10) : s;
+            return [s, e];
+            }}
+            const rng = parseHash();
+            if (rng) selectRange(rng[0], 0, rng[1], Number.MAX_SAFE_INTEGER);
+        }})();
+    </script>
 </body>
 </html>
 """
