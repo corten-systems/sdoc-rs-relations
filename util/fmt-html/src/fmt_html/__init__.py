@@ -57,7 +57,8 @@ def render_code_html(code: str) -> tuple[str, str]:
     lexer = RustLexer()
     formatter = HtmlFormatter(
         linenos="table",  # table with a separate line number column
-        lineanchors="L",  # id="L-<line>" on each line number
+        lineanchors="L",  # id="L-<line>" on each line number (left column)
+        linespans="LC",   # wrap each code line in <span id="LC-<line>">...</span>
         anchorlinenos=True,
         noclasses=False,  # emit CSS classes; we'll inject CSS styles
     )
@@ -114,8 +115,7 @@ def build_html(code_html: str, style_css: str, relations: List[Relation], title:
     .center {{ text-align: center; }}
     .rel-row:hover {{ background: #f0f7ff; cursor: pointer; }}
 
-    /* Highlight selected code rows */
-    .hl {{ background: #fff3bf !important; }}
+    /* Highlight selected code rows: applied via row-specific rule below */
 
     /* Make the pygments table span full width */
     .highlighttable {{ width: 100%; border-collapse: collapse; }}
@@ -125,8 +125,8 @@ def build_html(code_html: str, style_css: str, relations: List[Relation], title:
     /* Ensure code text is left-aligned and not justified */
     .highlighttable td.code, .highlighttable .code, .highlighttable pre {{ text-align: left !important; }}
 
-    /* Make each table row highlightable by adding class to its tr */
-    .highlighttable tr.hl > td {{ background: #fff3bf; }}
+    /* Highlight individual code lines when class 'hl' is set on their line span */
+    [id^="LC-"] .hl {{ background: #fff3bf; display: block; }}
 
     /* Code pane padding */
     #code-pane {{ padding: 8px; }}
@@ -144,24 +144,33 @@ def build_html(code_html: str, style_css: str, relations: List[Relation], title:
   <script>
     (function() {{
       const codePane = document.getElementById('code-pane');
-      function trForLine(n) {{
+      function lineEl(n) {{
+        // Prefer per-line code span generated via Pygments linespans
+        const span = document.getElementById(`LC-${{n}}`);
+        if (span) return span;
+        // Fallback: try to find the table row (older output formats)
         const a = document.getElementById(`L-${{n}}`);
         if (!a) return null;
-        // anchor is usually inside the left linenos cell's <pre>, then up to td -> tr
         let el = a;
         while (el && el.tagName !== 'TR') el = el.parentElement;
         return el;
       }}
       function clearHighlights() {{
+        // Remove highlights from per-line spans (preferred)
+        document.querySelectorAll('[id^="LC-"]\.hl').forEach(el => el.classList.remove('hl'));
+        // And also from legacy table-row based highlight (fallback)
         document.querySelectorAll('.highlighttable tr.hl').forEach(tr => tr.classList.remove('hl'));
       }}
       function highlightRange(start, end) {{
         clearHighlights();
-        for (let n = start; n <= end; n++) {{
-          const tr = trForLine(n);
-          if (tr) tr.classList.add('hl');
+        // normalize range
+        let s = Math.min(start, end);
+        let e = Math.max(start, end);
+        for (let n = s; n <= e; n++) {{
+          const el = lineEl(n);
+          if (el) el.classList.add('hl');
         }}
-        const first = trForLine(start);
+        const first = lineEl(s);
         if (first) first.scrollIntoView({{block: 'center'}});
       }}
       document.querySelectorAll('.rel-row').forEach(row => {{
