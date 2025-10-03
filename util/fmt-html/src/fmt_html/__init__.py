@@ -349,33 +349,40 @@ def build_html(code_html: str, style_css: str, relations: List[Relation], title:
                 startSpan.scrollIntoView({{
                     behavior: 'smooth',
                     block: 'center',
-                    container: 'nearest',
                     inline: 'center'
                 }});
 
             }}
 
-            document.querySelectorAll('.rel-row').forEach(row => {{
-                row.addEventListener('click', () => {{
-                    const start = parseInt(row.dataset.start, 10);
-                    const end = parseInt(row.dataset.end, 10);
-                    const startCol = parseInt(row.dataset.startCol, 10);
-                    const endCol = parseInt(row.dataset.endCol, 10);
-                    selectRange(start, startCol, end, endCol);
-                }});
-            }});
-
-            function parseAnchor() {{
-                if (!location.hash) return null;
-                const m = location.hash.slice(1).match(/^L-(\\d+)(?:,(\\d+))?$/);
-                if (!m) return null;
-                const s = parseInt(m[1], 10);
-                const e = m[2] ? parseInt(m[2], 10) : s;
-                return [s, e];
+            function scrollToAnchor() {{
+                if (!location.hash) return;
+                const match = location.hash.slice(1).match(/^L-(\\d+)$/);
+                if (!match) return;
+                const line = parseInt(match[1], 10);
+                const span = lineElement(line);
+                if (!span) return null;
+                span.scrollIntoView({{
+                    behavior: 'smooth',
+                    block: 'center',
+                    inline: 'center'
+                }});    
             }}
 
-            const anchor = parseAnchor();
-            if (anchor) selectRange(anchor[0], 0, anchor[1], Number.MAX_SAFE_INTEGER);
+            document.addEventListener('DOMContentLoaded', function() {{
+            
+                document.querySelectorAll('.rel-row').forEach(row => {{
+                    row.addEventListener('click', () => {{
+                        const start = parseInt(row.dataset.start, 10);
+                        const end = parseInt(row.dataset.end, 10);
+                        const startCol = parseInt(row.dataset.startCol, 10);
+                        const endCol = parseInt(row.dataset.endCol, 10);
+                        selectRange(start, startCol, end, endCol);
+                    }});
+                }});
+    
+                scrollToAnchor();
+                
+            }});
 
         }})();
     </script>
