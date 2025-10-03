@@ -127,6 +127,10 @@ def build_html(code_html: str, style_css: str, relations: List[Relation], title:
     .highlighttable {{ width: 100%; border-collapse: collapse; }}
     .highlighttable td {{ vertical-align: top; }}
     .highlighttable .linenos {{ user-select: none; background: #f8f8f8; color: #999; }}
+    .highlighttable .linenos a {{ color: #aaa; text-decoration: none; font-size: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }}
+    .highlighttable .linenos a:visited {{ color: #aaa; text-decoration: none; }}
+    .highlighttable .linenos a:hover {{ color: #666; text-decoration: none; }}
+    .highlighttable .linenos a:focus, .highlighttable .linenos a:active {{ color: #666; text-decoration: none; }}
     .highlighttable pre {{ margin: 0; }}
     /* Ensure code text is left-aligned and not justified */
     .highlighttable td.code, .highlighttable .code, .highlighttable pre {{ text-align: left !important; }}
