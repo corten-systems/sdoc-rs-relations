@@ -26,8 +26,8 @@ class Relation:
     span: Span
 
 
-def load_relations(json_path: Path) -> List[Relation]:
-    data = json.loads(json_path.read_text())
+def load_relations(path: Path) -> List[Relation]:
+    data = json.loads(path.read_text())
     # File format is an array; take all objects' relations
     relations: List[Relation] = []
     for obj in data:
@@ -108,7 +108,7 @@ def build_html(code_html: str, style_css: str, relations: List[Relation], title:
         }}
 
         .hash {{
-            color: #505050;
+            color: #909090;
             font-size: 12px;
             padding: 0 0 0 24px;
         }}
@@ -405,15 +405,14 @@ def main() -> None:
     parser.add_argument("json_file", type=Path, help="Path to the relations JSON file")
     args = parser.parse_args()
 
-    rust_path: Path = args.rust_file
-    json_path: Path = args.json_file
+    rust_file_bytes = args.rust_file.read_bytes()
+    rust_file_hash = hashlib.sha256(rust_file_bytes).hexdigest()
+    rust_code = rust_file_bytes.decode("utf-8")
 
-    code = rust_path.read_text()
-    relations = load_relations(json_path)
-    code_html, style_css = render_code_html(code)
+    relations = load_relations(args.json_file)
+    code_html, style_css = render_code_html(rust_code)
 
-    sha256_hex = hashlib.sha256(code.encode("utf-8")).hexdigest()
 
-    title = f"{rust_path.name} relations"
-    html = build_html(code_html, style_css, relations, title, rust_path.name, sha256_hex)
+    title = f"{args.rust_file.name} relations"
+    html = build_html(code_html, style_css, relations, title, args.rust_file.name, rust_file_hash)
     print(html)
