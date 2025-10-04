@@ -3,7 +3,7 @@ revision = 3
 requires-python = ">=3.13"
 
 [[package]]
-name = "fmt-html"
+name = "sdoc-rs-html"
 version = "1.0.0"
 source = { editable = "." }
 dependencies = [
