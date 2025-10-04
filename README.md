@@ -6,3 +6,7 @@ FIXME [![Crates.io](https://img.shields.io/crates/d/path-munge)](https://crates.
 FIXME ![Release Workflow](https://img.shields.io/github/actions/workflow/status/adfernandes/path-munge/release.yml)
 
 Parse Rust source trees for [StrictDoc](https://strictdoc.readthedocs.io/) `@relation` markers to yield JSON source code spans.
+
+TODO
+
+Example `HTML` output is in the [`python/sdoc-rs-html/examples/html`](python/sdoc-rs-html/examples/html) directory. If you're viewing the repository in a web browser, you will need to **download** or **clone** those files to your local computer to view them.
