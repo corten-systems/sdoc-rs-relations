@@ -31,4 +31,4 @@ requires = ["uv_build>=0.8.22,<0.9.0"]
 build-backend = "uv_build"
 
 [project.urls]
-Repository = "https://github.com/corten-systems/sdoc-rs-relations"
+Repository = "https://github.com/corten-systems/sdoc-rs-relations/demo/sdoc-rs-html"

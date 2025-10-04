@@ -9,4 +9,4 @@ Parse Rust source trees for [StrictDoc](https://strictdoc.readthedocs.io/) `@rel
 
 TODO
 
-Example `HTML` output is in the [`python/sdoc-rs-html/examples/html`](python/sdoc-rs-html/examples/html) directory. If you're viewing the repository in a web browser, you will need to **download** or **clone** those files to your local computer to view them.
+Example `HTML` output is in the [`demo/sdoc-rs-html/examples/html`](demo/sdoc-rs-html/examples/html) directory. If you're viewing the repository in a web browser, you will need to **download** or **clone** those files to your local computer to view them.
