@@ -1,6 +1,6 @@
 use anyhow::{bail, Result};
 
-use autumnus::{formatter::Formatter, languages::Language, themes, HtmlInlineBuilder};
+use autumnus::{formatter::Formatter, languages::Language, HtmlLinkedBuilder};
 
 use quick_xml::events::{BytesText, Event};
 use quick_xml::reader::Reader;
@@ -13,8 +13,8 @@ use std::io::Cursor;
 var range = document.createRange();
 var sel = window.getSelection();
 
-var span_start = document.querySelector('pre.athl.code-block span.location[data-line="3"][data-column="4"]');
-var span_end =   document.querySelector('pre.athl.code-block span.location[data-line="3"][data-column="12"]');
+var span_start = document.querySelector('pre.athl.code span.location[data-line="3"][data-column="4"]');
+var span_end =   document.querySelector('pre.athl.code span.location[data-line="3"][data-column="12"]');
 
 sel.removeAllRanges();
 range.setStart(span_start, 0);
@@ -24,14 +24,10 @@ sel.addRange(range);
  */
 
 pub fn html_from(title: &str, input: &str) -> Result<String> {
-    let theme = themes::get("github_light_colorblind")?;
-
-    let formatter = HtmlInlineBuilder::new()
+    let formatter = HtmlLinkedBuilder::new()
         .source(input)
         .lang(Language::Rust)
-        .theme(Some(theme))
-        .pre_class(Some("code-block"))
-        .italic(true)
+        .pre_class(Some("code"))
         .build()?;
 
     let mut output = Vec::new();
@@ -40,8 +36,9 @@ pub fn html_from(title: &str, input: &str) -> Result<String> {
     let body = add_line_column_annotations(&code)?;
 
     let style = include_str!("html/style.css");
+    let theme = include_str!("html/theme/github_light_colorblind.css");
     let script = include_str!("html/script.js");
-    let html = format!(include_str!("html/file.html"), title, style, script, body);
+    let html = format!(include_str!("html/file.html"), title, theme, style, script, body);
 
     Ok(html)
 }
@@ -117,17 +114,17 @@ fn add_line_column_annotations(input: &str) -> Result<String> {
 
             Ok(Event::Start(event)) => {
                 match event.name().as_ref() {
-                    b"code" => { } // code-inside-pre is not valid html5
-                    b"div" => { } // div-inside-pre is not valid html5
-                    _ => writer.write_event(Event::Start(event))?
+                    b"code" => {} // code-inside-pre is not valid html5
+                    b"div" => {}  // div-inside-pre is not valid html5
+                    _ => writer.write_event(Event::Start(event))?,
                 }
             }
 
             Ok(Event::End(event)) => {
                 match event.name().as_ref() {
-                    b"code" => { } // code-inside-pre is not valid html5
-                    b"div" => { } // div-inside-pre is not valid html5
-                    _ => writer.write_event(Event::End(event))?
+                    b"code" => {} // code-inside-pre is not valid html5
+                    b"div" => {}  // div-inside-pre is not valid html5
+                    _ => writer.write_event(Event::End(event))?,
                 }
             }
 
