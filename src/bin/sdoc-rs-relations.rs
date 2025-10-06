@@ -9,9 +9,7 @@ use std::fs::File;
 use std::io::{self, BufRead, Write};
 use std::path::{Path, PathBuf};
 
-mod html;
-mod parse;
-mod sdoc;
+use sdoc_rs_relations::sdoc;
 
 #[derive(Debug, Parser)]
 #[command(version, about, long_about = None)]
