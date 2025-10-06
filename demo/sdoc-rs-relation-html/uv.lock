@@ -3,7 +3,7 @@ revision = 3
 requires-python = ">=3.13"
 
 [[package]]
-name = "sdoc-rs-html"
+name = "sdoc-rs-relation-html"
 version = "1.0.0"
 source = { editable = "." }
 dependencies = [

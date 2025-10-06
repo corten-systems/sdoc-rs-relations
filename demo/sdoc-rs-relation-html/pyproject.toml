@@ -1,5 +1,5 @@
 [project]
-name = "sdoc-rs-html"
+name = "sdoc-rs-relation-html"
 version = "1.0.0"
 description = "Formats the output of `sdoc-rs-relations` to highlight the original source code."
 keywords = ["strictdoc", "sdoc", "rust", "json", "html"]
@@ -24,11 +24,11 @@ dependencies = [
 ]
 
 [project.scripts]
-sdoc-rs-html = "sdoc_rs_html:main"
+sdoc-rs-relation-html = "sdoc_rs_html:main"
 
 [build-system]
 requires = ["uv_build>=0.8.22,<0.9.0"]
 build-backend = "uv_build"
 
 [project.urls]
-Repository = "https://github.com/corten-systems/sdoc-rs-relations/demo/sdoc-rs-html"
+Repository = "https://github.com/corten-systems/sdoc-rs-relations/demo/sdoc-rs-relation-html"
