@@ -24,7 +24,7 @@ dependencies = [
 ]
 
 [project.scripts]
-sdoc-rs-relation-html = "sdoc_rs_html:main"
+sdoc-rs-relation-html = "sdoc_rs_relation_html:main"
 
 [build-system]
 requires = ["uv_build>=0.8.22,<0.9.0"]
