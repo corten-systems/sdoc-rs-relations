@@ -8,13 +8,13 @@ use quick_xml::writer::Writer;
 
 use std::io::Cursor;
 
-/* TODO // FIXME all the columns, except the first, are one too large!
+/* TODO Add line numbers!
 
 var range = document.createRange();
 var sel = window.getSelection();
 
-var span_start = document.querySelector('span.location[data-line="3"][data-column="0"]');
-var span_end =   document.querySelector('span.location[data-line="3"][data-column="3"]');
+var span_start = document.querySelector('pre.athl.code-block span.location[data-line="3"][data-column="4"]');
+var span_end =   document.querySelector('pre.athl.code-block span.location[data-line="3"][data-column="12"]');
 
 sel.removeAllRanges();
 range.setStart(span_start, 0);
@@ -108,8 +108,8 @@ fn add_line_column_annotations(input: &str) -> Result<String> {
                         column = 0;
                     }
                     result.push(ch);
-                    column += 1;
                     result.push_str(&format!("<span class=\"location\" data-line=\"{}\" data-column=\"{}\"></span>", line, column));
+                    column += 1;
                 }
                 let event = BytesText::from_escaped(result);
                 writer.write_event(Event::Text(event))?;
