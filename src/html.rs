@@ -8,6 +8,21 @@ use quick_xml::writer::Writer;
 
 use std::io::Cursor;
 
+/* TODO // FIXME all the columns, except the first, are one too large!
+
+var range = document.createRange();
+var sel = window.getSelection();
+
+var span_start = document.querySelector('span.location[data-line="3"][data-column="0"]');
+var span_end =   document.querySelector('span.location[data-line="3"][data-column="3"]');
+
+sel.removeAllRanges();
+range.setStart(span_start, 0);
+range.setEnd(span_end, 0);
+sel.addRange(range);
+
+ */
+
 pub fn html_from(title: &str, input: &str) -> Result<String> {
     let theme = themes::get("github_light_colorblind")?;
 
@@ -84,7 +99,9 @@ fn add_line_column_annotations(input: &str) -> Result<String> {
             Ok(Event::Text(text)) => {
                 let text = text.html_content()?;
                 let mut result = String::new();
-                result.push_str(&format!("<span class=\"location\" data-line=\"{}\" data-column=\"{}\"></span>", line, column));
+                if line == 1 && column == 0 {
+                    result.push_str(&format!("<span class=\"location\" data-line=\"{}\" data-column=\"{}\"></span>", line, column));
+                }
                 for ch in text.chars() {
                     if ch == '\n' {
                         line += 1;
