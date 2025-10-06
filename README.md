@@ -7,9 +7,9 @@
 
 Parse Rust source trees for [StrictDoc](https://strictdoc.readthedocs.io/) `@relation` markers to yield JSON source code spans.
 
-If you're looking for the `sdoc-rs-relation-html` Python package, see [`demo/sdoc-rs-relation-html`](demo/sdoc-rs-relation-html).
+> _If you're looking for the `sdoc-rs-relation-html` Python package to demonstrate what the `html` output could look like, see the [`demo/sdoc-rs-relation-html`](demo/sdoc-rs-relation-html) subdirectory!_
 
-TODO
+TODO 
 
 ## Example Output
 
